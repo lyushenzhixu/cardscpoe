@@ -1,21 +1,18 @@
-//
-//  ContentView.swift
-//  cardscpoe
-//
-//  Created by reverse game on 2026/3/12.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var appState = AppState()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if appState.hasSeenOnboarding {
+                MainTabView()
+            } else {
+                OnboardingView()
+            }
         }
-        .padding()
+        .environment(appState)
+        .preferredColorScheme(.dark)
     }
 }
 
