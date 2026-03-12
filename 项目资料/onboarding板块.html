@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardScope — Nyx Design System</title>
+<style>
+:root{
+  --surface-primary:#000000;
+  --surface-secondary:rgb(18,18,23);
+  --surface-elevated:rgb(26,26,33);
+  --signal-primary:rgb(0,255,136);
+  --signal-warm:rgb(255,107,53);
+  --signal-tertiary:rgb(139,92,246);
+  --signal-gold:#F5C842;
+  --signal-gold-dim:rgba(245,200,66,0.15);
+  --text-primary:rgba(255,255,255,0.95);
+  --text-secondary:rgba(255,255,255,0.6);
+  --text-tertiary:rgba(255,255,255,0.4);
+  --border:rgb(26,26,36);
+  --border-subtle:rgba(26,26,36,0.5);
+  --font-display:34px;--font-title:22px;--font-headline:17px;
+  --font-body:15px;--font-caption:12px;--font-data:14px;
+  --xs:4px;--sm:8px;--md:16px;--lg:24px;--xl:32px;
+  --radius-sm:8px;--radius-md:14px;--radius-lg:20px;--radius-pill:999px;
+  --spring:cubic-bezier(0.34,1.56,0.64,1);--spring-duration:0.35s;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,SF Pro Display,SF Pro Text,system-ui,sans-serif;background:var(--surface-primary);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+.nyx-pressable{cursor:pointer;transition:transform var(--spring-duration) var(--spring),opacity .25s;-webkit-tap-highlight-color:transparent;user-select:none}
+.nyx-pressable:active{transform:scale(0.96);opacity:0.8}
+
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:14px var(--sm);display:flex;gap:var(--xs);justify-content:center;flex-wrap:wrap;background:rgba(0,0,0,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border-subtle)}
+.top-nav button{padding:var(--sm) var(--md);border-radius:var(--radius-sm);border:0.5px solid var(--border);background:var(--surface-primary);color:var(--text-tertiary);font-size:var(--font-caption);font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit;white-space:nowrap}
+.top-nav button.active{background:var(--signal-primary);color:#000;border-color:var(--signal-primary);box-shadow:0 0 12px rgba(0,255,136,0.2)}
+
+.screens-area{padding:72px 0 40px;display:flex;justify-content:center;flex-wrap:wrap;gap:40px;min-height:100vh;align-items:flex-start}
+.phone-wrap{display:none;flex-direction:column;align-items:center}
+.phone-wrap.active{display:flex}
+.phone-label{font-size:var(--font-caption);letter-spacing:2px;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:var(--md);font-weight:600;font-family:SF Mono,monospace}
+.phone-desc{font-size:var(--font-caption);color:var(--text-tertiary);margin-top:var(--md);max-width:340px;text-align:center;line-height:1.6}
+
+.iphone{width:340px;height:720px;background:#0a0a0a;border-radius:48px;padding:10px;position:relative;box-shadow:0 0 0 1.5px rgba(255,255,255,0.06),0 30px 80px rgba(0,0,0,0.8)}
+.iphone-inner{width:100%;height:100%;border-radius:40px;overflow:hidden;position:relative;background:var(--surface-primary)}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#0a0a0a;border-radius:0 0 20px 20px;z-index:50}
+.statusbar{position:relative;z-index:40;display:flex;justify-content:space-between;align-items:center;padding:14px 28px 0;font-size:14px;font-weight:600;color:var(--text-primary)}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(255,255,255,0.15);border-radius:3px;z-index:50}
+.scroll{height:calc(100% - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* Tab Bar */
+.tabbar{position:absolute;bottom:0;left:0;right:0;z-index:40;display:flex;align-items:flex-end;justify-content:space-around;padding:var(--sm) 10px 28px;background:var(--surface-secondary);border-top:0.5px solid var(--border)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--text-tertiary);font-weight:500;min-width:44px;min-height:44px;justify-content:center;cursor:pointer}
+.tab .ti{font-size:20px;transition:transform var(--spring-duration) var(--spring)}
+.tab.active{color:var(--text-primary)}
+.tab.active .ti{transform:scale(1.1)}
+.tab-center{width:52px;height:52px;border-radius:50%;background:var(--signal-primary);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:6px;position:relative;cursor:pointer;transition:transform var(--spring-duration) var(--spring)}
+.tab-center:active{transform:scale(0.92)}
+.tab-center::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(0,255,136,0.3);animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.12);opacity:0.15}}
+@keyframes scanY{0%{top:12%;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:85%;opacity:0}}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 20px rgba(0,255,136,0.08)}50%{box-shadow:0 0 40px rgba(0,255,136,0.15)}}
+@keyframes rotateIn{0%{transform:perspective(600px) rotateY(-15deg) scale(0.9);opacity:0}100%{transform:perspective(600px) rotateY(0) scale(1);opacity:1}}
+@keyframes slideUpFade{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes countUp{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ============================================================
+   ONBOARDING — Multi-step flow
+   ============================================================ */
+.onboard-container{height:100%;position:relative;overflow:hidden;background:var(--surface-primary)}
+.onboard-step{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .4s ease,transform .4s ease;transform:translateX(40px)}
+.onboard-step.active{opacity:1;pointer-events:auto;transform:translateX(0)}
+.onboard-step.exit-left{opacity:0;transform:translateX(-40px)}
+
+/* Shared onboard layout */
+.ob-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 var(--lg);text-align:center;position:relative}
+.ob-bottom{padding:0 var(--lg) 20px;position:relative;z-index:5}
+
+/* Glow orbs */
+.ob-glow{position:absolute;border-radius:50%;pointer-events:none}
+.ob-glow-green{width:240px;height:240px;background:radial-gradient(circle,rgba(0,255,136,0.05),transparent 70%)}
+.ob-glow-purple{width:200px;height:200px;background:radial-gradient(circle,rgba(139,92,246,0.05),transparent 70%)}
+.ob-glow-gold{width:200px;height:200px;background:radial-gradient(circle,rgba(245,200,66,0.05),transparent 70%)}
+
+/* Dots indicator */
+.ob-dots{display:flex;gap:var(--sm);justify-content:center;margin-bottom:var(--lg)}
+.ob-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.1);transition:all .35s var(--spring)}
+.ob-dot.on{width:24px;border-radius:3px;background:var(--signal-primary)}
+
+/* CTA */
+.ob-cta{width:100%;padding:var(--md);border-radius:var(--radius-md);background:var(--signal-primary);color:#000;font-size:var(--font-headline);font-weight:700;border:none;position:relative;overflow:hidden;margin-bottom:var(--sm)}
+.ob-cta::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);animation:shimmer 3.5s infinite}
+.ob-cta-secondary{width:100%;padding:var(--md);border-radius:var(--radius-md);background:transparent;color:var(--text-tertiary);font-size:var(--font-body);font-weight:600;border:none;text-align:center}
+
+/* OB Title */
+.ob-title{font-size:28px;font-weight:700;line-height:1.2;margin-bottom:var(--sm)}
+.ob-title .hl-green{color:var(--signal-primary)}
+.ob-title .hl-gold{color:var(--signal-gold)}
+.ob-title .hl-purple{color:var(--signal-tertiary)}
+.ob-sub{font-size:var(--font-body);color:var(--text-secondary);line-height:1.6;margin-bottom:var(--lg)}
+
+/* --- Step 1: Scan --- */
+.ob-card-scan{
+  width:170px;height:238px;border-radius:var(--radius-md);
+  background:var(--surface-elevated);border:0.5px solid var(--border);
+  position:relative;display:flex;align-items:center;justify-content:center;
+  margin-bottom:var(--lg);
+  box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  animation:float 4s ease-in-out infinite;
+}
+.ob-card-scan .emoji{font-size:60px;position:relative;z-index:2}
+.ob-card-scan .scan-beam{
+  position:absolute;left:var(--sm);right:var(--sm);height:2px;
+  background:linear-gradient(90deg,transparent,var(--signal-primary),transparent);
+  border-radius:1px;animation:scanY 2.5s ease-in-out infinite;
+  box-shadow:0 0 12px rgba(0,255,136,0.4);
+}
+.ob-card-scan .corner{position:absolute;width:24px;height:24px}
+.ob-card-scan .corner svg{width:100%;height:100%}
+.ob-c-tl{top:6px;left:6px}.ob-c-tr{top:6px;right:6px}
+.ob-c-bl{bottom:6px;left:6px}.ob-c-br{bottom:6px;right:6px}
+
+/* --- Step 2: Value --- */
+.ob-price-display{
+  margin-bottom:var(--lg);display:flex;flex-direction:column;
+  align-items:center;gap:var(--md);width:100%;
+}
+.ob-price-card{
+  width:220px;padding:var(--lg);
+  border-radius:var(--radius-lg);
+  background:var(--surface-elevated);border:0.5px solid var(--border);
+  text-align:center;position:relative;overflow:hidden;
+  animation:glowPulse 3s ease-in-out infinite;
+}
+.ob-price-card .opc-player{font-size:40px;margin-bottom:var(--sm)}
+.ob-price-card .opc-name{font-size:var(--font-body);font-weight:700;margin-bottom:2px}
+.ob-price-card .opc-set{font-size:11px;color:var(--text-tertiary);margin-bottom:var(--md)}
+.ob-price-card .opc-price{font-size:32px;font-weight:900;font-family:SF Mono,monospace;color:var(--signal-gold)}
+.ob-price-card .opc-label{font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;margin-top:var(--xs)}
+.ob-price-card .opc-trend{
+  display:inline-flex;align-items:center;gap:var(--xs);
+  margin-top:var(--sm);padding:var(--xs) var(--sm);
+  border-radius:6px;background:rgba(0,255,136,0.08);
+  color:var(--signal-primary);font-size:var(--font-caption);font-weight:700;
+}
+.ob-price-tiers{display:flex;gap:var(--sm);width:100%;max-width:260px}
+.ob-tier{
+  flex:1;padding:12px var(--sm);border-radius:var(--radius-sm);
+  background:var(--surface-elevated);border:0.5px solid var(--border-subtle);
+  text-align:center;
+}
+.ob-tier .ot-grade{font-size:10px;color:var(--text-tertiary);font-weight:600;margin-bottom:var(--xs)}
+.ob-tier .ot-price{font-size:var(--font-data);font-weight:800;font-family:SF Mono,monospace}
+
+/* --- Step 3: Grade --- */
+.ob-grade-display{margin-bottom:var(--lg);position:relative}
+.ob-grade-card{
+  width:160px;height:224px;border-radius:var(--radius-md);
+  background:var(--surface-elevated);border:0.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;margin:0 auto var(--md);
+  box-shadow:0 16px 40px rgba(0,0,0,0.4);
+}
+.ob-grade-card .emoji{font-size:56px}
+.ob-grade-card .cm{position:absolute;width:16px;height:16px;border-radius:2px}
+.ob-grade-card .cm.c1{top:12px;left:12px;border-top:2px solid var(--signal-primary);border-left:2px solid var(--signal-primary)}
+.ob-grade-card .cm.c2{top:12px;right:12px;border-top:2px solid var(--signal-primary);border-right:2px solid var(--signal-primary)}
+.ob-grade-card .cm.c3{bottom:12px;left:12px;border-bottom:2px solid var(--signal-primary);border-left:2px solid var(--signal-primary)}
+.ob-grade-card .cm.c4{bottom:12px;right:12px;border-bottom:2px solid var(--signal-primary);border-right:2px solid var(--signal-primary)}
+.ob-grade-card .overlay{position:absolute;inset:0;border-radius:13px;background:linear-gradient(180deg,transparent 50%,rgba(0,255,136,0.04))}
+
+.ob-grade-badge{
+  display:inline-flex;align-items:center;gap:var(--sm);
+  padding:var(--sm) var(--md);border-radius:var(--radius-md);
+  background:var(--surface-elevated);border:0.5px solid var(--border);
+  margin:0 auto;
+}
+.ob-grade-badge .ogb-score{font-size:var(--font-title);font-weight:900;color:var(--signal-gold);font-family:SF Mono,monospace}
+.ob-grade-badge .ogb-label{font-size:var(--font-caption);color:var(--text-secondary);font-weight:600}
+.ob-grade-bars{display:flex;flex-direction:column;gap:var(--sm);width:100%;max-width:240px;margin-top:var(--md)}
+.ob-bar-row{display:flex;align-items:center;gap:var(--sm)}
+.ob-bar-row .obr-label{font-size:11px;color:var(--text-tertiary);width:64px;text-align:right;flex-shrink:0}
+.ob-bar-row .obr-track{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.04)}
+.ob-bar-row .obr-fill{height:100%;border-radius:2px}
+.ob-bar-row .obr-val{font-size:11px;font-weight:700;width:28px;font-family:SF Mono,monospace}
+
+/* --- Step 4: Collection --- */
+.ob-portfolio-display{margin-bottom:var(--lg);width:100%}
+.ob-portfolio-hero{
+  padding:var(--lg);border-radius:var(--radius-lg);
+  background:var(--surface-elevated);border:0.5px solid var(--border);
+  text-align:center;margin-bottom:var(--md);position:relative;overflow:hidden;
+}
+.ob-portfolio-hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  border-radius:50%;background:radial-gradient(circle,rgba(245,200,66,0.06),transparent);
+}
+.ob-portfolio-hero .oph-label{font-size:10px;color:var(--text-tertiary);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.ob-portfolio-hero .oph-value{font-size:36px;font-weight:900;font-family:SF Mono,monospace;color:var(--signal-gold);margin:var(--xs) 0}
+.ob-portfolio-hero .oph-change{display:inline-flex;align-items:center;gap:var(--xs);padding:var(--xs) var(--sm);border-radius:6px;background:rgba(0,255,136,0.08);color:var(--signal-primary);font-size:var(--font-caption);font-weight:700}
+
+.ob-mini-cards{display:flex;gap:var(--sm);justify-content:center}
+.ob-mini-card{
+  width:80px;border-radius:var(--radius-sm);overflow:hidden;
+  background:var(--surface-elevated);border:0.5px solid var(--border-subtle);
+}
+.ob-mini-card .omc-img{height:56px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--surface-secondary)}
+.ob-mini-card .omc-body{padding:6px}
+.ob-mini-card .omc-name{font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ob-mini-card .omc-price{font-size:10px;font-weight:800;font-family:SF Mono,monospace;color:var(--signal-gold);margin-top:2px}
+
+/* --- Step 5: Paywall --- */
+.ob-paywall{display:flex;flex-direction:column;height:100%;padding-top:44px}
+.ob-pw-scroll{flex:1;overflow-y:auto;padding:0 var(--lg)}
+.ob-pw-scroll::-webkit-scrollbar{display:none}
+.ob-pw-close{position:absolute;top:50px;right:var(--lg);font-size:var(--font-body);color:var(--text-tertiary);z-index:5;cursor:pointer}
+.ob-pw-crown{text-align:center;font-size:44px;margin:var(--sm) 0}
+.ob-pw-title{text-align:center;font-size:var(--font-title);font-weight:700;margin-bottom:var(--xs)}
+.ob-pw-sub{text-align:center;font-size:var(--font-body);color:var(--text-secondary);line-height:1.6;margin-bottom:var(--md)}
+.ob-pw-feats{margin-bottom:var(--md)}
+.ob-pw-feat{display:flex;gap:10px;align-items:center;padding:7px 0}
+.ob-pw-feat .fc{width:22px;height:22px;border-radius:50%;background:rgba(0,255,136,0.08);border:0.5px solid rgba(0,255,136,0.12);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--signal-primary);flex-shrink:0}
+.ob-pw-feat .ft{font-size:var(--font-body);color:var(--text-secondary)}
+.ob-pw-plans{display:flex;flex-direction:column;gap:var(--sm);margin-bottom:var(--md)}
+.ob-pw-plan{display:flex;align-items:center;gap:12px;padding:var(--md);border-radius:var(--radius-md);background:var(--surface-elevated);border:1.5px solid var(--border);position:relative;cursor:pointer;transition:all .3s}
+.ob-pw-plan.sel{border-color:var(--signal-primary);background:rgba(0,255,136,0.03)}
+.ob-pw-plan .radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--text-tertiary);flex-shrink:0;transition:all .3s}
+.ob-pw-plan.sel .radio{border-color:var(--signal-primary);background:radial-gradient(circle,var(--signal-primary) 38%,transparent 39%)}
+.ob-pw-plan .pi{flex:1}
+.ob-pw-plan .pn{font-size:var(--font-body);font-weight:700}
+.ob-pw-plan .pd{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.ob-pw-plan .pp{text-align:right}
+.ob-pw-plan .pa{font-size:var(--font-title);font-weight:800;font-family:SF Mono,monospace}
+.ob-pw-plan .pe{font-size:11px;color:var(--text-tertiary)}
+.ob-pw-plan .best{position:absolute;top:-9px;right:12px;padding:3px var(--sm);border-radius:4px;background:var(--signal-primary);color:#000;font-size:9px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase}
+.ob-pw-cta{width:100%;padding:var(--md);border-radius:var(--radius-md);background:var(--signal-primary);color:#000;font-size:var(--font-headline);font-weight:700;border:none;margin-bottom:var(--sm);position:relative;overflow:hidden}
+.ob-pw-cta::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);animation:shimmer 3.5s infinite}
+.ob-pw-legal{text-align:center;font-size:10px;color:var(--text-tertiary);line-height:1.5;margin-bottom:var(--xs)}
+.ob-pw-restore{text-align:center;font-size:11px;color:var(--text-tertiary);text-decoration:underline;padding-bottom:var(--md)}
+
+/* Social proof */
+.ob-social{
+  display:flex;align-items:center;justify-content:center;gap:var(--sm);
+  margin-bottom:var(--md);
+}
+.ob-social .stars{color:var(--signal-gold);font-size:13px;letter-spacing:1px}
+.ob-social .rating{font-size:var(--font-caption);color:var(--text-secondary);font-weight:600}
+.ob-social .users{font-size:var(--font-caption);color:var(--text-tertiary)}
+
+/* Review card */
+.ob-review{
+  padding:12px var(--md);border-radius:var(--radius-sm);
+  background:var(--surface-elevated);border:0.5px solid var(--border-subtle);
+  margin-bottom:var(--md);
+}
+.ob-review .orr-top{display:flex;align-items:center;gap:var(--sm);margin-bottom:var(--sm)}
+.ob-review .orr-avatar{width:28px;height:28px;border-radius:50%;background:var(--surface-secondary);display:flex;align-items:center;justify-content:center;font-size:14px}
+.ob-review .orr-name{font-size:var(--font-caption);font-weight:700}
+.ob-review .orr-stars{font-size:10px;color:var(--signal-gold)}
+.ob-review .orr-text{font-size:var(--font-caption);color:var(--text-secondary);line-height:1.5}
+
+/* ============================================================
+   REMAINING SCREENS (same as before, compressed)
+   ============================================================ */
+.s-home{background:var(--surface-primary);padding-bottom:90px}
+.s-home .header{padding:var(--sm) var(--md) var(--md);display:flex;justify-content:space-between;align-items:center}
+.s-home .logo{display:flex;align-items:center;gap:var(--sm);font-size:var(--font-headline);font-weight:700}
+.s-home .logo .icon{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--signal-primary);display:flex;align-items:center;justify-content:center;font-size:14px}
+.s-home .avatar{width:32px;height:32px;border-radius:50%;background:var(--surface-elevated);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px}
+.s-home .scan-hero{margin:0 var(--md) var(--md);padding:var(--lg);border-radius:var(--radius-lg);background:var(--surface-elevated);border:0.5px solid var(--border-subtle);position:relative;overflow:hidden}
+.s-home .scan-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,136,0.06),transparent)}
+.s-home .scan-hero h2{font-size:var(--font-title);font-weight:700;margin-bottom:var(--xs);position:relative;z-index:2}
+.s-home .scan-hero h2 .hl{color:var(--signal-primary)}
+.s-home .scan-hero p{font-size:var(--font-body);color:var(--text-secondary);margin-bottom:var(--md);position:relative;z-index:2}
+.s-home .scan-btn{display:inline-flex;align-items:center;gap:var(--sm);padding:10px var(--lg);border-radius:var(--radius-sm);background:var(--signal-primary);color:#000;font-size:var(--font-body);font-weight:700;position:relative;z-index:2}
+.s-home .stats{display:flex;gap:var(--sm);margin:0 var(--md) var(--md)}
+.s-home .stat{flex:1;padding:var(--md) var(--sm);text-align:center;background:var(--surface-elevated);border-radius:var(--radius-md);border:0.5px solid var(--border-subtle)}
+.s-home .stat .sn{font-size:var(--font-title);font-weight:800}
+.s-home .stat .sl{font-size:10px;color:var(--text-tertiary);margin-top:var(--xs);letter-spacing:0.5px;text-transform:uppercase}
+.s-home .sec-head{display:flex;justify-content:space-between;align-items:center;padding:0 var(--md);margin-bottom:var(--sm)}
+.s-home .sec-head h3{font-size:var(--font-headline);font-weight:600}
+.s-home .sec-head a{font-size:var(--font-caption);color:var(--signal-primary);font-weight:500}
+.card-item{display:flex;gap:12px;align-items:center;padding:10px var(--md);position:relative}
+.card-item+.card-item::before{content:'';position:absolute;top:0;left:var(--md);right:var(--md);height:0.5px;background:var(--border-subtle)}
+.card-thumb{width:48px;height:66px;border-radius:var(--radius-sm);background:var(--surface-elevated);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.card-info{flex:1}
+.card-info .cn{font-size:var(--font-body);font-weight:600}
+.card-info .cs{font-size:var(--font-caption);color:var(--text-tertiary);margin-top:2px}
+.card-val{text-align:right}
+.card-val .cv{font-size:var(--font-body);font-weight:700;font-family:SF Mono,monospace}
+.card-val .cc{font-size:11px;font-weight:600;margin-top:2px}
+
+/* Camera */
+.s-camera{height:100%;background:var(--surface-primary);position:relative}
+.s-camera .cam-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.s-camera .frame{width:248px;height:348px;position:relative}
+.s-camera .corner{position:absolute;width:32px;height:32px}
+.s-camera .corner svg{width:100%;height:100%}
+.c-tl{top:0;left:0}.c-tr{top:0;right:0}.c-bl{bottom:0;left:0}.c-br{bottom:0;right:0}
+.s-camera .beam{position:absolute;left:10px;right:10px;height:2px;background:linear-gradient(90deg,transparent,var(--signal-primary),transparent);border-radius:1px;animation:scanY 2.2s ease-in-out infinite;box-shadow:0 0 16px rgba(0,255,136,0.5)}
+.s-camera .inner-ph{position:absolute;inset:28px;border:1.5px dashed rgba(255,255,255,0.06);border-radius:var(--radius-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sm)}
+.s-camera .inner-ph .ip-i{font-size:36px;opacity:0.2}
+.s-camera .inner-ph .ip-t{font-size:var(--font-caption);color:var(--text-tertiary);font-weight:500}
+.s-camera .cam-top{position:absolute;top:48px;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:0 var(--md)}
+.s-camera .cbtn{width:40px;height:40px;border-radius:50%;background:var(--surface-elevated);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px}
+.s-camera .cam-pill{padding:6px 14px;border-radius:var(--radius-pill);background:var(--surface-elevated);border:0.5px solid var(--border);font-size:var(--font-caption);font-weight:600;color:var(--text-secondary)}
+.s-camera .cam-hint{position:absolute;bottom:150px;left:0;right:0;text-align:center;z-index:10;font-size:var(--font-body);color:var(--text-tertiary);font-weight:500}
+.s-camera .cam-hint span{color:var(--signal-primary)}
+.s-camera .cam-bottom{position:absolute;bottom:32px;left:0;right:0;z-index:10;display:flex;justify-content:space-around;align-items:center;padding:0 36px}
+.s-camera .gallery{width:44px;height:44px;border-radius:var(--radius-sm);background:var(--surface-elevated);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px}
+.s-camera .shutter{width:68px;height:68px;border-radius:50%;border:3px solid rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center}
+.s-camera .shutter .inner{width:54px;height:54px;border-radius:50%;background:var(--signal-primary);box-shadow:0 0 20px rgba(0,255,136,0.3)}
+.s-camera .modes{display:flex;gap:var(--xs)}
+.s-camera .mode{padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text-tertiary);background:var(--surface-elevated);border:0.5px solid var(--border)}
+.s-camera .mode.on{color:#000;background:var(--signal-primary);border-color:var(--signal-primary)}
+
+/* Result */
+.s-result{background:var(--surface-primary);padding-bottom:var(--lg)}
+.s-result .top-bar{display:flex;justify-content:space-between;align-items:center;padding:var(--sm) var(--md) 12px}
+.s-result .back{font-size:var(--font-body);color:var(--signal-primary);font-weight:600}
+.s-result .actions{display:flex;gap:12px;font-size:18px;color:var(--text-secondary)}
+.s-result .card-display{text-align:center;padding:0 var(--md) var(--md)}
+.s-result .card-3d{width:180px;height:252px;border-radius:var(--radius-md);margin:0 auto var(--md);background:var(--surface-elevated);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 16px 48px rgba(0,0,0,0.5);transform:perspective(800px) rotateY(-2deg)}
+.s-result .card-3d .emoji{font-size:64px}
+.s-result .card-3d .brand-tag{position:absolute;top:var(--sm);left:var(--sm);padding:3px var(--sm);border-radius:4px;background:rgba(255,255,255,0.06);font-size:10px;font-weight:700;color:var(--text-tertiary);letter-spacing:0.5px}
+.s-result .card-3d .grade-tag{position:absolute;top:var(--sm);right:var(--sm);padding:var(--xs) var(--sm);border-radius:6px;background:var(--signal-gold);color:#000;font-size:11px;font-weight:800}
+.s-result .card-3d .num-tag{position:absolute;bottom:var(--sm);right:var(--sm);font-size:11px;color:var(--text-tertiary);font-weight:600;font-family:SF Mono,monospace}
+.s-result .match-pill{display:inline-flex;align-items:center;gap:6px;padding:6px var(--md);border-radius:var(--radius-pill);background:rgba(0,255,136,0.08);border:0.5px solid rgba(0,255,136,0.15);color:var(--signal-primary);font-size:var(--font-caption);font-weight:700;font-family:SF Mono,monospace}
+.s-result .player-info{padding:var(--md) var(--md) 0;text-align:left}
+.s-result .player-info .name{font-size:var(--font-title);font-weight:700;margin-bottom:var(--xs)}
+.s-result .player-info .set{font-size:var(--font-caption);color:var(--text-secondary);margin-bottom:var(--md)}
+.s-result .chips{display:flex;flex-wrap:wrap;gap:var(--sm);padding:0 var(--md);margin-bottom:var(--md)}
+.s-result .chip{padding:6px 10px;border-radius:var(--radius-sm);background:var(--surface-elevated);border:0.5px solid var(--border-subtle);font-size:11px;font-weight:600}
+.s-result .chip .cl{color:var(--text-tertiary)}
+.s-result .chip .cv{color:var(--text-primary);margin-left:var(--xs)}
+.price-box{margin:0 var(--md) var(--md);padding:var(--md);border-radius:var(--radius-md);background:var(--surface-elevated);border:0.5px solid var(--border-subtle)}
+.price-box .pb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.price-box .pb-title{font-size:var(--font-body);font-weight:700;display:flex;align-items:center;gap:6px}
+.price-box .pb-live{font-size:10px;color:var(--signal-primary);font-weight:600;display:flex;align-items:center;gap:var(--xs)}
+.price-box .pb-live .dot{width:5px;height:5px;border-radius:50%;background:var(--signal-primary);animation:pulse 2s infinite}
+.prow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border-subtle)}
+.prow:last-child{border:none;padding-bottom:0}
+.prow .pl{font-size:var(--font-caption);color:var(--text-secondary)}
+.prow .pv{font-size:var(--font-data);font-weight:700;font-family:SF Mono,monospace}
+.demand-bar{margin:0 var(--md) var(--md);padding:12px var(--md);border-radius:var(--radius-sm);background:rgba(0,255,136,0.04);border:0.5px solid rgba(0,255,136,0.1);display:flex;justify-content:space-between;align-items:center}
+.demand-bar .dl{font-size:var(--font-caption);font-weight:700;color:var(--signal-primary)}
+.demand-bar .dr{font-size:11px;color:var(--text-tertiary)}
+.btn-row{display:flex;gap:var(--sm);padding:0 var(--md)}
+.btn-row>*{flex:1}
+.nyx-btn-primary{width:100%;padding:var(--md);border-radius:var(--radius-md);background:var(--signal-primary);color:#000;font-size:var(--font-headline);font-weight:700;border:none;text-align:center}
+.nyx-btn-secondary{width:100%;padding:var(--md);border-radius:var(--radius-md);background:var(--surface-elevated);color:var(--text-primary);font-size:var(--font-body);font-weight:600;border:0.5px solid var(--border);text-align:center}
+
+/* Collection */
+.s-coll{background:var(--surface-primary);padding-bottom:90px}
+.s-coll .hdr{padding:var(--sm) var(--md) var(--md)}
+.s-coll .hdr h2{font-size:var(--font-title);font-weight:700;margin-bottom:2px}
+.s-coll .hdr p{font-size:var(--font-caption);color:var(--text-tertiary)}
+.portfolio{margin:0 var(--md) var(--md);padding:var(--lg);border-radius:var(--radius-lg);background:var(--surface-elevated);border:0.5px solid var(--border)}
+.portfolio .plbl{font-size:10px;color:var(--text-tertiary);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.portfolio .pval{font-size:var(--font-display);font-weight:800;margin:var(--xs) 0 var(--sm);font-family:SF Mono,monospace;color:var(--signal-gold)}
+.portfolio .pchg{display:inline-block;padding:var(--xs) var(--sm);border-radius:6px;background:rgba(0,255,136,0.08);color:var(--signal-primary);font-size:var(--font-caption);font-weight:700}
+.port-row{display:flex;gap:var(--md);margin-top:var(--md);padding-top:var(--md);border-top:0.5px solid var(--border-subtle)}
+.port-item{flex:1;text-align:center}
+.port-item .pn{font-size:var(--font-title);font-weight:800}
+.port-item .pl2{font-size:10px;color:var(--text-tertiary);margin-top:2px}
+.filters{display:flex;gap:var(--sm);padding:0 var(--md);margin-bottom:var(--md);overflow-x:auto}
+.filters::-webkit-scrollbar{display:none}
+.ftab{white-space:nowrap;padding:var(--sm) var(--md);border-radius:var(--radius-sm);font-size:var(--font-caption);font-weight:600;color:var(--text-tertiary);background:var(--surface-elevated);border:0.5px solid var(--border-subtle)}
+.ftab.on{background:var(--signal-primary);color:#000;border-color:var(--signal-primary)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sm);padding:0 var(--md)}
+.gcard{border-radius:var(--radius-md);overflow:hidden;background:var(--surface-elevated);border:0.5px solid var(--border-subtle)}
+.gcard .gimg{height:110px;display:flex;align-items:center;justify-content:center;font-size:40px;background:var(--surface-secondary);position:relative}
+.gcard .gimg .mini-grade{position:absolute;top:var(--sm);right:var(--sm);padding:2px 6px;border-radius:4px;background:var(--signal-gold);color:#000;font-size:9px;font-weight:800}
+.gcard .gbody{padding:10px 12px}
+.gcard .gn{font-size:var(--font-caption);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcard .gs{font-size:10px;color:var(--text-tertiary);margin-top:2px}
+.gcard .gpr{display:flex;justify-content:space-between;align-items:center;margin-top:var(--sm)}
+.gcard .gp{font-size:var(--font-data);font-weight:800;font-family:SF Mono,monospace;color:var(--signal-gold)}
+.gcard .gc{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.gcard .gc.up{color:var(--signal-primary);background:rgba(0,255,136,0.08)}
+.gcard .gc.dn{color:var(--signal-warm);background:rgba(255,107,53,0.08)}
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <button class="active" onclick="show(0)">Onboarding</button>
+  <button onclick="show(1)">Home</button>
+  <button onclick="show(2)">Scanner</button>
+  <button onclick="show(3)">Result</button>
+  <button onclick="show(4)">Collection</button>
+</div>
+
+<div class="screens-area">
+
+<!-- ========== ONBOARDING (5-step flow) ========== -->
+<div class="phone-wrap active" data-i="0">
+<div class="phone-label">Onboarding Flow</div>
+<div class="iphone"><div class="iphone-inner">
+<div class="notch"></div>
+<div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+
+<div class="onboard-container" id="obContainer">
+
+  <!-- STEP 1: Scan -->
+  <div class="onboard-step active" data-step="0">
+    <div class="ob-content">
+      <div class="ob-glow ob-glow-green" style="top:12%;left:50%;transform:translateX(-50%)"></div>
+      <div class="ob-card-scan">
+        <div class="corner ob-c-tl"><svg viewBox="0 0 24 24"><path d="M3 24V5a2 2 0 012-2h19" fill="none" stroke="rgb(0,255,136)" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="corner ob-c-tr"><svg viewBox="0 0 24 24"><path d="M21 24V5a2 2 0 00-2-2H0" fill="none" stroke="rgb(0,255,136)" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="corner ob-c-bl"><svg viewBox="0 0 24 24"><path d="M3 0v19a2 2 0 002 2h19" fill="none" stroke="rgb(0,255,136)" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="corner ob-c-br"><svg viewBox="0 0 24 24"><path d="M21 0v19a2 2 0 01-2 2H0" fill="none" stroke="rgb(0,255,136)" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="scan-beam"></div>
+        <div class="emoji">🏀</div>
+      </div>
+      <div class="ob-title">Scan <span class="hl-green">Any Card</span><br>Instantly</div>
+      <div class="ob-sub">Point your camera at any sports card.<br>Our AI identifies it in under 2 seconds.</div>
+    </div>
+    <div class="ob-bottom">
+      <div class="ob-dots"><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+      <button class="ob-cta nyx-pressable" onclick="obNext()">Continue</button>
+      <button class="ob-cta-secondary" onclick="obGo(4)">Skip</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Value -->
+  <div class="onboard-step" data-step="1">
+    <div class="ob-content">
+      <div class="ob-glow ob-glow-gold" style="top:10%;left:50%;transform:translateX(-50%)"></div>
+      <div class="ob-price-display">
+        <div class="ob-price-card">
+          <div class="opc-player">⚾</div>
+          <div class="opc-name">Shohei Ohtani</div>
+          <div class="opc-set">2018 Topps Chrome #150 RC</div>
+          <div class="opc-price">$1,280</div>
+          <div class="opc-label">Current Market Value</div>
+          <div class="opc-trend">↑ 24.5% this month</div>
+        </div>
+        <div class="ob-price-tiers">
+          <div class="ob-tier">
+            <div class="ot-grade">Raw</div>
+            <div class="ot-price" style="color:var(--text-primary)">$320</div>
+          </div>
+          <div class="ob-tier">
+            <div class="ot-grade">PSA 9</div>
+            <div class="ot-price" style="color:var(--signal-tertiary)">$680</div>
+          </div>
+          <div class="ob-tier">
+            <div class="ot-grade">PSA 10</div>
+            <div class="ot-price" style="color:var(--signal-gold)">$1,280</div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-title">Know the <span class="hl-gold">Exact Value</span></div>
+      <div class="ob-sub">Real-time market prices based on<br>recent eBay sold comps. By grade.</div>
+    </div>
+    <div class="ob-bottom">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+      <button class="ob-cta nyx-pressable" onclick="obNext()">Continue</button>
+      <button class="ob-cta-secondary" onclick="obGo(4)">Skip</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Grade -->
+  <div class="onboard-step" data-step="2">
+    <div class="ob-content">
+      <div class="ob-glow ob-glow-purple" style="top:8%;left:50%;transform:translateX(-50%)"></div>
+      <div class="ob-grade-display">
+        <div class="ob-grade-card">
+          <div class="emoji">🏈</div>
+          <div class="overlay" style="position:absolute;inset:0;border-radius:13px;background:linear-gradient(180deg,transparent 50%,rgba(0,255,136,0.04))"></div>
+          <div class="cm c1"></div><div class="cm c2"></div><div class="cm c3"></div><div class="cm c4"></div>
+        </div>
+        <div class="ob-grade-badge">
+          <div>
+            <div class="ogb-label">AI Grade</div>
+            <div class="ogb-score">9.5</div>
+          </div>
+          <div style="width:0.5px;height:32px;background:var(--border)"></div>
+          <div>
+            <div class="ogb-label">Condition</div>
+            <div style="font-size:var(--font-body);font-weight:700;color:var(--signal-primary)">Gem Mint</div>
+          </div>
+        </div>
+        <div class="ob-grade-bars">
+          <div class="ob-bar-row">
+            <div class="obr-label">Centering</div>
+            <div class="obr-track"><div class="obr-fill" style="width:95%;background:var(--signal-primary)"></div></div>
+            <div class="obr-val" style="color:var(--signal-primary)">9.5</div>
+          </div>
+          <div class="ob-bar-row">
+            <div class="obr-label">Corners</div>
+            <div class="obr-track"><div class="obr-fill" style="width:100%;background:var(--signal-gold)"></div></div>
+            <div class="obr-val" style="color:var(--signal-gold)">10</div>
+          </div>
+          <div class="ob-bar-row">
+            <div class="obr-label">Edges</div>
+            <div class="obr-track"><div class="obr-fill" style="width:90%;background:var(--signal-tertiary)"></div></div>
+            <div class="obr-val" style="color:var(--signal-tertiary)">9.0</div>
+          </div>
+          <div class="ob-bar-row">
+            <div class="obr-label">Surface</div>
+            <div class="obr-track"><div class="obr-fill" style="width:95%;background:var(--signal-primary)"></div></div>
+            <div class="obr-val" style="color:var(--signal-primary)">9.5</div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-title">AI-Powered <span class="hl-purple">Grading</span></div>
+      <div class="ob-sub">Know if your card is worth grading<br>before spending $50+ at PSA.</div>
+    </div>
+    <div class="ob-bottom">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div></div>
+      <button class="ob-cta nyx-pressable" onclick="obNext()">Continue</button>
+      <button class="ob-cta-secondary" onclick="obGo(4)">Skip</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Collection -->
+  <div class="onboard-step" data-step="3">
+    <div class="ob-content">
+      <div class="ob-glow ob-glow-gold" style="top:8%;left:50%;transform:translateX(-50%)"></div>
+      <div class="ob-portfolio-display">
+        <div class="ob-portfolio-hero">
+          <div class="oph-label">Portfolio Value</div>
+          <div class="oph-value">$12,847</div>
+          <div class="oph-change">↑ $1,320 (+11.4%) this month</div>
+        </div>
+        <div class="ob-mini-cards">
+          <div class="ob-mini-card">
+            <div class="omc-img">🏀</div>
+            <div class="omc-body"><div class="omc-name">Luka Dončić</div><div class="omc-price">$485</div></div>
+          </div>
+          <div class="ob-mini-card">
+            <div class="omc-img">⚾</div>
+            <div class="omc-body"><div class="omc-name">Ohtani</div><div class="omc-price">$1,280</div></div>
+          </div>
+          <div class="ob-mini-card">
+            <div class="omc-img">🏈</div>
+            <div class="omc-body"><div class="omc-name">Mahomes</div><div class="omc-price">$210</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-title">Track Your <span class="hl-gold">Portfolio</span></div>
+      <div class="ob-sub">Monitor your collection's total value.<br>Get alerts when prices spike or drop.</div>
+    </div>
+    <div class="ob-bottom">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div></div>
+      <button class="ob-cta nyx-pressable" onclick="obNext()">Get Started</button>
+      <button class="ob-cta-secondary" onclick="obGo(4)">Skip</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Paywall -->
+  <div class="onboard-step" data-step="4">
+    <div class="ob-paywall">
+      <div class="ob-pw-close" onclick="obGo(0)">✕</div>
+      <div class="ob-pw-scroll">
+        <div class="ob-pw-crown">👑</div>
+        <div class="ob-pw-title">Unlock <span style="color:var(--signal-primary)">CardScope Pro</span></div>
+        <div class="ob-pw-sub">Unlimited scans, full market data,<br>and AI-powered grading insights</div>
+
+        <div class="ob-social">
+          <div class="stars">★★★★★</div>
+          <div class="rating">4.9</div>
+          <div class="users">· 50K+ collectors</div>
+        </div>
+
+        <div class="ob-pw-feats">
+          <div class="ob-pw-feat"><div class="fc">✓</div><div class="ft">Unlimited AI card identification</div></div>
+          <div class="ob-pw-feat"><div class="fc">✓</div><div class="ft">Full market prices by grade</div></div>
+          <div class="ob-pw-feat"><div class="fc">✓</div><div class="ft">Price history & trend charts</div></div>
+          <div class="ob-pw-feat"><div class="fc">✓</div><div class="ft">AI condition pre-grading</div></div>
+          <div class="ob-pw-feat"><div class="fc">✓</div><div class="ft">Unlimited collection & portfolio</div></div>
+          <div class="ob-pw-feat"><div class="fc">✓</div><div class="ft">Fake card detection</div></div>
+        </div>
+
+        <div class="ob-review">
+          <div class="orr-top">
+            <div class="orr-avatar">👨</div>
+            <div><div class="orr-name">Mike R.</div><div class="orr-stars">★★★★★</div></div>
+          </div>
+          <div class="orr-text">"Saved me from buying a $400 fake Prizm Silver. The AI grading feature alone is worth the subscription."</div>
+        </div>
+
+        <div class="ob-pw-plans">
+          <div class="ob-pw-plan" onclick="selPlan(this)">
+            <div class="radio"></div>
+            <div class="pi"><div class="pn">Monthly</div><div class="pd">Cancel anytime</div></div>
+            <div class="pp"><div class="pa">$7.99</div><div class="pe">/month</div></div>
+          </div>
+          <div class="ob-pw-plan sel" onclick="selPlan(this)">
+            <div class="best">BEST VALUE · SAVE 58%</div>
+            <div class="radio"></div>
+            <div class="pi"><div class="pn">Annual</div><div class="pd">3-day free trial</div></div>
+            <div class="pp"><div class="pa" style="color:var(--signal-primary)">$3.33</div><div class="pe">/month</div></div>
+          </div>
+        </div>
+
+        <button class="ob-pw-cta nyx-pressable">Start 3-Day Free Trial</button>
+        <div class="ob-pw-legal">After trial, auto-renews at $39.99/year. Cancel anytime in Settings.</div>
+        <div class="ob-pw-restore">Restore Purchase</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="homebar"></div>
+</div></div>
+<div class="phone-desc">
+  Complete 5-step onboarding flow: <b>Scan → Value → Grade → Portfolio → Paywall</b>.<br>
+  Click Continue to advance. Each step highlights a core value proposition.
+</div>
+</div>
+
+<!-- ========== HOME ========== -->
+<div class="phone-wrap" data-i="1">
+<div class="phone-label">Home</div>
+<div class="iphone"><div class="iphone-inner">
+<div class="notch"></div>
+<div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+<div class="scroll">
+<div class="s-home">
+  <div class="header"><div class="logo"><div class="icon">🃏</div>CardScope</div><div class="avatar">👤</div></div>
+  <div class="scan-hero nyx-pressable">
+    <h2>Identify Cards <span class="hl">Instantly</span></h2>
+    <p>Snap a photo to get player info & market value</p>
+    <div class="scan-btn">📷 Scan Now</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="sn" style="color:var(--signal-gold)">$4.8K</div><div class="sl">Total Value</div></div>
+    <div class="stat"><div class="sn">156</div><div class="sl">Cards</div></div>
+    <div class="stat"><div class="sn" style="color:var(--signal-primary)">+12.3%</div><div class="sl">This Month</div></div>
+  </div>
+  <div class="sec-head"><h3>Recently Scanned</h3><a>See All ›</a></div>
+  <div class="card-item nyx-pressable"><div class="card-thumb">🏀</div><div class="card-info"><div class="cn">Luka Dončić</div><div class="cs">2018 Prizm Silver #280 RC</div></div><div class="card-val"><div class="cv" style="color:var(--signal-primary)">$485</div><div class="cc" style="color:var(--signal-primary)">↑ 8.2%</div></div></div>
+  <div class="card-item nyx-pressable"><div class="card-thumb">⚾</div><div class="card-info"><div class="cn">Shohei Ohtani</div><div class="cs">2018 Topps Chrome #150</div></div><div class="card-val"><div class="cv" style="color:var(--signal-primary)">$320</div><div class="cc" style="color:var(--signal-primary)">↑ 15.1%</div></div></div>
+  <div class="card-item nyx-pressable"><div class="card-thumb">🏈</div><div class="card-info"><div class="cn">Patrick Mahomes</div><div class="cs">2017 Prizm Base #269</div></div><div class="card-val"><div class="cv" style="color:var(--signal-warm)">$210</div><div class="cc" style="color:var(--signal-warm)">↓ 3.4%</div></div></div>
+  <div class="card-item nyx-pressable"><div class="card-thumb">🏀</div><div class="card-info"><div class="cn">Victor Wembanyama</div><div class="cs">2023 Prizm Silver RC #275</div></div><div class="card-val"><div class="cv" style="color:var(--signal-primary)">$890</div><div class="cc" style="color:var(--signal-primary)">↑ 22.5%</div></div></div>
+  <div style="height:8px"></div>
+</div>
+</div>
+<div class="tabbar">
+  <div class="tab active"><div class="ti">🏠</div>Home</div>
+  <div class="tab"><div class="ti">🔍</div>Explore</div>
+  <div class="tab-center nyx-pressable">📷</div>
+  <div class="tab"><div class="ti">📁</div>Collection</div>
+  <div class="tab"><div class="ti">👤</div>Profile</div>
+</div>
+<div class="homebar"></div>
+</div></div>
+<div class="phone-desc">Home — L0 black bg, L2 elevated cards, 0.5px borders. Signal green CTA. Monospace data values.</div>
+</div>
+
+<!-- ========== SCANNER ========== -->
+<div class="phone-wrap" data-i="2">
+<div class="phone-label">Scanner</div>
+<div class="iphone"><div class="iphone-inner">
+<div class="notch"></div>
+<div class="s-camera">
+  <div class="cam-top"><div class="cbtn nyx-pressable">✕</div><div class="cam-pill">Card Scanner</div><div class="cbtn nyx-pressable">⚡</div></div>
+  <div class="cam-bg">
+    <div class="frame">
+      <div class="corner c-tl"><svg viewBox="0 0 32 32"><path d="M4 32V6a2 2 0 012-2h26" fill="none" stroke="rgb(0,255,136)" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="corner c-tr"><svg viewBox="0 0 32 32"><path d="M28 32V6a2 2 0 00-2-2H0" fill="none" stroke="rgb(0,255,136)" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="corner c-bl"><svg viewBox="0 0 32 32"><path d="M4 0v26a2 2 0 002 2h26" fill="none" stroke="rgb(0,255,136)" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="corner c-br"><svg viewBox="0 0 32 32"><path d="M28 0v26a2 2 0 01-2 2H0" fill="none" stroke="rgb(0,255,136)" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <div class="beam"></div>
+      <div class="inner-ph"><div class="ip-i">🃏</div><div class="ip-t">Place card in frame</div></div>
+    </div>
+  </div>
+  <div class="cam-hint">Auto-detect · <span>Good lighting</span></div>
+  <div class="cam-bottom">
+    <div class="gallery nyx-pressable">🖼️</div>
+    <div class="shutter nyx-pressable"><div class="inner"></div></div>
+    <div class="modes"><div class="mode on">Front</div><div class="mode">Back</div></div>
+  </div>
+</div>
+<div class="homebar"></div>
+</div></div>
+<div class="phone-desc">Scanner — Signal green frame + beam with glow. L2 elevated controls. 44pt+ touch targets.</div>
+</div>
+
+<!-- ========== RESULT ========== -->
+<div class="phone-wrap" data-i="3">
+<div class="phone-label">Result</div>
+<div class="iphone"><div class="iphone-inner">
+<div class="notch"></div>
+<div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+<div class="scroll">
+<div class="s-result">
+  <div class="top-bar"><div class="back nyx-pressable">‹ Rescan</div><div class="actions">↗ ♡</div></div>
+  <div class="card-display">
+    <div class="card-3d"><div class="brand-tag">PANINI</div><div class="grade-tag">PSA 10</div><div class="emoji">🏀</div><div class="num-tag">#280</div></div>
+    <div class="match-pill">✓ 97.3% match</div>
+  </div>
+  <div class="player-info"><div class="name">Luka Dončić</div><div class="set">2018-19 Panini Prizm Silver #280 · Rookie Card</div></div>
+  <div class="chips">
+    <div class="chip"><span class="cl">Brand</span><span class="cv">Panini</span></div>
+    <div class="chip"><span class="cl">Set</span><span class="cv">Prizm</span></div>
+    <div class="chip"><span class="cl">Year</span><span class="cv">2018</span></div>
+    <div class="chip"><span class="cl">Parallel</span><span class="cv">Silver</span></div>
+    <div class="chip"><span class="cl">Type</span><span class="cv">RC</span></div>
+  </div>
+  <div class="price-box">
+    <div class="pb-head"><div class="pb-title">💰 Market Price</div><div class="pb-live"><span class="dot"></span> Live</div></div>
+    <div class="prow"><span class="pl">Raw (Ungraded)</span><span class="pv">$180 – $250</span></div>
+    <div class="prow"><span class="pl">PSA 9 Mint</span><span class="pv" style="color:var(--signal-tertiary)">$380 – $450</span></div>
+    <div class="prow"><span class="pl">PSA 10 Gem Mint</span><span class="pv" style="color:var(--signal-gold)">$800 – $1,200</span></div>
+  </div>
+  <div class="demand-bar"><div class="dl">📈 Demand: On the Rise</div><div class="dr">Last 30 days</div></div>
+  <div class="btn-row"><button class="nyx-btn-primary nyx-pressable">Add to Collection</button><button class="nyx-btn-secondary nyx-pressable">Details</button></div>
+</div>
+</div>
+<div class="homebar"></div>
+</div></div>
+<div class="phone-desc">Result — L2 card, monospace data. Green match pill. Gold PSA 10. 3-tier price hierarchy.</div>
+</div>
+
+<!-- ========== COLLECTION ========== -->
+<div class="phone-wrap" data-i="4">
+<div class="phone-label">Collection</div>
+<div class="iphone"><div class="iphone-inner">
+<div class="notch"></div>
+<div class="statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+<div class="scroll">
+<div class="s-coll">
+  <div class="hdr"><h2>My Collection</h2><p>156 Cards · 8 Series</p></div>
+  <div class="portfolio">
+    <div class="plbl">Total Est. Value</div>
+    <div class="pval">$4,847</div>
+    <div class="pchg">↑ $532 (+12.3%) this month</div>
+    <div class="port-row">
+      <div class="port-item"><div class="pn">156</div><div class="pl2">Cards</div></div>
+      <div class="port-item"><div class="pn" style="color:var(--signal-gold)">23</div><div class="pl2">Players</div></div>
+      <div class="port-item"><div class="pn" style="color:var(--signal-primary)">8</div><div class="pl2">Series</div></div>
+    </div>
+  </div>
+  <div class="filters"><div class="ftab on">All</div><div class="ftab">🏀 NBA</div><div class="ftab">⚾ MLB</div><div class="ftab">🏈 NFL</div><div class="ftab">⚽ Soccer</div></div>
+  <div class="grid">
+    <div class="gcard nyx-pressable"><div class="gimg"><div class="mini-grade">PSA 10</div>🏀</div><div class="gbody"><div class="gn">Luka Dončić</div><div class="gs">2018 Prizm Silver RC</div><div class="gpr"><span class="gp">$485</span><span class="gc up">↑ 8%</span></div></div></div>
+    <div class="gcard nyx-pressable"><div class="gimg"><div class="mini-grade">PSA 9</div>⚾</div><div class="gbody"><div class="gn">Shohei Ohtani</div><div class="gs">2018 Chrome #150</div><div class="gpr"><span class="gp">$320</span><span class="gc up">↑ 15%</span></div></div></div>
+    <div class="gcard nyx-pressable"><div class="gimg">🏈</div><div class="gbody"><div class="gn">P. Mahomes</div><div class="gs">2017 Prizm #269</div><div class="gpr"><span class="gp">$210</span><span class="gc dn">↓ 3%</span></div></div></div>
+    <div class="gcard nyx-pressable"><div class="gimg"><div class="mini-grade">RC</div>🏀</div><div class="gbody"><div class="gn">Wembanyama</div><div class="gs">2023 Prizm Silver</div><div class="gpr"><span class="gp">$890</span><span class="gc up">↑ 23%</span></div></div></div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+</div>
+<div class="tabbar">
+  <div class="tab"><div class="ti">🏠</div>Home</div>
+  <div class="tab"><div class="ti">🔍</div>Explore</div>
+  <div class="tab-center nyx-pressable">📷</div>
+  <div class="tab active"><div class="ti">📁</div>Collection</div>
+  <div class="tab"><div class="ti">👤</div>Profile</div>
+</div>
+<div class="homebar"></div>
+</div></div>
+<div class="phone-desc">Collection — L2 portfolio card, monospace gold values. Signal green gains, warm losses.</div>
+</div>
+
+</div>
+
+<script>
+let currentOBStep = 0;
+const totalSteps = 5;
+
+function show(i){
+  document.querySelectorAll('.top-nav button').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.querySelectorAll('.phone-wrap').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+function obGo(step){
+  const steps=document.querySelectorAll('.onboard-step');
+  steps.forEach((s,i)=>{
+    s.classList.remove('active','exit-left');
+    if(i<step) s.classList.add('exit-left');
+    if(i===step) s.classList.add('active');
+  });
+  currentOBStep=step;
+}
+
+function obNext(){
+  if(currentOBStep<totalSteps-1){
+    obGo(currentOBStep+1);
+  }
+}
+
+function selPlan(el){
+  document.querySelectorAll('.ob-pw-plan').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+</script>
+</body>
+</html>
