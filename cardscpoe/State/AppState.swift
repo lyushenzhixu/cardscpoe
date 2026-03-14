@@ -32,6 +32,7 @@ final class AppState {
     var recentScans: [SportsCard] = []
     var trendingCards: [SportsCard] = []
     var trendingPlayers: [Player] = []
+    var popularSeries: [PopularSeries] = []
     var monthlyChange: Double = 0
 
     var totalValue: Int {
@@ -52,8 +53,9 @@ final class AppState {
     func refreshHomeData(context: ModelContext?) async {
         let cards = await CardService.shared.fetchAllCards(context: context)
         recentScans = Array(cards.prefix(6))
-        trendingCards = Array(cards.sorted(by: { $0.priceChange > $1.priceChange }).prefix(5))
+        trendingCards = await CardService.shared.fetchTrendingCards(context: context)
         trendingPlayers = await PlayerService.shared.fetchTrendingPlayers(context: context)
+        popularSeries = await CardService.shared.fetchPopularSeries()
         monthlyChange = await PriceService.shared.thisMonthGrowth(collection: cards)
     }
 

@@ -5,29 +5,25 @@ struct ExploreView: View {
     @State private var searchText = ""
 
     private var trendingCards: [SportsCard] {
-        let source = appState.trendingCards.isEmpty ? appState.recentScans : appState.trendingCards
-        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return source
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return appState.trendingCards
         }
-        return source.filter {
-            $0.playerName.localizedCaseInsensitiveContains(searchText)
-                || $0.brand.localizedCaseInsensitiveContains(searchText)
-                || $0.setName.localizedCaseInsensitiveContains(searchText)
+        return appState.trendingCards.filter {
+            $0.playerName.localizedCaseInsensitiveContains(trimmed)
+                || $0.brand.localizedCaseInsensitiveContains(trimmed)
+                || $0.setName.localizedCaseInsensitiveContains(trimmed)
         }
     }
 
     private var trendingPlayers: [Player] {
-        guard !appState.trendingPlayers.isEmpty else {
-            return trendingCards.map {
-                Player(name: $0.playerName, sport: $0.sport, team: $0.team, position: $0.position, headshotURL: $0.headshotURL)
-            }
-        }
-        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
             return appState.trendingPlayers
         }
         return appState.trendingPlayers.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText)
-                || $0.team.localizedCaseInsensitiveContains(searchText)
+            $0.name.localizedCaseInsensitiveContains(trimmed)
+                || $0.team.localizedCaseInsensitiveContains(trimmed)
         }
     }
 
@@ -209,18 +205,24 @@ struct ExploreView: View {
     }
 
     private var seriesData: [SeriesInfo] {
-        let source = appState.trendingCards.isEmpty ? appState.recentScans : appState.trendingCards
-        let grouped = Dictionary(grouping: source) { "\($0.brand) \($0.setName)" }
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let source: [PopularSeries]
+        if trimmed.isEmpty {
+            source = appState.popularSeries
+        } else {
+            source = appState.popularSeries.filter {
+                $0.brand.localizedCaseInsensitiveContains(trimmed)
+                    || $0.setName.localizedCaseInsensitiveContains(trimmed)
+                    || $0.year.localizedCaseInsensitiveContains(trimmed)
+            }
+        }
+
         let palettes: [(String, Color)] = [("💎", .purple), ("✨", .blue), ("🔥", .orange), ("🌀", .teal), ("⭐", .yellow)]
-        return grouped.keys.sorted().enumerated().map { index, key in
-            let cards = grouped[key] ?? []
-            let years = cards.map(\.year).sorted()
-            let minYear = years.first ?? "N/A"
-            let maxYear = years.last ?? "N/A"
+        return source.enumerated().map { index, series in
             let palette = palettes[index % palettes.count]
             return .init(
-                name: key,
-                subtitle: "\(minYear)-\(maxYear) · \(cards.count) cards",
+                name: series.displayName,
+                subtitle: series.subtitle,
                 emoji: palette.0,
                 color: palette.1
             )

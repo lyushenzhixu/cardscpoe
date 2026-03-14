@@ -218,6 +218,35 @@ struct Player: Identifiable, Codable, Hashable {
     }
 }
 
+struct PopularSeries: Identifiable, Codable, Hashable {
+    let id: String
+    let brand: String
+    let setName: String
+    let year: String
+    let cardCount: Int
+
+    init(
+        brand: String,
+        setName: String,
+        year: String,
+        cardCount: Int
+    ) {
+        self.brand = brand
+        self.setName = setName
+        self.year = year
+        self.cardCount = cardCount
+        self.id = "\(brand)-\(setName)-\(year)"
+    }
+
+    var displayName: String {
+        "\(brand) \(setName)"
+    }
+
+    var subtitle: String {
+        "\(year) · \(cardCount) cards"
+    }
+}
+
 struct PriceData: Codable, Hashable {
     let cardId: UUID
     let rawRange: ClosedRange<Int>

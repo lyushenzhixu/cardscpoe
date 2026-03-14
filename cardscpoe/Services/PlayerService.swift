@@ -30,6 +30,15 @@ private struct SportsDBResponse: Decodable {
     let player: [Entry]?
 }
 
+private struct TrendingPlayerRow: Decodable {
+    let playerId: UUID
+    let name: String
+    let sport: SportType
+    let team: String?
+    let position: String?
+    let headshotURL: String?
+}
+
 @MainActor
 final class PlayerService {
     static let shared = PlayerService()
@@ -41,21 +50,41 @@ final class PlayerService {
     private init() {}
 
     func fetchTrendingPlayers(context: ModelContext?) async -> [Player] {
-        let names = ["Luka Doncic", "Shohei Ohtani", "Patrick Mahomes", "Victor Wembanyama", "Jude Bellingham"]
-        var players: [Player] = []
-        for name in names {
-            if let player = await searchPlayer(name: name, sport: nil, context: context).first {
-                players.append(player)
+        // Database-driven only for Trending section.
+        if supabase.isConfigured {
+            do {
+                let rows: [TrendingPlayerRow] = try await supabase.select(
+                    table: "trending_players_view",
+                    columns: "player_id,name,sport,team,position,headshot_url",
+                    limit: 50
+                )
+                var seen = Set<UUID>()
+                let players = rows.compactMap { row -> Player? in
+                    guard !seen.contains(row.playerId) else { return nil }
+                    seen.insert(row.playerId)
+                    return Player(
+                        id: row.playerId,
+                        supabaseId: row.playerId,
+                        name: row.name,
+                        sport: row.sport,
+                        team: row.team ?? "Unknown Team",
+                        position: row.position ?? "Unknown",
+                        headshotURL: row.headshotURL.flatMap(URL.init(string:))
+                    )
+                }
+                if !players.isEmpty {
+                    if let context {
+                        try? cache.upsertPlayers(players, context: context)
+                    }
+                    return players
+                }
+            } catch {
+                #if DEBUG
+                print("[PlayerService] Failed to fetch trending_players_view: \(error.localizedDescription)")
+                #endif
             }
         }
-        if !players.isEmpty {
-            return players
-        }
-        return [
-            Player(name: "Luka Doncic", sport: .basketball, team: "Dallas Mavericks", position: "PG"),
-            Player(name: "Shohei Ohtani", sport: .baseball, team: "Los Angeles Dodgers", position: "DH"),
-            Player(name: "Patrick Mahomes", sport: .football, team: "Kansas City Chiefs", position: "QB"),
-        ]
+        return []
     }
 
     func searchPlayer(name: String, sport: SportType?, context: ModelContext?) async -> [Player] {

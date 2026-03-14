@@ -190,7 +190,7 @@ struct HomeView: View {
             sectionHeader(title: "Trending", action: "More ›")
                 .padding(.top, CSSpacing.md)
 
-            ForEach(appState.trendingCards.prefix(1)) { card in
+            ForEach(appState.trendingCards.prefix(3)) { card in
                 Button {
                     appState.selectedDetailCard = card
                     appState.showingDetail = true

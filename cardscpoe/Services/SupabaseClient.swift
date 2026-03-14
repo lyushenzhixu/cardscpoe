@@ -12,6 +12,11 @@ struct SupabaseQueryFilter {
     static func ilike(_ key: String, _ value: String) -> SupabaseQueryFilter {
         .init(key: key, value: value, op: "ilike")
     }
+
+    static func inValues(_ key: String, _ values: [String]) -> SupabaseQueryFilter {
+        let joined = values.joined(separator: ",")
+        return .init(key: key, value: "(\(joined))", op: "in")
+    }
 }
 
 final class SupabaseClient {
