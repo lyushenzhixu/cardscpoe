@@ -45,13 +45,13 @@ struct ProfileView: View {
                     .font(CSFont.headline(.bold))
 
                 HStack(spacing: CSSpacing.sm) {
-                    Text("Free Plan")
+                    Text(appState.subscription.planDisplayName)
                         .font(CSFont.caption(.semibold))
                         .foregroundStyle(CSColor.textTertiary)
                     Text("·")
                         .foregroundStyle(CSColor.textTertiary)
                     Button {
-                        appState.showingPaywall = true
+                        appState.presentPaywall(source: .profile)
                     } label: {
                         Text("Upgrade to Pro")
                             .font(CSFont.caption(.bold))
@@ -71,7 +71,7 @@ struct ProfileView: View {
         VStack(spacing: CSSpacing.md) {
             menuSection(title: "ACCOUNT", items: [
                 MenuItem(icon: "person.circle", title: "Account Settings"),
-                MenuItem(icon: "crown.fill", title: "Subscription", subtitle: "Free Plan", accentColor: CSColor.signalGold),
+                MenuItem(icon: "crown.fill", title: "Subscription", subtitle: appState.subscription.planDisplayName, accentColor: CSColor.signalGold),
                 MenuItem(icon: "bell.fill", title: "Notifications"),
             ])
 

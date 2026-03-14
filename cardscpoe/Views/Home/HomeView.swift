@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(AppState.self) private var appState
+    @State private var heroScrollOffset: CGFloat = 0
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -54,55 +55,72 @@ struct HomeView: View {
         Button {
             appState.showingScan = true
         } label: {
-            ZStack {
-                RoundedRectangle(cornerRadius: CSRadius.lg)
-                    .fill(CSColor.surfaceElevated)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: CSRadius.lg)
-                            .stroke(CSColor.borderSubtle, lineWidth: 0.5)
+            GeometryReader { geo in
+                ZStack {
+                    // 层1：自动滚动的 CollectionShowcase 图片
+                    Image("CollectionShowcase")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: max(geo.size.width * 2, 800), height: 220)
+                        .clipped()
+                        .offset(x: heroScrollOffset)
+
+                    // 层2：渐变遮罩，保证文字可读
+                    LinearGradient(
+                        colors: [
+                            Color.black.opacity(0.25),
+                            Color.black.opacity(0.5),
+                            Color.black.opacity(0.75)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
 
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [CSColor.signalPrimary.opacity(0.06), .clear],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: 80
-                        )
-                    )
-                    .frame(width: 160, height: 160)
-                    .offset(x: 60, y: -40)
+                    // 层3：金色粒子特效
+                    GoldSparkleOverlay()
 
-                VStack(alignment: .leading, spacing: CSSpacing.xs) {
-                    HStack {
-                        Text("Identify Cards ")
-                            .font(CSFont.title(.bold)) +
-                        Text("Instantly")
+                    // 层4：文字与居中按钮（限制在可见区域内并居中）
+                    VStack(alignment: .center, spacing: CSSpacing.sm) {
+                        Text("Identify Cards \(Text("Instantly").foregroundStyle(CSColor.signalPrimary))")
                             .font(CSFont.title(.bold))
-                            .foregroundColor(CSColor.signalPrimary)
-                    }
+                            .multilineTextAlignment(.center)
 
-                    Text("Snap a photo to get player info & market value")
-                        .font(CSFont.body())
-                        .foregroundStyle(CSColor.textSecondary)
-                        .padding(.bottom, CSSpacing.sm)
+                        Text("Snap a photo to get player info & market value")
+                            .font(CSFont.body())
+                            .foregroundStyle(CSColor.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, CSSpacing.lg)
 
-                    HStack(spacing: CSSpacing.sm) {
-                        Image(systemName: "camera.fill")
-                            .font(.system(size: 14))
-                        Text("Scan Now")
-                            .font(CSFont.body(.bold))
+                        HStack(spacing: CSSpacing.sm) {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 14))
+                            Text("Scan Now")
+                                .font(CSFont.body(.bold))
+                        }
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, CSSpacing.lg)
+                        .padding(.vertical, 10)
+                        .background(CSColor.signalPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
                     }
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, CSSpacing.lg)
-                    .padding(.vertical, 10)
-                    .background(CSColor.signalPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(CSSpacing.lg)
                 }
-                .padding(CSSpacing.lg)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(width: geo.size.width, height: geo.size.height)
+                .clipped()
+                .onAppear {
+                    let travel = geo.size.width
+                    withAnimation(.linear(duration: 12).repeatForever(autoreverses: true)) {
+                        heroScrollOffset = -travel
+                    }
+                }
             }
+            .frame(height: 220)
+            .clipShape(RoundedRectangle(cornerRadius: CSRadius.lg))
+            .overlay(
+                RoundedRectangle(cornerRadius: CSRadius.lg)
+                    .stroke(CSColor.borderSubtle, lineWidth: 0.5)
+            )
         }
         .buttonStyle(NyxPressableStyle())
         .padding(.horizontal, CSSpacing.md)
@@ -122,7 +140,7 @@ struct HomeView: View {
                 color: CSColor.textPrimary
             )
             statCard(
-                value: "+12.3%",
+                value: "\(appState.monthlyChange >= 0 ? "+" : "")\(String(format: "%.1f", appState.monthlyChange))%",
                 label: "THIS MONTH",
                 color: CSColor.signalPrimary
             )
@@ -172,7 +190,7 @@ struct HomeView: View {
             sectionHeader(title: "Trending", action: "More ›")
                 .padding(.top, CSSpacing.md)
 
-            ForEach([MockData.bellingham]) { card in
+            ForEach(appState.trendingCards.prefix(1)) { card in
                 Button {
                     appState.selectedDetailCard = card
                     appState.showingDetail = true

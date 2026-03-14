@@ -1,11 +1,15 @@
 import SwiftUI
+import SwiftData
 
 struct ScanView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var cameraManager = CameraManager()
     @State private var isAnalyzing = false
     @State private var showFlash = false
     @State private var selectedMode = 0
+    @State private var showingImagePicker = false
 
     var body: some View {
         ZStack {
@@ -24,18 +28,37 @@ struct ScanView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker { image in
+                Task { await processCapturedImage(image) }
+            }
+        }
+        .task {
+            await cameraManager.requestPermissionAndConfigure()
+            cameraManager.startSession()
+        }
+        .onDisappear {
+            cameraManager.stopSession()
+        }
     }
 
     private var cameraBackground: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.06, green: 0.06, blue: 0.12),
-                Color(red: 0.03, green: 0.03, blue: 0.08),
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+        Group {
+            if cameraManager.authorizationGranted {
+                CameraPreview(session: cameraManager.session)
+                    .ignoresSafeArea()
+            } else {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.06, green: 0.06, blue: 0.12),
+                        Color(red: 0.03, green: 0.03, blue: 0.08),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            }
+        }
     }
 
     private var topBar: some View {
@@ -101,14 +124,7 @@ struct ScanView: View {
                     .foregroundStyle(Color.white.opacity(0.06))
                     .frame(width: 200, height: 280)
 
-                VStack(spacing: CSSpacing.sm) {
-                    Image(systemName: "rectangle.portrait.on.rectangle.portrait.angled.fill")
-                        .font(.system(size: 36))
-                        .foregroundStyle(Color.white.opacity(0.15))
-                    Text("Place card in frame")
-                        .font(CSFont.caption(.medium))
-                        .foregroundStyle(CSColor.textTertiary)
-                }
+                placeholderOverlay
 
                 ViewfinderFrame(color: CSColor.signalPrimary)
                     .frame(width: 248, height: 348)
@@ -117,15 +133,38 @@ struct ScanView: View {
                     .frame(width: 230, height: 330)
             }
 
-            Text("Auto-detect · ")
+            Text("Auto-detect · \(Text("Good lighting").foregroundStyle(CSColor.signalPrimary))")
                 .font(CSFont.body(.medium))
-                .foregroundStyle(CSColor.textTertiary) +
-            Text("Good lighting")
-                .font(CSFont.body(.medium))
-                .foregroundStyle(CSColor.signalPrimary)
+                .foregroundStyle(CSColor.textTertiary)
 
             Spacer()
                 .frame(height: 140)
+        }
+    }
+
+    private var placeholderOverlay: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1.2)
+                .frame(width: 200, height: 280)
+
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
+                .foregroundStyle(Color.white.opacity(0.16))
+                .frame(width: 182, height: 262)
+
+            Image(systemName: "rectangle.stack.fill")
+                .font(.system(size: 42, weight: .light))
+                .foregroundStyle(Color.white.opacity(0.14))
+
+            VStack {
+                Spacer()
+                Text("Place card in frame")
+                    .font(CSFont.caption(.medium))
+                    .foregroundStyle(CSColor.textTertiary)
+                    .padding(.bottom, 10)
+            }
+            .frame(width: 200, height: 280)
         }
     }
 
@@ -135,7 +174,7 @@ struct ScanView: View {
 
             HStack {
                 Button {
-                    simulateGalleryPick()
+                    showingImagePicker = true
                 } label: {
                     Image(systemName: "photo.on.rectangle")
                         .font(.system(size: 18))
@@ -220,20 +259,29 @@ struct ScanView: View {
     }
 
     private func capturePhoto() {
-        isAnalyzing = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            isAnalyzing = false
-            appState.simulateScan()
-            dismiss()
+        Task {
+            isAnalyzing = true
+            if cameraManager.authorizationGranted {
+                if let image = try? await cameraManager.capturePhoto() {
+                    await processCapturedImage(image)
+                } else {
+                    appState.simulateScanNoResult()
+                    isAnalyzing = false
+                    dismiss()
+                }
+            } else {
+                appState.simulateScanNoResult()
+                isAnalyzing = false
+                dismiss()
+            }
         }
     }
 
-    private func simulateGalleryPick() {
+    @MainActor
+    private func processCapturedImage(_ image: UIImage) async {
         isAnalyzing = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isAnalyzing = false
-            appState.simulateScan()
-            dismiss()
-        }
+        await appState.scan(image: image, context: modelContext)
+        isAnalyzing = false
+        dismiss()
     }
 }

@@ -4,6 +4,33 @@ struct ExploreView: View {
     @Environment(AppState.self) private var appState
     @State private var searchText = ""
 
+    private var trendingCards: [SportsCard] {
+        let source = appState.trendingCards.isEmpty ? appState.recentScans : appState.trendingCards
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return source
+        }
+        return source.filter {
+            $0.playerName.localizedCaseInsensitiveContains(searchText)
+                || $0.brand.localizedCaseInsensitiveContains(searchText)
+                || $0.setName.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    private var trendingPlayers: [Player] {
+        guard !appState.trendingPlayers.isEmpty else {
+            return trendingCards.map {
+                Player(name: $0.playerName, sport: $0.sport, team: $0.team, position: $0.position, headshotURL: $0.headshotURL)
+            }
+        }
+        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return appState.trendingPlayers
+        }
+        return appState.trendingPlayers.filter {
+            $0.name.localizedCaseInsensitiveContains(searchText)
+                || $0.team.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -62,12 +89,14 @@ struct ExploreView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: CSSpacing.sm) {
-                    ForEach(MockData.allCards) { card in
+                    ForEach(Array(trendingPlayers.enumerated()), id: \.element.id) { index, player in
                         Button {
-                            appState.selectedDetailCard = card
-                            appState.showingDetail = true
+                            if let matchedCard = trendingCards.first(where: { $0.playerName.localizedCaseInsensitiveContains(player.name) }) {
+                                appState.selectedDetailCard = matchedCard
+                                appState.showingDetail = true
+                            }
                         } label: {
-                            trendingPlayerCard(card)
+                            trendingPlayerCard(player, index: index)
                         }
                         .buttonStyle(NyxPressableStyle())
                     }
@@ -78,37 +107,41 @@ struct ExploreView: View {
         }
     }
 
-    private func trendingPlayerCard(_ card: SportsCard) -> some View {
-        VStack(spacing: CSSpacing.sm) {
-            ZStack {
-                RoundedRectangle(cornerRadius: CSRadius.sm)
-                    .fill(
-                        LinearGradient(
-                            colors: card.sport.gradientColors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 100, height: 80)
+    private static let playerImageNames = ["Player1", "Player2", "Player3", "Player4", "Player5"]
 
-                Image(systemName: card.sport.icon)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundStyle(Color.white.opacity(0.5))
+    private func trendingPlayerCard(_ player: Player, index: Int) -> some View {
+        let matchedCard = trendingCards.first(where: { $0.playerName.localizedCaseInsensitiveContains(player.name) })
+        let imageName = Self.playerImageNames[index % Self.playerImageNames.count]
+        return VStack(spacing: CSSpacing.sm) {
+            if let url = player.headshotURL {
+                AsyncImage(url: url) { image in
+                    image.resizable().scaledToFill()
+                } placeholder: {
+                    Image(imageName).resizable().scaledToFill()
+                }
+                .frame(width: 100, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
+            } else {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 100, height: 80)
+                    .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
             }
 
-            Text(card.playerName)
+            Text(player.name)
                 .font(CSFont.caption(.bold))
                 .foregroundStyle(CSColor.textPrimary)
                 .lineLimit(1)
 
             HStack(spacing: CSSpacing.xs) {
-                Text("$\(card.currentPrice)")
+                Text("$\(matchedCard?.currentPrice ?? 0)")
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundStyle(CSColor.signalGold)
 
-                Text(card.priceChangeFormatted)
+                Text(matchedCard?.priceChangeFormatted ?? "0.0%")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(card.priceChange >= 0 ? CSColor.signalPrimary : CSColor.signalWarm)
+                    .foregroundStyle((matchedCard?.priceChange ?? 0) >= 0 ? CSColor.signalPrimary : CSColor.signalWarm)
             }
         }
         .frame(width: 100)
@@ -176,13 +209,22 @@ struct ExploreView: View {
     }
 
     private var seriesData: [SeriesInfo] {
-        [
-            .init(name: "Panini Prizm", subtitle: "2018-2024 · 120K+ cards", emoji: "💎", color: .purple),
-            .init(name: "Topps Chrome", subtitle: "2015-2024 · 95K+ cards", emoji: "✨", color: .blue),
-            .init(name: "Panini Select", subtitle: "2019-2024 · 80K+ cards", emoji: "🔥", color: .orange),
-            .init(name: "Panini Mosaic", subtitle: "2020-2024 · 60K+ cards", emoji: "🌀", color: .teal),
-            .init(name: "Donruss Optic", subtitle: "2017-2024 · 55K+ cards", emoji: "⭐", color: .yellow),
-        ]
+        let source = appState.trendingCards.isEmpty ? appState.recentScans : appState.trendingCards
+        let grouped = Dictionary(grouping: source) { "\($0.brand) \($0.setName)" }
+        let palettes: [(String, Color)] = [("💎", .purple), ("✨", .blue), ("🔥", .orange), ("🌀", .teal), ("⭐", .yellow)]
+        return grouped.keys.sorted().enumerated().map { index, key in
+            let cards = grouped[key] ?? []
+            let years = cards.map(\.year).sorted()
+            let minYear = years.first ?? "N/A"
+            let maxYear = years.last ?? "N/A"
+            let palette = palettes[index % palettes.count]
+            return .init(
+                name: key,
+                subtitle: "\(minYear)-\(maxYear) · \(cards.count) cards",
+                emoji: palette.0,
+                color: palette.1
+            )
+        }
     }
 }
 

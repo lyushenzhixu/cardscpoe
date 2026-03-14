@@ -1,0 +1,11 @@
+# Xcode
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Secrets
+cardscpoe/Config/Secrets.xcconfig
+
+# Supabase local
+supabase/.temp/

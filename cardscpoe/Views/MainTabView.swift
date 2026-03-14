@@ -33,6 +33,10 @@ struct MainTabView: View {
                 NavigationStack {
                     ScanResultView(card: card)
                 }
+            } else {
+                NavigationStack {
+                    CardNotFoundView()
+                }
             }
         }
         .sheet(isPresented: $state.showingDetail) {
@@ -43,7 +47,10 @@ struct MainTabView: View {
             }
         }
         .sheet(isPresented: $state.showingPaywall) {
-            PaywallView()
+            PaywallView(
+                source: appState.activePaywallSource,
+                variant: appState.subscription.paywallVariant
+            )
         }
         .sheet(isPresented: $state.showingGrade) {
             if let card = appState.gradeCard {
@@ -97,7 +104,9 @@ struct MainTabView: View {
 
     private var scanButton: some View {
         Button {
-            appState.showingScan = true
+            if appState.canStartScanFlow() {
+                appState.showingScan = true
+            }
         } label: {
             ZStack {
                 Circle()

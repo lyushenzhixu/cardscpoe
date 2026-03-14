@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct cardscpoeApp: App {
@@ -13,5 +14,10 @@ struct cardscpoeApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [
+            StoredCard.self,
+            StoredPlayer.self,
+            StoredScanHistory.self,
+        ])
     }
 }

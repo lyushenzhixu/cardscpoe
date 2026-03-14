@@ -1,11 +1,14 @@
 import SwiftUI
+import SwiftData
 
 struct ScanResultView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     let card: SportsCard
     @State private var isAddedToCollection = false
     @State private var showCheckmark = false
+    @State private var priceData: PriceData?
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -14,7 +17,12 @@ struct ScanResultView: View {
                 cardDisplay
                 playerInfo
                 chips
-                priceBox
+                if appState.subscription.hasFullValuation() {
+                    priceBox
+                } else {
+                    lockedPriceBox
+                }
+                ocrHint
                 demandBar
                 actionButtons
                 Spacer().frame(height: CSSpacing.lg)
@@ -22,6 +30,9 @@ struct ScanResultView: View {
         }
         .background(CSColor.surfacePrimary)
         .preferredColorScheme(.dark)
+        .task {
+            priceData = await PriceService.shared.fetchPriceData(for: card, context: modelContext)
+        }
     }
 
     private var topBar: some View {
@@ -60,6 +71,12 @@ struct ScanResultView: View {
 
     private var cardDisplay: some View {
         VStack(spacing: CSSpacing.md) {
+            Image("ScanSuccessState")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 320, maxHeight: 220)
+                .clipShape(RoundedRectangle(cornerRadius: CSRadius.md))
+
             CardArtView(card: card, size: .large)
                 .rotation3DEffect(.degrees(-2), axis: (x: 0, y: 1, z: 0))
 
@@ -146,9 +163,9 @@ struct ScanResultView: View {
             }
             .padding(.bottom, 12)
 
-            priceRow(label: "Raw (Ungraded)", price: "$\(card.rawPriceLow) – $\(card.rawPriceHigh)", color: CSColor.textPrimary)
-            priceRow(label: "PSA 9 Mint", price: "$\(card.psa9PriceLow) – $\(card.psa9PriceHigh)", color: CSColor.signalTertiary)
-            priceRow(label: "PSA 10 Gem Mint", price: "$\(card.psa10PriceLow) – $\(card.psa10PriceHigh)", color: CSColor.signalGold, isLast: true)
+            priceRow(label: "Raw (Ungraded)", price: "$\(rawRange.lowerBound) – $\(rawRange.upperBound)", color: CSColor.textPrimary)
+            priceRow(label: "PSA 9 Mint", price: "$\(psa9Range.lowerBound) – $\(psa9Range.upperBound)", color: CSColor.signalTertiary)
+            priceRow(label: "PSA 10 Gem Mint", price: "$\(psa10Range.lowerBound) – $\(psa10Range.upperBound)", color: CSColor.signalGold, isLast: true)
         }
         .nyxCard()
         .padding(.horizontal, CSSpacing.md)
@@ -200,9 +217,39 @@ struct ScanResultView: View {
         .padding(.bottom, CSSpacing.md)
     }
 
+    private var ocrHint: some View {
+        Group {
+            if let text = appState.latestExtractedText, !text.isEmpty {
+                HStack(alignment: .top, spacing: CSSpacing.sm) {
+                    Image(systemName: "text.viewfinder")
+                        .foregroundStyle(CSColor.signalPrimary)
+                    Text(text)
+                        .font(.system(size: 11))
+                        .foregroundStyle(CSColor.textTertiary)
+                        .lineLimit(3)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, CSSpacing.md)
+                .padding(.vertical, 10)
+                .background(CSColor.surfaceElevated)
+                .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CSRadius.sm)
+                        .stroke(CSColor.borderSubtle, lineWidth: 0.5)
+                )
+                .padding(.horizontal, CSSpacing.md)
+                .padding(.bottom, CSSpacing.md)
+            }
+        }
+    }
+
     private var actionButtons: some View {
         HStack(spacing: CSSpacing.sm) {
             Button {
+                if isCollectionLimitReached {
+                    appState.presentPaywall(source: .featureLimit)
+                    return
+                }
                 withAnimation(.spring(response: 0.3)) {
                     appState.addToCollection(card)
                     isAddedToCollection = true
@@ -212,7 +259,7 @@ struct ScanResultView: View {
                 HStack(spacing: CSSpacing.sm) {
                     Image(systemName: isAddedToCollection ? "checkmark" : "plus")
                         .font(.system(size: 14, weight: .bold))
-                    Text(isAddedToCollection ? "Added" : "Add to Collection")
+                    Text(addButtonTitle)
                 }
             }
             .buttonStyle(PrimaryButtonStyle())
@@ -229,6 +276,104 @@ struct ScanResultView: View {
             .buttonStyle(SecondaryButtonStyle())
         }
         .padding(.horizontal, CSSpacing.md)
+    }
+
+    private var lockedPriceBox: some View {
+        VStack(alignment: .leading, spacing: CSSpacing.sm) {
+            HStack(spacing: 6) {
+                Text("💰")
+                Text("Market Price (Pro)")
+                    .font(CSFont.body(.bold))
+            }
+
+            Text("Free plan shows basic card info only. Upgrade to unlock full valuation and trend data.")
+                .font(CSFont.caption())
+                .foregroundStyle(CSColor.textSecondary)
+
+            Button("Unlock Full Valuation") {
+                appState.presentPaywall(source: .valueUnlock)
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            .padding(.top, CSSpacing.xs)
+        }
+        .nyxCard()
+        .padding(.horizontal, CSSpacing.md)
+        .padding(.bottom, CSSpacing.md)
+    }
+
+    private var addButtonTitle: String {
+        if isAddedToCollection { return "Added" }
+        if isCollectionLimitReached { return "Free max: 20 cards" }
+        return "Add to Collection"
+    }
+
+    private var isCollectionLimitReached: Bool {
+        !appState.subscription.canAddToCollection(currentCount: appState.collectionCards.count)
+    }
+
+    private var rawRange: ClosedRange<Int> {
+        priceData?.rawRange ?? (card.rawPriceLow ... card.rawPriceHigh)
+    }
+
+    private var psa9Range: ClosedRange<Int> {
+        priceData?.psa9Range ?? (card.psa9PriceLow ... card.psa9PriceHigh)
+    }
+
+    private var psa10Range: ClosedRange<Int> {
+        priceData?.psa10Range ?? (card.psa10PriceLow ... card.psa10PriceHigh)
+    }
+}
+
+struct CardNotFoundView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var appState
+
+    var body: some View {
+        VStack(spacing: CSSpacing.xl) {
+            Spacer()
+            Image("CardNotFoundState")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 320)
+            Text("Card Not Found")
+                .font(CSFont.title(.bold))
+                .foregroundStyle(CSColor.textPrimary)
+            Text("We couldn’t identify this card. Try again with better lighting or a clearer photo.")
+                .font(CSFont.body())
+                .foregroundStyle(CSColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, CSSpacing.lg)
+            if let ocr = appState.latestExtractedText, !ocr.isEmpty {
+                HStack(alignment: .top, spacing: CSSpacing.sm) {
+                    Image(systemName: "text.viewfinder")
+                        .foregroundStyle(CSColor.signalPrimary)
+                    Text(ocr)
+                        .font(.system(size: 11))
+                        .foregroundStyle(CSColor.textTertiary)
+                        .lineLimit(4)
+                }
+                .padding(.horizontal, CSSpacing.md)
+                .padding(.vertical, 10)
+                .background(CSColor.surfaceElevated)
+                .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CSRadius.sm)
+                        .stroke(CSColor.borderSubtle, lineWidth: 0.5)
+                )
+                .padding(.horizontal, CSSpacing.lg)
+            }
+            Button {
+                appState.showingResult = false
+                appState.showingScan = true
+            } label: {
+                Text("Try Again")
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            .padding(.horizontal, CSSpacing.xl)
+            Spacer()
+        }
+        .background(CSColor.surfacePrimary)
+        .preferredColorScheme(.dark)
     }
 }
 

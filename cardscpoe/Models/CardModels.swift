@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum SportType: String, CaseIterable, Identifiable {
+enum SportType: String, CaseIterable, Identifiable, Codable {
     case basketball = "NBA"
     case baseball = "MLB"
     case football = "NFL"
@@ -36,8 +36,9 @@ enum SportType: String, CaseIterable, Identifiable {
     }
 }
 
-struct SportsCard: Identifiable {
-    let id = UUID()
+struct SportsCard: Identifiable, Codable, Hashable {
+    let id: UUID
+    let supabaseId: UUID?
     let playerName: String
     let team: String
     let position: String
@@ -58,6 +59,60 @@ struct SportsCard: Identifiable {
     let priceChange: Double
     let confidence: Double
     let grade: String?
+    let imageURL: URL?
+    let headshotURL: URL?
+
+    init(
+        id: UUID = UUID(),
+        supabaseId: UUID? = nil,
+        playerName: String,
+        team: String,
+        position: String,
+        sport: SportType,
+        brand: String,
+        setName: String,
+        year: String,
+        cardNumber: String,
+        parallel: String,
+        isRookie: Bool,
+        rawPriceLow: Int,
+        rawPriceHigh: Int,
+        psa9PriceLow: Int,
+        psa9PriceHigh: Int,
+        psa10PriceLow: Int,
+        psa10PriceHigh: Int,
+        currentPrice: Int,
+        priceChange: Double,
+        confidence: Double,
+        grade: String?,
+        imageURL: URL? = nil,
+        headshotURL: URL? = nil
+    ) {
+        self.id = id
+        self.supabaseId = supabaseId
+        self.playerName = playerName
+        self.team = team
+        self.position = position
+        self.sport = sport
+        self.brand = brand
+        self.setName = setName
+        self.year = year
+        self.cardNumber = cardNumber
+        self.parallel = parallel
+        self.isRookie = isRookie
+        self.rawPriceLow = rawPriceLow
+        self.rawPriceHigh = rawPriceHigh
+        self.psa9PriceLow = psa9PriceLow
+        self.psa9PriceHigh = psa9PriceHigh
+        self.psa10PriceLow = psa10PriceLow
+        self.psa10PriceHigh = psa10PriceHigh
+        self.currentPrice = currentPrice
+        self.priceChange = priceChange
+        self.confidence = confidence
+        self.grade = grade
+        self.imageURL = imageURL
+        self.headshotURL = headshotURL
+    }
 
     var priceChangeFormatted: String {
         let sign = priceChange >= 0 ? "+" : ""
@@ -77,19 +132,120 @@ struct SportsCard: Identifiable {
         let rc = isRookie ? " RC" : ""
         return "\(year) \(setName) \(parallel)\(rc)"
     }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case supabaseId = "supabase_id"
+        case playerName = "player_name"
+        case team
+        case position
+        case sport
+        case brand
+        case setName = "set_name"
+        case year
+        case cardNumber = "card_number"
+        case parallel
+        case isRookie = "is_rookie"
+        case rawPriceLow = "raw_price_low"
+        case rawPriceHigh = "raw_price_high"
+        case psa9PriceLow = "psa9_price_low"
+        case psa9PriceHigh = "psa9_price_high"
+        case psa10PriceLow = "psa10_price_low"
+        case psa10PriceHigh = "psa10_price_high"
+        case currentPrice = "current_price"
+        case priceChange = "price_change"
+        case confidence
+        case grade
+        case imageURL = "image_url"
+        case headshotURL = "headshot_url"
+    }
 }
 
-struct PriceHistoryPoint: Identifiable {
-    let id = UUID()
+struct PriceHistoryPoint: Identifiable, Codable, Hashable {
+    let id: UUID
     let month: String
     let value: Double
+
+    init(id: UUID = UUID(), month: String, value: Double) {
+        self.id = id
+        self.month = month
+        self.value = value
+    }
 }
 
-struct RecentSale: Identifiable {
-    let id = UUID()
+struct RecentSale: Identifiable, Codable, Hashable {
+    let id: UUID
     let grade: String
     let date: String
     let price: Int
+
+    init(id: UUID = UUID(), grade: String, date: String, price: Int) {
+        self.id = id
+        self.grade = grade
+        self.date = date
+        self.price = price
+    }
+}
+
+struct Player: Identifiable, Codable, Hashable {
+    let id: UUID
+    let supabaseId: UUID?
+    let name: String
+    let sport: SportType
+    let team: String
+    let position: String
+    let headshotURL: URL?
+    let bio: String?
+
+    init(
+        id: UUID = UUID(),
+        supabaseId: UUID? = nil,
+        name: String,
+        sport: SportType,
+        team: String,
+        position: String,
+        headshotURL: URL? = nil,
+        bio: String? = nil
+    ) {
+        self.id = id
+        self.supabaseId = supabaseId
+        self.name = name
+        self.sport = sport
+        self.team = team
+        self.position = position
+        self.headshotURL = headshotURL
+        self.bio = bio
+    }
+}
+
+struct PriceData: Codable, Hashable {
+    let cardId: UUID
+    let rawRange: ClosedRange<Int>
+    let psa9Range: ClosedRange<Int>
+    let psa10Range: ClosedRange<Int>
+    let currentPrice: Int
+    let priceChange: Double
+    let history: [PriceHistoryPoint]
+    let recentSales: [RecentSale]
+}
+
+struct GradeBreakdown: Codable, Hashable {
+    let centering: Double
+    let corners: Double
+    let edges: Double
+    let surface: Double
+
+    var overall: Double {
+        ((centering * 0.3) + (corners * 0.25) + (edges * 0.2) + (surface * 0.25))
+            .rounded(toPlaces: 1)
+    }
+}
+
+extension Double {
+    func rounded(toPlaces places: Int) -> Double {
+        let divisor = pow(10.0, Double(places))
+        return (self * divisor).rounded() / divisor
+    }
 }
 
 struct MockData {

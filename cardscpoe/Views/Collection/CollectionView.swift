@@ -33,10 +33,11 @@ struct CollectionView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        let uniqueSeries = Set(appState.collectionCards.map { "\($0.brand) \($0.setName)" }).count
+        return VStack(alignment: .leading, spacing: 2) {
             Text("My Collection")
                 .font(CSFont.title(.bold))
-            Text("\(appState.totalCards) Cards · 8 Series")
+            Text("\(appState.totalCards) Cards · \(uniqueSeries) Series")
                 .font(CSFont.caption())
                 .foregroundStyle(CSColor.textTertiary)
         }
@@ -58,9 +59,9 @@ struct CollectionView: View {
                     .foregroundStyle(CSColor.signalGold)
 
                 HStack(spacing: CSSpacing.xs) {
-                    Image(systemName: "arrow.up.right")
+                    Image(systemName: appState.monthlyChange >= 0 ? "arrow.up.right" : "arrow.down.right")
                         .font(.system(size: 10))
-                    Text("$532 (+12.3%) this month")
+                    Text("\(appState.monthlyChange >= 0 ? "+" : "")\(String(format: "%.1f", appState.monthlyChange))% this month")
                         .font(CSFont.caption(.bold))
                 }
                 .foregroundStyle(CSColor.signalPrimary)
@@ -75,9 +76,11 @@ struct CollectionView: View {
                 .padding(.top, CSSpacing.md)
 
             HStack(spacing: CSSpacing.md) {
+                let uniquePlayers = Set(appState.collectionCards.map(\.playerName)).count
+                let uniqueSeries = Set(appState.collectionCards.map { "\($0.brand) \($0.setName)" }).count
                 portfolioStat(value: "\(appState.totalCards)", label: "Cards", color: CSColor.textPrimary)
-                portfolioStat(value: "23", label: "Players", color: CSColor.signalGold)
-                portfolioStat(value: "8", label: "Series", color: CSColor.signalPrimary)
+                portfolioStat(value: "\(uniquePlayers)", label: "Players", color: CSColor.signalGold)
+                portfolioStat(value: "\(uniqueSeries)", label: "Series", color: CSColor.signalPrimary)
             }
             .padding(.top, CSSpacing.md)
         }
@@ -136,18 +139,42 @@ struct CollectionView: View {
     }
 
     private var cardGrid: some View {
-        LazyVGrid(columns: columns, spacing: CSSpacing.sm) {
-            ForEach(filteredCards) { card in
-                Button {
-                    appState.selectedDetailCard = card
-                    appState.showingDetail = true
-                } label: {
-                    CollectionGridCard(card: card)
+        Group {
+            if filteredCards.isEmpty {
+                emptyCollectionState
+            } else {
+                LazyVGrid(columns: columns, spacing: CSSpacing.sm) {
+                    ForEach(filteredCards) { card in
+                        Button {
+                            appState.selectedDetailCard = card
+                            appState.showingDetail = true
+                        } label: {
+                            CollectionGridCard(card: card)
+                        }
+                        .buttonStyle(NyxPressableStyle())
+                    }
                 }
-                .buttonStyle(NyxPressableStyle())
             }
         }
         .padding(.horizontal, CSSpacing.md)
+    }
+
+    private var emptyCollectionState: some View {
+        VStack(spacing: CSSpacing.lg) {
+            Image("EmptyCollectionState")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 280)
+            Text("No cards yet")
+                .font(CSFont.headline(.semibold))
+                .foregroundStyle(CSColor.textPrimary)
+            Text("Scan cards to add them to your collection")
+                .font(CSFont.caption())
+                .foregroundStyle(CSColor.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
     }
 
     private func formattedPrice(_ value: Int) -> String {

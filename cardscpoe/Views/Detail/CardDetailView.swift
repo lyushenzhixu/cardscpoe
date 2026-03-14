@@ -1,10 +1,13 @@
 import SwiftUI
+import SwiftData
 
 struct CardDetailView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     let card: SportsCard
     @State private var selectedChartPeriod = 1
+    @State private var priceData: PriceData?
 
     private let chartPeriods = ["1M", "3M", "1Y", "ALL"]
 
@@ -13,15 +16,24 @@ struct CardDetailView: View {
             VStack(spacing: 0) {
                 topBar
                 cardHero
-                chartSection
+                if appState.subscription.hasFullValuation() && appState.subscription.hasPriceChart() {
+                    chartSection
+                } else {
+                    lockedValuationSection
+                }
                 cardInfoSection
-                recentSalesSection
+                if appState.subscription.hasFullValuation() {
+                    recentSalesSection
+                }
                 aiGradeButton
                 Spacer().frame(height: CSSpacing.xl)
             }
         }
         .background(CSColor.surfacePrimary)
         .preferredColorScheme(.dark)
+        .task {
+            priceData = await PriceService.shared.fetchPriceData(for: card, context: modelContext)
+        }
     }
 
     private var topBar: some View {
@@ -114,13 +126,13 @@ struct CardDetailView: View {
             miniChart
 
             HStack {
-                Text("Jan")
-                Spacer()
-                Text("Apr")
-                Spacer()
-                Text("Jul")
-                Spacer()
-                Text("Dec")
+                let labels = chartLabels
+                ForEach(Array(labels.enumerated()), id: \.offset) { index, label in
+                    Text(label)
+                    if index < labels.count - 1 {
+                        Spacer()
+                    }
+                }
             }
             .font(.system(size: 10))
             .foregroundStyle(CSColor.textTertiary)
@@ -133,7 +145,7 @@ struct CardDetailView: View {
 
     private var miniChart: some View {
         GeometryReader { geo in
-            let data = MockData.priceHistory
+            let data = priceData?.history ?? MockData.priceHistory
             let maxVal = data.map(\.value).max() ?? 1
             let minVal = data.map(\.value).min() ?? 0
             let range = maxVal - minVal
@@ -218,7 +230,8 @@ struct CardDetailView: View {
                 .font(CSFont.body(.bold))
                 .padding(.bottom, 10)
 
-            ForEach(Array(MockData.recentSales.enumerated()), id: \.element.id) { index, sale in
+            let sales = priceData?.recentSales ?? MockData.recentSales
+            ForEach(Array(sales.enumerated()), id: \.element.id) { index, sale in
                 HStack {
                     Text("\(sale.grade) · \(sale.date)")
                         .font(CSFont.data())
@@ -230,7 +243,7 @@ struct CardDetailView: View {
                 }
                 .padding(.vertical, 10)
 
-                if index < MockData.recentSales.count - 1 {
+                if index < sales.count - 1 {
                     Divider()
                         .background(CSColor.borderSubtle)
                 }
@@ -241,6 +254,10 @@ struct CardDetailView: View {
 
     private var aiGradeButton: some View {
         Button {
+            guard appState.subscription.hasGradeAssessment() else {
+                appState.presentPaywall(source: .valueUnlock)
+                return
+            }
             appState.gradeCard = card
             appState.showingGrade = true
             dismiss()
@@ -261,11 +278,41 @@ struct CardDetailView: View {
         .padding(.top, CSSpacing.lg)
     }
 
+    private var lockedValuationSection: some View {
+        VStack(alignment: .leading, spacing: CSSpacing.sm) {
+            Text("💰 Price Trend (Pro)")
+                .font(CSFont.body(.bold))
+
+            Text("Unlock full valuation ranges, historical price trends, and recent sales.")
+                .font(CSFont.caption())
+                .foregroundStyle(CSColor.textSecondary)
+
+            Button("Unlock Full Valuation") {
+                appState.presentPaywall(source: .valueUnlock)
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            .padding(.top, CSSpacing.xs)
+        }
+        .nyxCard()
+        .padding(.horizontal, CSSpacing.md)
+        .padding(.bottom, CSSpacing.md)
+    }
+
     private func saleColor(for grade: String) -> Color {
         switch grade {
         case "PSA 10": return CSColor.signalGold
         case "PSA 9": return Color(red: 0.38, green: 0.65, blue: 0.98)
         default: return CSColor.signalPrimary
         }
+    }
+
+    private var chartLabels: [String] {
+        let history = priceData?.history ?? MockData.priceHistory
+        guard !history.isEmpty else { return ["-", "-", "-", "-"] }
+        let first = history.first?.month ?? "-"
+        let q1 = history[min(history.count / 3, history.count - 1)].month
+        let q2 = history[min((history.count * 2) / 3, history.count - 1)].month
+        let last = history.last?.month ?? "-"
+        return [first, q1, q2, last]
     }
 }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct GradeView: View {
+    @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
     let card: SportsCard
 
@@ -17,6 +18,9 @@ struct GradeView: View {
         }
         .background(CSColor.surfacePrimary)
         .preferredColorScheme(.dark)
+        .task {
+            await appState.analyzeGrade()
+        }
     }
 
     private var topBar: some View {
@@ -46,39 +50,12 @@ struct GradeView: View {
     }
 
     private var gradeHero: some View {
-        ZStack {
-            CardArtView(card: card, size: .large)
-
-            LinearGradient(
-                colors: [.clear, CSColor.signalPrimary.opacity(0.05)],
-                startPoint: .center,
-                endPoint: .bottom
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 13))
-            .frame(width: 180, height: 252)
-
-            ZStack {
-                cornerMark(x: -72, y: -108)
-                cornerMark(x: 72, y: -108, rotation: 90)
-                cornerMark(x: -72, y: 108, rotation: -90)
-                cornerMark(x: 72, y: 108, rotation: 180)
-            }
-            .frame(width: 180, height: 252)
-        }
-        .padding(.bottom, CSSpacing.md)
-    }
-
-    private func cornerMark(x: CGFloat, y: CGFloat, rotation: Double = 0) -> some View {
-        Path { path in
-            path.move(to: CGPoint(x: 0, y: 16))
-            path.addLine(to: CGPoint(x: 0, y: 2))
-            path.addQuadCurve(to: CGPoint(x: 2, y: 0), control: CGPoint(x: 0, y: 0))
-            path.addLine(to: CGPoint(x: 16, y: 0))
-        }
-        .stroke(CSColor.signalPrimary, lineWidth: 2)
-        .frame(width: 18, height: 18)
-        .rotationEffect(.degrees(rotation))
-        .offset(x: x, y: y)
+        Image("GradingView")
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: 320, maxHeight: 280)
+            .clipShape(RoundedRectangle(cornerRadius: CSRadius.lg))
+            .padding(.bottom, CSSpacing.md)
     }
 
     private var gradeResult: some View {
@@ -90,7 +67,7 @@ struct GradeView: View {
                         .font(CSFont.headline(.bold))
                 }
                 Spacer()
-                Text("9.5")
+                Text(String(format: "%.1f", breakdown.overall))
                     .font(.system(size: 28, weight: .heavy, design: .monospaced))
                     .foregroundStyle(CSColor.signalGold)
             }
@@ -102,10 +79,10 @@ struct GradeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, CSSpacing.md)
 
-            gradeBarRow(label: "Centering", value: 0.95, score: "9.5", color: CSColor.signalPrimary)
-            gradeBarRow(label: "Corners", value: 1.0, score: "10.0", color: CSColor.signalGold)
-            gradeBarRow(label: "Edges", value: 0.9, score: "9.0", color: CSColor.signalTertiary)
-            gradeBarRow(label: "Surface", value: 0.95, score: "9.5", color: CSColor.signalPrimary)
+            gradeBarRow(label: "Centering", value: breakdown.centering / 10, score: String(format: "%.1f", breakdown.centering), color: CSColor.signalPrimary)
+            gradeBarRow(label: "Corners", value: breakdown.corners / 10, score: String(format: "%.1f", breakdown.corners), color: CSColor.signalGold)
+            gradeBarRow(label: "Edges", value: breakdown.edges / 10, score: String(format: "%.1f", breakdown.edges), color: CSColor.signalTertiary)
+            gradeBarRow(label: "Surface", value: breakdown.surface / 10, score: String(format: "%.1f", breakdown.surface), color: CSColor.signalPrimary)
         }
         .padding(CSSpacing.lg)
         .background(CSColor.surfaceElevated)
@@ -149,16 +126,10 @@ struct GradeView: View {
                 .font(.system(size: 16))
 
             Group {
-                Text("This card has a ")
-                    .foregroundStyle(CSColor.textSecondary) +
-                Text("high chance of receiving PSA 9 or 10")
-                    .foregroundStyle(CSColor.signalPrimary)
-                    .bold() +
-                Text(". We recommend submitting for professional grading. Estimated value increase: ")
-                    .foregroundStyle(CSColor.textSecondary) +
-                Text("+65–120%")
-                    .foregroundStyle(CSColor.signalPrimary)
-                    .bold()
+                Text(
+                    "This card has a \(Text("high chance of receiving PSA 9 or 10").foregroundStyle(CSColor.signalPrimary).bold()). We recommend submitting for professional grading. Estimated value increase: \(Text("+65–120%").foregroundStyle(CSColor.signalPrimary).bold())"
+                )
+                .foregroundStyle(CSColor.textSecondary)
             }
             .font(CSFont.caption())
             .lineSpacing(4)
@@ -191,5 +162,9 @@ struct GradeView: View {
         .buttonStyle(NyxPressableStyle())
         .padding(.horizontal, CSSpacing.md)
         .padding(.top, CSSpacing.md)
+    }
+
+    private var breakdown: GradeBreakdown {
+        appState.latestGradeBreakdown ?? GradeBreakdown(centering: 9.1, corners: 9.0, edges: 8.8, surface: 8.9)
     }
 }
