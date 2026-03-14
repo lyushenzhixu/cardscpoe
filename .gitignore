@@ -9,3 +9,7 @@ cardscpoe/Config/Secrets.xcconfig
 
 # Supabase local
 supabase/.temp/
+
+# Python data pipeline
+scripts/data_pipeline/.venv/
+scripts/data_pipeline/.env
