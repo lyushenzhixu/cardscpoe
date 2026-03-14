@@ -54,12 +54,7 @@ struct PaywallView: View {
                                 endPoint: .bottom
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: CSRadius.lg))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: CSRadius.lg)
-                                .stroke(CSColor.signalPrimary.opacity(0.15), lineWidth: 1)
-                        )
-                        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 4)
+                        .clipShape(RoundedRectangle(cornerRadius: CSRadius.md))
 
                         if shouldShowCloseButton {
                             Button {
@@ -75,7 +70,7 @@ struct PaywallView: View {
                             .padding(CSSpacing.md)
                         }
                     }
-                    .padding(.horizontal, CSSpacing.lg)
+                    .padding(.horizontal, -CSSpacing.lg)
                     .padding(.top, CSSpacing.sm)
 
                     // 标题块：主标题 + 副标题 + 信任标识成组，与视频间距统一
