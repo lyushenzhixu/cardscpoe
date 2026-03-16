@@ -32,12 +32,27 @@ struct ExploreView: View {
             VStack(spacing: 0) {
                 header
                 searchBar
+                if let err = appState.trendingDataError {
+                    debugErrorBanner(message: err)
+                }
                 trendingPlayersSection
                 popularSeriesSection
                 Spacer().frame(height: 100)
             }
         }
         .background(CSColor.surfacePrimary)
+    }
+
+    private func debugErrorBanner(message: String) -> some View {
+        Text(message)
+            .font(.system(size: 11, weight: .medium, design: .monospaced))
+            .foregroundStyle(CSColor.signalWarm)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(CSSpacing.sm)
+            .background(CSColor.signalWarm.opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
+            .padding(.horizontal, CSSpacing.md)
+            .padding(.bottom, CSSpacing.sm)
     }
 
     private var header: some View {

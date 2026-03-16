@@ -34,6 +34,8 @@ final class AppState {
     var trendingPlayers: [Player] = []
     var popularSeries: [PopularSeries] = []
     var monthlyChange: Double = 0
+    /// 趋势/热门数据拉取失败时的错误信息（调试用，Explore 页会显示）
+    var trendingDataError: String?
 
     var totalValue: Int {
         collectionCards.reduce(0) { $0 + $1.currentPrice }
@@ -51,11 +53,59 @@ final class AppState {
 
     @MainActor
     func refreshHomeData(context: ModelContext?) async {
+        trendingDataError = nil
+        var errors: [String] = []
+
+        #if DEBUG
+        let configured = SupabaseClient.shared.isConfigured
+        print("[AppState] Supabase configured: \(configured), URL: \(APIConfig.supabaseURL?.absoluteString ?? "nil"), anonKey length: \(APIConfig.supabaseAnonKey.count)")
+        #endif
+
         let cards = await CardService.shared.fetchAllCards(context: context)
         recentScans = Array(cards.prefix(6))
-        trendingCards = await CardService.shared.fetchTrendingCards(context: context)
-        trendingPlayers = await PlayerService.shared.fetchTrendingPlayers(context: context)
-        popularSeries = await CardService.shared.fetchPopularSeries()
+
+        do {
+            trendingCards = try await CardService.shared.fetchTrendingCards(context: context)
+            #if DEBUG
+            print("[AppState] Trending cards loaded: \(trendingCards.count)")
+            #endif
+        } catch {
+            errors.append("Trending cards: \(error.localizedDescription)")
+            trendingCards = Array(cards.sorted(by: { $0.priceChange > $1.priceChange }).prefix(5))
+            #if DEBUG
+            print("[AppState] fetchTrendingCards failed: \(error)")
+            #endif
+        }
+
+        do {
+            trendingPlayers = try await PlayerService.shared.fetchTrendingPlayers(context: context)
+            #if DEBUG
+            print("[AppState] Trending players loaded: \(trendingPlayers.count)")
+            #endif
+        } catch {
+            errors.append("Trending players: \(error.localizedDescription)")
+            trendingPlayers = []
+            #if DEBUG
+            print("[AppState] fetchTrendingPlayers failed: \(error)")
+            #endif
+        }
+
+        do {
+            popularSeries = try await CardService.shared.fetchPopularSeries()
+            #if DEBUG
+            print("[AppState] Popular series loaded: \(popularSeries.count)")
+            #endif
+        } catch {
+            errors.append("Popular series: \(error.localizedDescription)")
+            popularSeries = []
+            #if DEBUG
+            print("[AppState] fetchPopularSeries failed: \(error)")
+            #endif
+        }
+
+        if !errors.isEmpty {
+            trendingDataError = errors.joined(separator: "\n")
+        }
         monthlyChange = await PriceService.shared.thisMonthGrowth(collection: cards)
     }
 

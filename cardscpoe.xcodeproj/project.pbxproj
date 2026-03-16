@@ -253,7 +253,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Y66A45R3MU;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_APP_ENV = development;
 				INFOPLIST_KEY_BALLDONTLIE_API_KEY = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "CardScope uses camera access to scan sports cards.";
@@ -261,7 +262,7 @@
 				INFOPLIST_KEY_PRICECHARTING_API_KEY = "";
 				INFOPLIST_KEY_SPORTSDB_API_KEY = 1;
 				INFOPLIST_KEY_SUPABASE_ANON_KEY = sb_publishable_b0eAWIp2N3i9xlOAJaXxpA_3RwYxxs6;
-				INFOPLIST_KEY_SUPABASE_SERVICE_ROLE_KEY = "";
+				INFOPLIST_KEY_SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pZ2hvZHh4emRueHVleWR6aXl0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzM3Mzc1MywiZXhwIjoyMDg4OTQ5NzUzfQ.rM1XzQW51VQ-QLS9Ty9DWtQKk8eWYqspmwBpXUDtDAc";
 				INFOPLIST_KEY_SUPABASE_URL = "https://oighodxxzdnxueydziyt.supabase.co";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -294,7 +295,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Y66A45R3MU;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_APP_ENV = production;
 				INFOPLIST_KEY_BALLDONTLIE_API_KEY = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "CardScope uses camera access to scan sports cards.";
@@ -302,7 +304,7 @@
 				INFOPLIST_KEY_PRICECHARTING_API_KEY = "";
 				INFOPLIST_KEY_SPORTSDB_API_KEY = 1;
 				INFOPLIST_KEY_SUPABASE_ANON_KEY = sb_publishable_b0eAWIp2N3i9xlOAJaXxpA_3RwYxxs6;
-				INFOPLIST_KEY_SUPABASE_SERVICE_ROLE_KEY = "";
+				INFOPLIST_KEY_SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pZ2hvZHh4emRueHVleWR6aXl0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzM3Mzc1MywiZXhwIjoyMDg4OTQ5NzUzfQ.rM1XzQW51VQ-QLS9Ty9DWtQKk8eWYqspmwBpXUDtDAc";
 				INFOPLIST_KEY_SUPABASE_URL = "https://oighodxxzdnxueydziyt.supabase.co";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

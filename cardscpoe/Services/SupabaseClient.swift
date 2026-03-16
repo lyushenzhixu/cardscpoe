@@ -17,6 +17,10 @@ struct SupabaseQueryFilter {
         let joined = values.joined(separator: ",")
         return .init(key: key, value: "(\(joined))", op: "in")
     }
+
+    static func gt(_ key: String, _ value: String) -> SupabaseQueryFilter {
+        .init(key: key, value: value, op: "gt")
+    }
 }
 
 final class SupabaseClient {
@@ -49,6 +53,7 @@ final class SupabaseClient {
         table: String,
         columns: String = "*",
         filters: [SupabaseQueryFilter] = [],
+        order: String? = nil,
         limit: Int? = nil
     ) async throws -> [T] {
         guard var components = URLComponents(
@@ -62,6 +67,9 @@ final class SupabaseClient {
         for filter in filters {
             items.append(URLQueryItem(name: filter.key, value: "\(filter.op).\(filter.value)"))
         }
+        if let order, !order.isEmpty {
+            items.append(URLQueryItem(name: "order", value: order))
+        }
         if let limit {
             items.append(URLQueryItem(name: "limit", value: "\(limit)"))
         }
@@ -73,6 +81,24 @@ final class SupabaseClient {
 
         let request = NetworkRequest(url: url, headers: defaultHeaders)
         return try await network.request(request)
+    }
+
+    /// 同 select 的 URL，但返回原始 Data，用于解码失败时 DEBUG 打印响应内容
+    func selectRaw(
+        table: String,
+        columns: String = "*",
+        limit: Int? = nil
+    ) async throws -> Data {
+        guard var components = URLComponents(
+            url: restURL(path: "rest/v1/\(table)"),
+            resolvingAgainstBaseURL: false
+        ) else { throw NetworkError.invalidURL }
+        var items = [URLQueryItem(name: "select", value: columns)]
+        if let limit { items.append(URLQueryItem(name: "limit", value: "\(limit)")) }
+        components.queryItems = items
+        guard let url = components.url else { throw NetworkError.invalidURL }
+        let request = NetworkRequest(url: url, headers: defaultHeaders)
+        return try await network.requestRaw(request)
     }
 
     func upsert<T: Encodable>(table: String, payload: [T]) async throws {

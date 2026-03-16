@@ -30,10 +30,11 @@ private struct SportsDBResponse: Decodable {
     let player: [Entry]?
 }
 
+/// 视图行：全部可选，避免 Supabase 返回缺字段时整批解码失败
 private struct TrendingPlayerRow: Decodable {
-    let playerId: UUID
-    let name: String
-    let sport: SportType
+    let playerId: UUID?
+    let name: String?
+    let sport: String?
     let team: String?
     let position: String?
     let headshotURL: String?
@@ -49,42 +50,59 @@ final class PlayerService {
 
     private init() {}
 
-    func fetchTrendingPlayers(context: ModelContext?) async -> [Player] {
-        // Database-driven only for Trending section.
-        if supabase.isConfigured {
-            do {
-                let rows: [TrendingPlayerRow] = try await supabase.select(
-                    table: "trending_players_view",
-                    columns: "player_id,name,sport,team,position,headshot_url",
-                    limit: 50
-                )
-                var seen = Set<UUID>()
-                let players = rows.compactMap { row -> Player? in
-                    guard !seen.contains(row.playerId) else { return nil }
-                    seen.insert(row.playerId)
-                    return Player(
-                        id: row.playerId,
-                        supabaseId: row.playerId,
-                        name: row.name,
-                        sport: row.sport,
-                        team: row.team ?? "Unknown Team",
-                        position: row.position ?? "Unknown",
-                        headshotURL: row.headshotURL.flatMap(URL.init(string:))
-                    )
-                }
-                if !players.isEmpty {
-                    if let context {
-                        try? cache.upsertPlayers(players, context: context)
-                    }
-                    return players
-                }
-            } catch {
-                #if DEBUG
-                print("[PlayerService] Failed to fetch trending_players_view: \(error.localizedDescription)")
-                #endif
+    func fetchTrendingPlayers(context: ModelContext?) async throws -> [Player] {
+        guard supabase.isConfigured else { return [] }
+        let rows: [TrendingPlayerRow]
+        do {
+            rows = try await supabase.select(
+                table: "trending_players_view",
+                columns: "player_id,name,sport,team,position,headshot_url",
+                limit: 50
+            )
+        } catch {
+            #if DEBUG
+            if let raw = try? await supabase.selectRaw(table: "trending_players_view", columns: "player_id,name,sport,team,position,headshot_url", limit: 50),
+               let str = String(data: raw, encoding: .utf8) {
+                print("[PlayerService] trending_players_view raw: \(str.prefix(500))")
             }
+            #endif
+            throw error
         }
-        return []
+        var seen = Set<UUID>()
+        let players = rows.compactMap { row -> Player? in
+            guard let id = row.playerId, !seen.contains(id) else { return nil }
+            seen.insert(id)
+            return Player(
+                id: id,
+                supabaseId: id,
+                name: row.name ?? "",
+                sport: mapSport(row.sport),
+                team: row.team ?? "Unknown Team",
+                position: row.position ?? "Unknown",
+                headshotURL: row.headshotURL.flatMap(URL.init(string:))
+            )
+        }
+        if !players.isEmpty, let context {
+            try? cache.upsertPlayers(players, context: context)
+        }
+        return players
+    }
+
+    private func mapSport(_ value: String?) -> SportType {
+        let normalized = (value ?? "").lowercased()
+        if normalized.contains("nba") || normalized.contains("basketball") {
+            return .basketball
+        }
+        if normalized.contains("mlb") || normalized.contains("baseball") {
+            return .baseball
+        }
+        if normalized.contains("nfl") || normalized.contains("football") {
+            return .football
+        }
+        if normalized.contains("soccer") || normalized.contains("fifa") || normalized.contains("football association") {
+            return .soccer
+        }
+        return .basketball
     }
 
     func searchPlayer(name: String, sport: SportType?, context: ModelContext?) async -> [Player] {
