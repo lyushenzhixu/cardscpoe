@@ -11,7 +11,7 @@ from config import SUPABASE_URL, SUPABASE_SERVICE_KEY, REQUEST_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
-BATCH_SIZE = 50
+BATCH_SIZE = 25
 
 
 class SupabaseLoader:
@@ -41,6 +41,11 @@ class SupabaseLoader:
             return {"error": "Not configured"}
 
         stats = {"players": 0, "cards": 0, "prices": 0, "summaries": 0}
+
+        # Clear old data in dependency order
+        logger.info("Clearing old data...")
+        for table in ["trending_snapshot", "price_summary", "prices", "cards", "players"]:
+            self._delete_all(table)
 
         logger.info("Loading %d players...", len(players))
         stats["players"] = self._load_players(players)
@@ -216,27 +221,61 @@ class SupabaseLoader:
         except Exception as e:
             logger.warning("Failed to refresh trending snapshots: %s", e)
 
-    def _upsert(self, table: str, records: list[dict]) -> int:
+    def _delete_all(self, table: str):
+        """Delete all rows from a table."""
+        import time as _time
+        for attempt in range(3):
+            try:
+                resp = requests.delete(
+                    f"{self.url}/rest/v1/{table}",
+                    headers={**self.headers, "Prefer": ""},
+                    params={"id": "neq.00000000-0000-0000-0000-000000000000"},
+                    timeout=REQUEST_TIMEOUT,
+                )
+                if resp.status_code in (200, 204):
+                    logger.info("Cleared table: %s", table)
+                    return
+                else:
+                    logger.warning("Delete from %s returned %d: %s", table, resp.status_code, resp.text[:200])
+                    return
+            except requests.RequestException as e:
+                if attempt < 2:
+                    _time.sleep(2 ** attempt + 1)
+                else:
+                    logger.error("Failed to clear %s: %s", table, e)
+
+    def _upsert(self, table: str, records: list[dict], max_retries: int = 5) -> int:
         if not records:
             return 0
-        try:
-            resp = requests.post(
-                f"{self.url}/rest/v1/{table}",
-                headers=self.headers,
-                json=records,
-                timeout=REQUEST_TIMEOUT,
-            )
-            if resp.status_code in (200, 201):
-                return len(records)
-            else:
-                logger.error(
-                    "Supabase upsert to %s failed (%d): %s",
-                    table, resp.status_code, resp.text[:500],
+        import time as _time
+        for attempt in range(max_retries):
+            try:
+                resp = requests.post(
+                    f"{self.url}/rest/v1/{table}",
+                    headers=self.headers,
+                    json=records,
+                    timeout=REQUEST_TIMEOUT,
                 )
-                return 0
-        except requests.RequestException as e:
-            logger.error("Supabase request failed for %s: %s", table, e)
-            return 0
+                if resp.status_code in (200, 201):
+                    return len(records)
+                else:
+                    logger.error(
+                        "Supabase upsert to %s failed (%d): %s",
+                        table, resp.status_code, resp.text[:500],
+                    )
+                    return 0
+            except requests.RequestException as e:
+                wait = 2 ** attempt + 1
+                if attempt < max_retries - 1:
+                    logger.warning(
+                        "Supabase request to %s failed (attempt %d/%d), retrying in %ds: %s",
+                        table, attempt + 1, max_retries, wait, str(e)[:100],
+                    )
+                    _time.sleep(wait)
+                else:
+                    logger.error("Supabase request failed for %s after %d retries: %s", table, max_retries, e)
+                    return 0
+        return 0
 
 
 def export_sql(players: list[dict], cards: list[dict],

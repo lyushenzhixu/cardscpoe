@@ -132,7 +132,7 @@ struct HomeView: View {
             statCard(
                 value: "$\(formattedValue(appState.totalValue))",
                 label: "TOTAL VALUE",
-                color: CSColor.signalGold
+                color: CSColor.signalPrimary
             )
             statCard(
                 value: "\(appState.totalCards)",
@@ -223,6 +223,14 @@ struct HomeView: View {
     }
 }
 
+#Preview("HomeView") {
+    PreviewContainer {
+        NavigationStack {
+            HomeView()
+        }
+    }
+}
+
 struct CardListItem: View {
     let card: SportsCard
 
@@ -254,4 +262,10 @@ struct CardListItem: View {
         .padding(.horizontal, CSSpacing.md)
         .padding(.vertical, 10)
     }
+}
+
+#Preview("CardListItem") {
+    CardListItem(card: MockData.lukaDoncic)
+        .background(Color.black)
+        .preferredColorScheme(.dark)
 }

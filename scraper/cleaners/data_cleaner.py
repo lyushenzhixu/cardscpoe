@@ -248,14 +248,14 @@ def compute_price_summaries(cards: list[dict], prices: list[dict]) -> list[dict]
     return summaries
 
 
-def _clean_text(text: str | None) -> str:
+def _clean_text(text) -> str:
     if not text:
         return ""
     text = re.sub(r"\s+", " ", str(text)).strip()
     return text
 
 
-def _clean_url(url: str | None) -> str:
+def _clean_url(url) -> str:
     if not url:
         return ""
     url = url.strip()

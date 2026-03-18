@@ -124,7 +124,7 @@ struct OnboardingStepValue: View {
 
             Spacer().frame(height: CSSpacing.lg)
 
-            Text("Know the \(Text("Exact Value").foregroundStyle(CSColor.signalGold))")
+            Text("Know the \(Text("Exact Value").foregroundStyle(CSColor.signalPrimary))")
                 .font(.system(size: 28, weight: .bold))
 
             Text("Real-time market prices based on\nrecent eBay sold comps. By grade.")
@@ -151,6 +151,22 @@ struct OnboardingStepValue: View {
         }
         .multilineTextAlignment(.center)
     }
+}
+
+#Preview("OnboardingView") {
+    PreviewContainer {
+        OnboardingView()
+    }
+}
+
+#Preview("OnboardingStepScan") {
+    OnboardingStepScan(onNext: {}, onSkip: {})
+        .preferredColorScheme(.dark)
+}
+
+#Preview("OnboardingStepValue") {
+    OnboardingStepValue(onNext: {}, onSkip: {})
+        .preferredColorScheme(.dark)
 }
 
 // MARK: - Shared

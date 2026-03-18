@@ -8,8 +8,8 @@ struct ScanView: View {
     @StateObject private var cameraManager = CameraManager()
     @State private var isAnalyzing = false
     @State private var showFlash = false
-    @State private var selectedMode = 0
     @State private var showingImagePicker = false
+    @State private var activeScanMode: ScanMode = .normal
 
     var body: some View {
         ZStack {
@@ -19,7 +19,9 @@ struct ScanView: View {
 
             topBar
 
-            centerFrame
+            if !isAnalyzing {
+                centerFrame
+            }
 
             bottomControls
 
@@ -43,7 +45,7 @@ struct ScanView: View {
     }
 
     private var cameraBackground: some View {
-        Group {
+        ZStack {
             if cameraManager.authorizationGranted {
                 CameraPreview(session: cameraManager.session)
                     .ignoresSafeArea()
@@ -57,6 +59,15 @@ struct ScanView: View {
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
+            }
+
+            // Frozen image overlay — covers live preview when captured
+            if let frozen = cameraManager.frozenImage {
+                Image(uiImage: frozen)
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .transition(.identity)
             }
         }
     }
@@ -190,54 +201,77 @@ struct ScanView: View {
 
                 Spacer()
 
+                // Normal Scan button
                 Button {
-                    capturePhoto()
+                    capturePhoto(mode: .normal)
                 } label: {
-                    ZStack {
-                        Circle()
-                            .stroke(Color.white.opacity(0.7), lineWidth: 3)
-                            .frame(width: 68, height: 68)
-                        Circle()
-                            .fill(CSColor.signalPrimary)
-                            .frame(width: 54, height: 54)
-                            .shadow(color: CSColor.signalPrimary.opacity(0.3), radius: 10)
+                    VStack(spacing: 4) {
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white.opacity(0.7), lineWidth: 3)
+                                .frame(width: 62, height: 62)
+                            Circle()
+                                .fill(isAnalyzing ? Color.gray : Color.white)
+                                .frame(width: 48, height: 48)
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.black)
+                        }
+                        Text("Scan")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(CSColor.textSecondary)
                     }
                 }
                 .buttonStyle(NyxPressableStyle())
+                .disabled(isAnalyzing)
 
                 Spacer()
+                    .frame(width: 20)
 
-                HStack(spacing: CSSpacing.xs) {
-                    modeButton("Front", index: 0)
-                    modeButton("Back", index: 1)
+                // AI Scan button
+                Button {
+                    capturePhoto(mode: .ai)
+                } label: {
+                    VStack(spacing: 4) {
+                        ZStack {
+                            Circle()
+                                .stroke(CSColor.signalPrimary.opacity(0.7), lineWidth: 3)
+                                .frame(width: 62, height: 62)
+                            Circle()
+                                .fill(isAnalyzing ? Color.gray : CSColor.signalPrimary)
+                                .frame(width: 48, height: 48)
+                                .shadow(color: CSColor.signalPrimary.opacity(0.3), radius: 10)
+                            Image(systemName: "diamond.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.black)
+                        }
+                        HStack(spacing: 2) {
+                            Text("AI Scan")
+                                .font(.system(size: 10, weight: .semibold))
+                            Text("PRO")
+                                .font(.system(size: 8, weight: .heavy))
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(CSColor.signalPrimary)
+                                .foregroundStyle(.black)
+                                .clipShape(RoundedRectangle(cornerRadius: 3))
+                        }
+                        .foregroundStyle(CSColor.signalPrimary)
+                    }
                 }
+                .buttonStyle(NyxPressableStyle())
+                .disabled(isAnalyzing)
+
+                Spacer()
             }
             .padding(.horizontal, 36)
             .padding(.bottom, 40)
         }
     }
 
-    private func modeButton(_ title: String, index: Int) -> some View {
-        Button {
-            withAnimation(.spring(response: 0.3)) { selectedMode = index }
-        } label: {
-            Text(title)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(selectedMode == index ? .black : CSColor.textTertiary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(selectedMode == index ? CSColor.signalPrimary : CSColor.surfaceElevated)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(selectedMode == index ? CSColor.signalPrimary : CSColor.border, lineWidth: 0.5)
-                )
-        }
-    }
-
     private var analyzingOverlay: some View {
         ZStack {
-            Color.black.opacity(0.7)
+            Color.black.opacity(0.5)
                 .ignoresSafeArea()
 
             VStack(spacing: CSSpacing.md) {
@@ -245,11 +279,11 @@ struct ScanView: View {
                     .tint(CSColor.signalPrimary)
                     .scaleEffect(1.5)
 
-                Text("Analyzing card...")
+                Text(activeScanMode == .ai ? "AI analyzing card & grade..." : "Identifying card...")
                     .font(CSFont.headline(.semibold))
                     .foregroundStyle(CSColor.textPrimary)
 
-                Text("AI identification in progress")
+                Text(activeScanMode == .ai ? "AI grade assessment in progress" : "AI identification in progress")
                     .font(CSFont.caption())
                     .foregroundStyle(CSColor.textSecondary)
             }
@@ -258,12 +292,23 @@ struct ScanView: View {
         }
     }
 
-    private func capturePhoto() {
+    // MARK: - Capture & Process
+
+    private func capturePhoto(mode: ScanMode) {
+        guard !isAnalyzing else { return }
+        if mode == .ai {
+            guard appState.subscription.hasGradeAssessment() else {
+                appState.presentPaywall(source: .valueUnlock)
+                return
+            }
+        }
+        activeScanMode = mode
         Task {
             isAnalyzing = true
             if cameraManager.authorizationGranted {
-                if let image = try? await cameraManager.capturePhoto() {
-                    await processCapturedImage(image)
+                if let fullImage = try? await cameraManager.capturePhoto() {
+                    let croppedImage = fullImage.croppedToCardFrame()
+                    await processCapturedImage(croppedImage, mode: mode)
                 } else {
                     appState.simulateScanNoResult()
                     isAnalyzing = false
@@ -278,10 +323,17 @@ struct ScanView: View {
     }
 
     @MainActor
-    private func processCapturedImage(_ image: UIImage) async {
+    private func processCapturedImage(_ image: UIImage, mode: ScanMode = .normal) async {
         isAnalyzing = true
-        await appState.scan(image: image, context: modelContext)
+        await appState.scan(image: image, mode: mode, context: modelContext)
         isAnalyzing = false
+        cameraManager.unfreezePreview()
         dismiss()
+    }
+}
+
+#Preview("ScanView") {
+    PreviewContainer {
+        ScanView()
     }
 }

@@ -21,6 +21,12 @@ struct SupabaseQueryFilter {
     static func gt(_ key: String, _ value: String) -> SupabaseQueryFilter {
         .init(key: key, value: value, op: "gt")
     }
+
+    /// PostgREST OR filter: combines multiple conditions with OR logic.
+    /// Usage: `.or("player_name.ilike.*LeBron*,brand.ilike.*Panini*")`
+    static func or(_ expression: String) -> SupabaseQueryFilter {
+        .init(key: "or", value: "(\(expression))", op: "")
+    }
 }
 
 final class SupabaseClient {
@@ -65,7 +71,12 @@ final class SupabaseClient {
 
         var items = [URLQueryItem(name: "select", value: columns)]
         for filter in filters {
-            items.append(URLQueryItem(name: filter.key, value: "\(filter.op).\(filter.value)"))
+            if filter.op.isEmpty {
+                // Special filters like OR that use raw value
+                items.append(URLQueryItem(name: filter.key, value: filter.value))
+            } else {
+                items.append(URLQueryItem(name: filter.key, value: "\(filter.op).\(filter.value)"))
+            }
         }
         if let order, !order.isEmpty {
             items.append(URLQueryItem(name: "order", value: order))

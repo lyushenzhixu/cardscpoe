@@ -11,6 +11,8 @@ final class CameraManager: NSObject, ObservableObject {
 
     @Published var isSessionRunning = false
     @Published var authorizationGranted = false
+    /// The last captured full-resolution image (used to freeze preview)
+    @Published var frozenImage: UIImage?
 
     let session = AVCaptureSession()
     private let output = AVCapturePhotoOutput()
@@ -40,6 +42,7 @@ final class CameraManager: NSObject, ObservableObject {
 
     func startSession() {
         guard authorizationGranted else { return }
+        frozenImage = nil
         if !session.isRunning {
             DispatchQueue.global(qos: .userInitiated).async {
                 self.session.startRunning()
@@ -68,6 +71,11 @@ final class CameraManager: NSObject, ObservableObject {
             settings.flashMode = .off
             output.capturePhoto(with: settings, delegate: self)
         }
+    }
+
+    /// Unfreeze and restart live preview
+    func unfreezePreview() {
+        frozenImage = nil
     }
 
     private func configureSessionIfNeeded() {
@@ -108,8 +116,46 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
             continuation = nil
             return
         }
+        // Freeze the preview with the captured image
+        DispatchQueue.main.async {
+            self.frozenImage = image
+        }
         continuation?.resume(returning: image)
         continuation = nil
+    }
+}
+
+// MARK: - Image Cropping
+
+extension UIImage {
+    /// Crops the image to a centered rectangle matching the viewfinder aspect ratio (5:7, like a card).
+    /// The `frameFraction` is how much of the screen width/height the viewfinder covers.
+    func croppedToCardFrame() -> UIImage {
+        guard let cgImage = self.cgImage else { return self }
+
+        let imgW = CGFloat(cgImage.width)
+        let imgH = CGFloat(cgImage.height)
+
+        // Card aspect ratio ~5:7 (width:height), viewfinder is roughly 65% of screen width
+        let cardAspect: CGFloat = 5.0 / 7.0
+        let frameFractionW: CGFloat = 0.62  // viewfinder width as fraction of image width
+        let frameFractionH: CGFloat = frameFractionW / cardAspect * (imgW / imgH)
+
+        let cropW = imgW * frameFractionW
+        let cropH = min(imgH * frameFractionH, imgH * 0.75) // cap at 75% of image height
+        let cropX = (imgW - cropW) / 2.0
+        // Viewfinder is slightly above center on screen
+        let cropY = (imgH - cropH) / 2.0 - imgH * 0.02
+
+        let cropRect = CGRect(
+            x: max(0, cropX),
+            y: max(0, cropY),
+            width: min(cropW, imgW - max(0, cropX)),
+            height: min(cropH, imgH - max(0, cropY))
+        )
+
+        guard let cropped = cgImage.cropping(to: cropRect) else { return self }
+        return UIImage(cgImage: cropped, scale: self.scale, orientation: self.imageOrientation)
     }
 }
 

@@ -71,7 +71,7 @@ struct ProfileView: View {
         VStack(spacing: CSSpacing.md) {
             menuSection(title: "ACCOUNT", items: [
                 MenuItem(icon: "person.circle", title: "Account Settings"),
-                MenuItem(icon: "crown.fill", title: "Subscription", subtitle: appState.subscription.planDisplayName, accentColor: CSColor.signalGold),
+                MenuItem(icon: "crown.fill", title: "Subscription", subtitle: appState.subscription.planDisplayName, accentColor: CSColor.signalPrimary),
                 MenuItem(icon: "bell.fill", title: "Notifications"),
             ])
 
@@ -84,7 +84,7 @@ struct ProfileView: View {
             menuSection(title: "SUPPORT", items: [
                 MenuItem(icon: "questionmark.circle", title: "Help Center"),
                 MenuItem(icon: "envelope", title: "Contact Us"),
-                MenuItem(icon: "star.fill", title: "Rate CardScope", accentColor: CSColor.signalGold),
+                MenuItem(icon: "star.fill", title: "Rate CardScope", accentColor: CSColor.signalPrimary),
                 MenuItem(icon: "info.circle", title: "About", subtitle: "v1.0.0"),
             ])
 
@@ -159,6 +159,14 @@ struct ProfileView: View {
         }
         .padding(.horizontal, CSSpacing.md)
         .padding(.vertical, 12)
+    }
+}
+
+#Preview("ProfileView") {
+    PreviewContainer {
+        NavigationStack {
+            ProfileView()
+        }
     }
 }
 

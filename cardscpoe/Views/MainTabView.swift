@@ -52,13 +52,6 @@ struct MainTabView: View {
                 variant: appState.subscription.paywallVariant
             )
         }
-        .sheet(isPresented: $state.showingGrade) {
-            if let card = appState.gradeCard {
-                NavigationStack {
-                    GradeView(card: card)
-                }
-            }
-        }
         .preferredColorScheme(.dark)
     }
 
@@ -96,7 +89,7 @@ struct MainTabView: View {
                 Text(tab.title)
                     .font(.system(size: 10, weight: .medium))
             }
-            .foregroundStyle(appState.selectedTab == tab ? CSColor.textPrimary : CSColor.textTertiary)
+            .foregroundStyle(appState.selectedTab == tab ? CSColor.signalPrimary : CSColor.textTertiary)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 44)
         }
@@ -126,5 +119,11 @@ struct MainTabView: View {
         }
         .buttonStyle(NyxPressableStyle())
         .frame(maxWidth: .infinity)
+    }
+}
+
+#Preview {
+    PreviewContainer {
+        MainTabView()
     }
 }

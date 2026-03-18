@@ -306,3 +306,15 @@ struct PaywallView: View {
         dismiss()
     }
 }
+
+#Preview("PaywallView - Soft") {
+    PreviewContainer {
+        PaywallView(source: .profile, variant: .soft)
+    }
+}
+
+#Preview("PaywallView - Hard") {
+    PreviewContainer {
+        PaywallView(source: .onboarding, variant: .hard)
+    }
+}

@@ -19,10 +19,11 @@ final class AppState {
     var scannedCard: SportsCard?
     var selectedDetailCard: SportsCard?
     var showingDetail = false
-    var showingGrade = false
-    var gradeCard: SportsCard?
+    var latestScanMode: ScanMode = .normal
     var latestScanImage: UIImage?
     var latestExtractedText: String?
+    var latestScanDebugInfo: String?
+    var latestConfidenceLevel: MatchConfidenceLevel = .none
     var latestGradeBreakdown: GradeBreakdown?
     var isLoading = false
     var errorMessage: String?
@@ -121,23 +122,39 @@ final class AppState {
     }
 
     @MainActor
-    func scan(image: UIImage, context: ModelContext?) async {
+    func scan(image: UIImage, mode: ScanMode = .normal, context: ModelContext?) async {
         isLoading = true
         defer { isLoading = false }
+        latestScanMode = mode
         latestScanImage = image
+        if mode == .normal {
+            latestGradeBreakdown = nil
+        }
         let result = await ScanService.shared.identifyCard(from: image)
         latestExtractedText = result.extractedText
+        latestScanDebugInfo = result.debugInfo
+        latestConfidenceLevel = result.confidenceLevel
         scannedCard = result.matchedCard
+        if mode == .ai {
+            latestGradeBreakdown = await GradeService.shared.analyze(image: image)
+        }
         showingResult = true
         if let card = result.matchedCard {
             subscription.recordSuccessfulScan()
             if !recentScans.contains(where: { $0.id == card.id }) {
                 recentScans.insert(card, at: 0)
             }
-            CardService.shared.addScanToHistory(card: card)
+            CardService.shared.addScanToHistory(card: card, extractedText: result.extractedText, context: context)
             if let context {
                 try? CacheManager.shared.upsertCards([card], context: context)
             }
+        } else if let context {
+            // Record failed scan for diagnostics
+            try? CacheManager.shared.insertScanHistory(
+                cardId: nil,
+                extractedText: result.extractedText,
+                context: context
+            )
         }
     }
 
@@ -168,12 +185,6 @@ final class AppState {
     func presentPaywall(source: PaywallSource) {
         activePaywallSource = source
         showingPaywall = true
-    }
-
-    @MainActor
-    func analyzeGrade() async {
-        guard let latestScanImage else { return }
-        latestGradeBreakdown = await GradeService.shared.analyze(image: latestScanImage)
     }
 
     func completeOnboarding() {

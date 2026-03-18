@@ -37,6 +37,35 @@ ROOKIE_YEARS = {
     "Lamine Yamal": "2023", "Cole Palmer": "2022",
     "Florian Wirtz": "2020", "Jamal Musiala": "2020",
     "Endrick": "2024",
+    # 2025 NBA Draft Class
+    "Cooper Flagg": "2025", "Dylan Harper": "2025", "Ace Bailey": "2025",
+    "VJ Edgecombe": "2025", "Kasparas Jakucionis": "2025",
+    "Kon Knueppel": "2025", "Tre Johnson": "2025",
+    "Nolan Traore": "2025", "Khaman Maluach": "2025", "Egor Demin": "2025",
+    # 2024 NBA Rising Stars
+    "Dereck Lively II": "2023", "Amen Thompson": "2023",
+    "Zach Edey": "2024", "Reed Sheppard": "2024",
+    "Stephon Castle": "2024", "Dalton Knecht": "2024", "Yves Missi": "2024",
+    # 2025 MLB Prospects
+    "Roki Sasaki": "2025", "Travis Bazzana": "2024", "Charlie Condon": "2025",
+    "Jac Caglianone": "2025", "Ethan Salas": "2025", "Roman Anthony": "2025",
+    "Junior Caminero": "2024", "Colton Cowser": "2023",
+    "Wyatt Langford": "2024", "Jackson Chourio": "2024",
+    "James Wood": "2024", "Dylan Crews": "2024",
+    "Masyn Winn": "2024", "Noelvi Marte": "2024", "Evan Carter": "2023",
+    # 2025 NFL Draft Class
+    "Cam Ward": "2025", "Shedeur Sanders": "2025", "Travis Hunter": "2025",
+    "Ashton Jeanty": "2025", "Tetairoa McMillan": "2025",
+    "Abdul Carter": "2025", "Mason Graham": "2025", "Will Campbell": "2025",
+    "Jalon Walker": "2025", "Luther Burden III": "2025",
+    "Bo Nix": "2024", "Brock Bowers": "2024", "Ladd McConkey": "2024",
+    "Brian Thomas Jr.": "2024", "Xavier Worthy": "2024",
+    # Soccer Rising Stars
+    "Estevao Willian": "2025", "Mathys Tel": "2023",
+    "Warren Zaire-Emery": "2023", "Pau Cubarsi": "2024",
+    "Arda Guler": "2024", "Savinho": "2024",
+    "Alejandro Baena": "2024", "Kenan Yildiz": "2024",
+    "Joao Neves": "2024", "Jamie Bynoe-Gittens": "2024",
 }
 
 PLAYER_TIER = {
@@ -45,6 +74,10 @@ PLAYER_TIER = {
         "Shohei Ohtani", "Mike Trout", "Aaron Judge",
         "Patrick Mahomes", "Josh Allen",
         "Lionel Messi", "Cristiano Ronaldo", "Kylian Mbappe", "Erling Haaland",
+        # 2025 #1 Pick — massive hype
+        "Cooper Flagg",
+        # NFL 2025 top prospect
+        "Travis Hunter",
     ],
     2: [  # All-Stars
         "Stephen Curry", "Kevin Durant", "Nikola Jokic", "Joel Embiid", "Jayson Tatum",
@@ -54,6 +87,12 @@ PLAYER_TIER = {
         "Justin Jefferson", "Ja'Marr Chase", "CeeDee Lamb",
         "Jude Bellingham", "Vinicius Junior", "Bukayo Saka",
         "Lamine Yamal", "Cole Palmer",
+        # New high-value additions
+        "Dylan Harper", "Ace Bailey",
+        "Roki Sasaki", "Jackson Chourio", "Bobby Witt Jr.", "Gunnar Henderson",
+        "Cam Ward", "Shedeur Sanders", "Ashton Jeanty", "Brock Bowers",
+        "Saquon Barkley", "Jayden Daniels",
+        "Florian Wirtz", "Jamal Musiala", "Pau Cubarsi",
     ],
     3: [],  # Everyone else
 }

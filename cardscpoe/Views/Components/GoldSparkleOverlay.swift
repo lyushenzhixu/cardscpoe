@@ -9,6 +9,7 @@ private struct SparkleParticle {
     let driftFrequency: Double
     let opacity: Double
     let phaseOffset: Double
+    let isStarPoint: Bool
 
     func position(at time: Double, in size: CGSize) -> CGPoint {
         let cycle = time * driftFrequency + phaseOffset
@@ -26,7 +27,8 @@ private struct SparkleParticle {
 
 struct GoldSparkleOverlay: View {
     private let particleCount = 48
-    private let goldColor = CSColor.signalGold
+    private let primaryColor = CSColor.signalPrimary
+    private let starColor = Color.white
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1 / 30)) { context in
@@ -38,13 +40,15 @@ struct GoldSparkleOverlay: View {
                     let alpha = p.currentOpacity(at: time)
                     let r = p.size
                     let rect = CGRect(x: pos.x - r, y: pos.y - r, width: r * 2, height: r * 2)
+                    let color = p.isStarPoint ? starColor : primaryColor
+                    let baseAlpha = p.isStarPoint ? alpha * 0.7 : alpha * 0.6
                     ctx.fill(
                         Path(ellipseIn: rect),
-                        with: .color(goldColor.opacity(alpha))
+                        with: .color(color.opacity(baseAlpha))
                     )
                     ctx.fill(
                         Path(ellipseIn: rect.insetBy(dx: -1, dy: -1)),
-                        with: .color(goldColor.opacity(alpha * 0.3))
+                        with: .color(color.opacity(baseAlpha * 0.3))
                     )
                 }
             }
@@ -61,15 +65,17 @@ struct GoldSparkleOverlay: View {
         let driftFrequency = 0.8 + (seed * 0.4).truncatingRemainder(dividingBy: 0.8)
         let opacity = 0.4 + (seed * 0.5).truncatingRemainder(dividingBy: 0.5)
         let phaseOffset = seed * .pi * 2
+        let isStarPoint = index % 5 == 0
         return SparkleParticle(
             seed: seed * (canvasSize.height + 100),
             baseX: baseX,
-            size: size,
+            size: isStarPoint ? size * 0.7 : size,
             fallSpeed: fallSpeed,
             driftAmplitude: driftAmplitude,
             driftFrequency: driftFrequency,
             opacity: opacity,
-            phaseOffset: phaseOffset
+            phaseOffset: phaseOffset,
+            isStarPoint: isStarPoint
         )
     }
 }

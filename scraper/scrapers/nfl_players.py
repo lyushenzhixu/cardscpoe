@@ -23,6 +23,13 @@ TOP_NFL_PLAYERS = [
     "Sauce Gardner", "Jalen Ramsey", "Patrick Surtain II", "Roquan Smith",
     "Dexter Lawrence", "Chris Jones", "Aidan Hutchinson", "Will Anderson Jr.",
     "Marvin Harrison Jr.", "Malik Nabers",
+    # 2025 Draft Class & Rising Stars
+    "Cam Ward", "Shedeur Sanders", "Travis Hunter", "Ashton Jeanty",
+    "Tetairoa McMillan", "Abdul Carter", "Mason Graham", "Will Campbell",
+    "Jalon Walker", "Luther Burden III",
+    # Recent breakout stars
+    "Bo Nix", "Jayden Daniels", "Brock Bowers", "Ladd McConkey",
+    "Brian Thomas Jr.", "Xavier Worthy",
 ]
 
 
@@ -166,6 +173,23 @@ HARDCODED_NFL = [
     ("Will Anderson Jr.", "Houston Texans", "Edge Rusher"),
     ("Marvin Harrison Jr.", "Arizona Cardinals", "Wide Receiver"),
     ("Malik Nabers", "New York Giants", "Wide Receiver"),
+    # 2025 Draft Class
+    ("Cam Ward", "New York Giants", "Quarterback"),
+    ("Shedeur Sanders", "Cleveland Browns", "Quarterback"),
+    ("Travis Hunter", "New England Patriots", "Wide Receiver"),
+    ("Ashton Jeanty", "Las Vegas Raiders", "Running Back"),
+    ("Tetairoa McMillan", "Jacksonville Jaguars", "Wide Receiver"),
+    ("Abdul Carter", "Tennessee Titans", "Edge Rusher"),
+    ("Mason Graham", "New York Jets", "Defensive Tackle"),
+    ("Will Campbell", "Carolina Panthers", "Offensive Tackle"),
+    ("Jalon Walker", "Dallas Cowboys", "Linebacker"),
+    ("Luther Burden III", "Cincinnati Bengals", "Wide Receiver"),
+    # Recent breakout stars
+    ("Bo Nix", "Denver Broncos", "Quarterback"),
+    ("Brock Bowers", "Las Vegas Raiders", "Tight End"),
+    ("Ladd McConkey", "Los Angeles Chargers", "Wide Receiver"),
+    ("Brian Thomas Jr.", "Jacksonville Jaguars", "Wide Receiver"),
+    ("Xavier Worthy", "Kansas City Chiefs", "Wide Receiver"),
 ]
 
 

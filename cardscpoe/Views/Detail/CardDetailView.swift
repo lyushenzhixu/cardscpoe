@@ -9,7 +9,7 @@ struct CardDetailView: View {
     @State private var selectedChartPeriod = 1
     @State private var priceData: PriceData?
 
-    private let chartPeriods = ["1M", "3M", "1Y", "ALL"]
+    private let chartPeriods = ["7D", "1M", "3M", "6M", "1Y"]
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -25,7 +25,6 @@ struct CardDetailView: View {
                 if appState.subscription.hasFullValuation() {
                     recentSalesSection
                 }
-                aiGradeButton
                 Spacer().frame(height: CSSpacing.xl)
             }
         }
@@ -100,30 +99,19 @@ struct CardDetailView: View {
     private var chartSection: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("💰 Price Trend (Raw)")
-                    .font(CSFont.body(.bold))
-                Spacer()
                 HStack(spacing: 6) {
-                    ForEach(0..<chartPeriods.count, id: \.self) { i in
-                        Button {
-                            withAnimation(.spring(response: 0.3)) { selectedChartPeriod = i }
-                        } label: {
-                            Text(chartPeriods[i])
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(selectedChartPeriod == i ? .black : CSColor.textTertiary)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(
-                                    selectedChartPeriod == i ? CSColor.signalPrimary : Color.white.opacity(0.05)
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-                    }
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 14))
+                        .foregroundStyle(CSColor.signalPrimary)
+                    Text("Price Trend (Raw)")
+                        .font(CSFont.body(.bold))
                 }
+                Spacer()
+                PeriodSelectorView(periods: chartPeriods, selected: $selectedChartPeriod)
             }
             .padding(.bottom, CSSpacing.md)
 
-            miniChart
+            AreaChartView(data: priceData?.history ?? MockData.priceHistory)
 
             HStack {
                 let labels = chartLabels
@@ -143,51 +131,15 @@ struct CardDetailView: View {
         .padding(.bottom, CSSpacing.md)
     }
 
-    private var miniChart: some View {
-        GeometryReader { geo in
-            let data = priceData?.history ?? MockData.priceHistory
-            let maxVal = data.map(\.value).max() ?? 1
-            let minVal = data.map(\.value).min() ?? 0
-            let range = maxVal - minVal
-            let w = geo.size.width / CGFloat(data.count)
-
-            ZStack(alignment: .bottom) {
-                HStack(alignment: .bottom, spacing: 3) {
-                    ForEach(Array(data.enumerated()), id: \.offset) { index, point in
-                        let h = range > 0 ? CGFloat((point.value - minVal) / range) * 70 + 10 : 40
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(
-                                LinearGradient(
-                                    colors: [CSColor.signalPrimary, CSColor.signalPrimary.opacity(0.3)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .frame(height: h)
-                    }
-                }
-
-                Path { path in
-                    for (index, point) in data.enumerated() {
-                        let x = CGFloat(index) * w + w / 2
-                        let y = range > 0 ? 80 - CGFloat((point.value - minVal) / range) * 70 - 10 : 40
-                        if index == 0 {
-                            path.move(to: CGPoint(x: x, y: y))
-                        } else {
-                            path.addLine(to: CGPoint(x: x, y: y))
-                        }
-                    }
-                }
-                .stroke(CSColor.signalPrimary.opacity(0.6), lineWidth: 1.5)
-            }
-        }
-        .frame(height: 80)
-    }
-
     private var cardInfoSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("📋 Card Information")
-                .font(CSFont.body(.bold))
+            HStack(spacing: 6) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSColor.signalPrimary)
+                Text("Card Information")
+                    .font(CSFont.body(.bold))
+            }
                 .padding(.bottom, 10)
 
             infoRow(label: "Player", value: card.playerName)
@@ -226,8 +178,13 @@ struct CardDetailView: View {
 
     private var recentSalesSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("💸 Recent Sales")
-                .font(CSFont.body(.bold))
+            HStack(spacing: 6) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSColor.signalPrimary)
+                Text("Recent Sales")
+                    .font(CSFont.body(.bold))
+            }
                 .padding(.bottom, 10)
 
             let sales = priceData?.recentSales ?? MockData.recentSales
@@ -252,36 +209,15 @@ struct CardDetailView: View {
         .padding(.horizontal, CSSpacing.md)
     }
 
-    private var aiGradeButton: some View {
-        Button {
-            guard appState.subscription.hasGradeAssessment() else {
-                appState.presentPaywall(source: .valueUnlock)
-                return
-            }
-            appState.gradeCard = card
-            appState.showingGrade = true
-            dismiss()
-        } label: {
-            HStack(spacing: CSSpacing.sm) {
-                Text("💎")
-                Text("AI Grade This Card")
-                    .font(CSFont.body(.bold))
-            }
-            .foregroundStyle(.black)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(CSColor.signalGold)
-            .clipShape(RoundedRectangle(cornerRadius: CSRadius.md))
-        }
-        .buttonStyle(NyxPressableStyle())
-        .padding(.horizontal, CSSpacing.md)
-        .padding(.top, CSSpacing.lg)
-    }
-
     private var lockedValuationSection: some View {
         VStack(alignment: .leading, spacing: CSSpacing.sm) {
-            Text("💰 Price Trend (Pro)")
-                .font(CSFont.body(.bold))
+            HStack(spacing: 6) {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSColor.signalPrimary)
+                Text("Price Trend (Pro)")
+                    .font(CSFont.body(.bold))
+            }
 
             Text("Unlock full valuation ranges, historical price trends, and recent sales.")
                 .font(CSFont.caption())
@@ -300,7 +236,7 @@ struct CardDetailView: View {
 
     private func saleColor(for grade: String) -> Color {
         switch grade {
-        case "PSA 10": return CSColor.signalGold
+        case "PSA 10": return CSColor.signalPrimary
         case "PSA 9": return Color(red: 0.38, green: 0.65, blue: 0.98)
         default: return CSColor.signalPrimary
         }
@@ -314,5 +250,13 @@ struct CardDetailView: View {
         let q2 = history[min((history.count * 2) / 3, history.count - 1)].month
         let last = history.last?.month ?? "-"
         return [first, q1, q2, last]
+    }
+}
+
+#Preview("CardDetailView") {
+    PreviewContainer {
+        NavigationStack {
+            CardDetailView(card: MockData.lukaDoncic)
+        }
     }
 }

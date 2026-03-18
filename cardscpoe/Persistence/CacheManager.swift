@@ -67,6 +67,24 @@ final class CacheManager {
         try context.save()
     }
 
+    // MARK: - Scan History
+
+    func insertScanHistory(cardId: UUID?, extractedText: String, imagePath: String? = nil, context: ModelContext) throws {
+        let entry = StoredScanHistory(cardId: cardId, extractedText: extractedText, imagePath: imagePath)
+        context.insert(entry)
+        try context.save()
+    }
+
+    func fetchScanHistory(context: ModelContext, limit: Int = 50) throws -> [StoredScanHistory] {
+        var descriptor = FetchDescriptor<StoredScanHistory>(
+            sortBy: [SortDescriptor(\.scannedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = limit
+        return try context.fetch(descriptor)
+    }
+
+    // MARK: - Players
+
     func fetchPlayers(context: ModelContext, sport: SportType? = nil) throws -> [Player] {
         let descriptor: FetchDescriptor<StoredPlayer>
         if let sport {

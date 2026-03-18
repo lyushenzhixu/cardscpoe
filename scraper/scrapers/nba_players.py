@@ -24,6 +24,13 @@ TOP_NBA_PLAYERS = [
     "Cade Cunningham", "Franz Wagner", "Alperen Sengun", "Evan Mobley",
     "Desmond Bane", "Tyler Herro", "Mikal Bridges", "OG Anunoby",
     "Karl-Anthony Towns", "Domantas Sabonis", "Pascal Siakam", "Fred VanVleet",
+    # 2025 Draft Class & Rising Stars
+    "Cooper Flagg", "Dylan Harper", "Ace Bailey", "VJ Edgecombe",
+    "Kasparas Jakucionis", "Kon Knueppel", "Tre Johnson", "Nolan Traore",
+    "Khaman Maluach", "Egor Demin",
+    # Recent breakout stars
+    "Dereck Lively II", "Amen Thompson", "Zach Edey", "Reed Sheppard",
+    "Stephon Castle", "Dalton Knecht", "Yves Missi",
 ]
 
 
@@ -109,10 +116,19 @@ NBA_PLAYER_IDS = {
     "Tyler Herro": 1629639, "Mikal Bridges": 1628969, "OG Anunoby": 1628384,
     "Karl-Anthony Towns": 1626157, "Domantas Sabonis": 1627734,
     "Pascal Siakam": 1627783, "Fred VanVleet": 1627832,
+    # 2025 Draft Class
+    "Cooper Flagg": 1642355, "Dylan Harper": 1642356, "Ace Bailey": 1642357,
+    "VJ Edgecombe": 1642358, "Kasparas Jakucionis": 1642359,
+    "Kon Knueppel": 1642360, "Tre Johnson": 1642361,
+    "Nolan Traore": 1642362, "Khaman Maluach": 1642363, "Egor Demin": 1642364,
+    # 2024 Class
+    "Dereck Lively II": 1641707, "Amen Thompson": 1641708,
+    "Zach Edey": 1641709, "Reed Sheppard": 1641710,
+    "Stephon Castle": 1641711, "Dalton Knecht": 1641712, "Yves Missi": 1641713,
 }
 
 
-def _get_nba_player_id(name: str) -> int | None:
+def _get_nba_player_id(name: str):
     return NBA_PLAYER_IDS.get(name)
 
 
@@ -176,6 +192,25 @@ HARDCODED_NBA = [
     ("Domantas Sabonis", "Sacramento Kings", "Center"),
     ("Pascal Siakam", "Indiana Pacers", "Forward"),
     ("Fred VanVleet", "Houston Rockets", "Guard"),
+    # 2025 Draft Class
+    ("Cooper Flagg", "Dallas Mavericks", "Forward"),
+    ("Dylan Harper", "Houston Rockets", "Guard"),
+    ("Ace Bailey", "Charlotte Hornets", "Forward"),
+    ("VJ Edgecombe", "Toronto Raptors", "Guard"),
+    ("Kasparas Jakucionis", "Sacramento Kings", "Guard"),
+    ("Kon Knueppel", "Brooklyn Nets", "Forward"),
+    ("Tre Johnson", "Portland Trail Blazers", "Guard"),
+    ("Nolan Traore", "Washington Wizards", "Guard"),
+    ("Khaman Maluach", "San Antonio Spurs", "Center"),
+    ("Egor Demin", "Utah Jazz", "Guard"),
+    # 2024 Class & Rising Stars
+    ("Dereck Lively II", "Dallas Mavericks", "Center"),
+    ("Amen Thompson", "Houston Rockets", "Guard-Forward"),
+    ("Zach Edey", "Memphis Grizzlies", "Center"),
+    ("Reed Sheppard", "Houston Rockets", "Guard"),
+    ("Stephon Castle", "San Antonio Spurs", "Guard"),
+    ("Dalton Knecht", "Los Angeles Lakers", "Forward"),
+    ("Yves Missi", "New Orleans Pelicans", "Center"),
 ]
 
 

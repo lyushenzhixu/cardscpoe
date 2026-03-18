@@ -67,7 +67,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def fetch_players(sport_filter: str | None = None, mode: str = "full") -> list[dict]:
+def fetch_players(sport_filter=None, mode="full"):
     """Fetch players from APIs or use hardcoded data."""
     all_players = []
 

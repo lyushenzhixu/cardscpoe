@@ -4,7 +4,7 @@ struct CollectionView: View {
     @Environment(AppState.self) private var appState
     @State private var selectedFilter = 0
 
-    private let filters: [String] = ["All", "🏀 NBA", "⚾ MLB", "🏈 NFL", "⚽ Soccer"]
+    private let filters: [String] = ["All", "NBA", "MLB", "NFL", "Soccer"]
     private let sportFilters: [SportType?] = [nil, .basketball, .baseball, .football, .soccer]
 
     private var filteredCards: [SportsCard] {
@@ -55,8 +55,8 @@ struct CollectionView: View {
                     .tracking(1)
 
                 Text("$\(formattedPrice(appState.totalValue))")
-                    .font(CSFont.mono(34, weight: .heavy))
-                    .foregroundStyle(CSColor.signalGold)
+                    .font(CSFont.heroValue())
+                    .foregroundStyle(CSColor.signalPrimary)
 
                 HStack(spacing: CSSpacing.xs) {
                     Image(systemName: appState.monthlyChange >= 0 ? "arrow.up.right" : "arrow.down.right")
@@ -79,7 +79,7 @@ struct CollectionView: View {
                 let uniquePlayers = Set(appState.collectionCards.map(\.playerName)).count
                 let uniqueSeries = Set(appState.collectionCards.map { "\($0.brand) \($0.setName)" }).count
                 portfolioStat(value: "\(appState.totalCards)", label: "Cards", color: CSColor.textPrimary)
-                portfolioStat(value: "\(uniquePlayers)", label: "Players", color: CSColor.signalGold)
+                portfolioStat(value: "\(uniquePlayers)", label: "Players", color: CSColor.signalPrimary)
                 portfolioStat(value: "\(uniqueSeries)", label: "Series", color: CSColor.signalPrimary)
             }
             .padding(.top, CSSpacing.md)
@@ -184,6 +184,14 @@ struct CollectionView: View {
     }
 }
 
+#Preview("CollectionView") {
+    PreviewContainer {
+        NavigationStack {
+            CollectionView()
+        }
+    }
+}
+
 struct CollectionGridCard: View {
     let card: SportsCard
 
@@ -208,7 +216,7 @@ struct CollectionGridCard: View {
                 HStack {
                     Text("$\(card.currentPrice)")
                         .font(CSFont.data(.heavy))
-                        .foregroundStyle(CSColor.signalGold)
+                        .foregroundStyle(CSColor.signalPrimary)
 
                     Spacer()
 
@@ -234,4 +242,12 @@ struct CollectionGridCard: View {
                 .stroke(CSColor.borderSubtle, lineWidth: 0.5)
         )
     }
+}
+
+#Preview("CollectionGridCard") {
+    CollectionGridCard(card: MockData.lukaDoncic)
+        .frame(width: 180)
+        .padding()
+        .background(Color.black)
+        .preferredColorScheme(.dark)
 }

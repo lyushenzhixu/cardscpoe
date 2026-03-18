@@ -31,6 +31,11 @@ CARD_BRANDS = {
             {"name": "Court Kings", "parallels": ["Base", "Aurora", "Ruby"]},
             {"name": "Chronicles", "parallels": ["Base", "Pink", "Gold"]},
         ]},
+        {"brand": "Topps", "sets": [
+            {"name": "Topps Now", "parallels": ["Base", "Purple", "Blue", "Gold", "Black"]},
+            {"name": "Bowman University Chrome", "parallels": ["Base", "Refractor", "Blue Refractor", "Gold Refractor"]},
+            {"name": "Chrome", "parallels": ["Base", "Refractor", "Pink Refractor", "Gold Refractor"]},
+        ]},
         {"brand": "Upper Deck", "sets": [
             {"name": "SP Authentic", "parallels": ["Base", "Limited"]},
         ]},
@@ -47,6 +52,7 @@ CARD_BRANDS = {
             {"name": "Stadium Club", "parallels": ["Base", "Chrome", "Red Foil"]},
             {"name": "Allen & Ginter", "parallels": ["Base", "Mini", "No Number"]},
             {"name": "Update Series", "parallels": ["Base", "Gold", "Rainbow Foil"]},
+            {"name": "Topps Now", "parallels": ["Base", "Purple", "Blue", "Gold", "Black"]},
         ]},
         {"brand": "Panini", "sets": [
             {"name": "Prizm", "parallels": ["Base", "Silver", "Red White Blue", "Blue"]},
@@ -65,6 +71,9 @@ CARD_BRANDS = {
             {"name": "Playbook", "parallels": ["Base", "Orange", "Green"]},
             {"name": "Chronicles", "parallels": ["Base", "Pink", "Gold"]},
             {"name": "Spectra", "parallels": ["Base", "Neon Blue", "Neon Green"]},
+        ]},
+        {"brand": "Topps", "sets": [
+            {"name": "Topps Now", "parallels": ["Base", "Purple", "Blue", "Gold", "Black"]},
         ]},
     ],
     "Soccer": [
@@ -85,4 +94,4 @@ CARD_BRANDS = {
     ],
 }
 
-CARD_YEARS = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"]
+CARD_YEARS = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"]

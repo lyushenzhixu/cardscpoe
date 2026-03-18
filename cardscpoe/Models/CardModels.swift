@@ -1,5 +1,26 @@
 import SwiftUI
 
+// MARK: - Scan & Grade Enums
+
+enum ScanMode {
+    case normal
+    case ai
+}
+
+enum CardGrade: String, CaseIterable, Identifiable {
+    case raw = "Raw"
+    case psa7 = "PSA 7"
+    case psa8 = "PSA 8"
+    case psa9 = "PSA 9"
+    case psa10 = "PSA 10"
+
+    var id: String { rawValue }
+
+    var label: String { rawValue }
+}
+
+// MARK: - Sport Type
+
 enum SportType: String, CaseIterable, Identifiable, Codable {
     case basketball = "NBA"
     case baseball = "MLB"
@@ -133,31 +154,36 @@ struct SportsCard: Identifiable, Codable, Hashable {
         return "\(year) \(setName) \(parallel)\(rc)"
     }
 
+    func priceRange(for grade: CardGrade) -> ClosedRange<Int> {
+        switch grade {
+        case .raw: return rawPriceLow...rawPriceHigh
+        case .psa7:
+            let low = rawPriceLow + (psa9PriceLow - rawPriceLow) / 3
+            let high = rawPriceHigh + (psa9PriceHigh - rawPriceHigh) / 3
+            return low...high
+        case .psa8:
+            let low = rawPriceLow + (psa9PriceLow - rawPriceLow) * 2 / 3
+            let high = rawPriceHigh + (psa9PriceHigh - rawPriceHigh) * 2 / 3
+            return low...high
+        case .psa9: return psa9PriceLow...psa9PriceHigh
+        case .psa10: return psa10PriceLow...psa10PriceHigh
+        }
+    }
+
+    // NetworkManager.decoder uses .convertFromSnakeCase, which auto-converts
+    // JSON keys like "player_name" → "playerName". We only need explicit mapping
+    // for properties where Swift's auto-conversion doesn't match (URL acronyms).
     enum CodingKeys: String, CodingKey {
-        case id
-        case supabaseId = "supabase_id"
-        case playerName = "player_name"
-        case team
-        case position
-        case sport
-        case brand
-        case setName = "set_name"
-        case year
-        case cardNumber = "card_number"
-        case parallel
-        case isRookie = "is_rookie"
-        case rawPriceLow = "raw_price_low"
-        case rawPriceHigh = "raw_price_high"
-        case psa9PriceLow = "psa9_price_low"
-        case psa9PriceHigh = "psa9_price_high"
-        case psa10PriceLow = "psa10_price_low"
-        case psa10PriceHigh = "psa10_price_high"
-        case currentPrice = "current_price"
-        case priceChange = "price_change"
-        case confidence
-        case grade
-        case imageURL = "image_url"
-        case headshotURL = "headshot_url"
+        case id, supabaseId, playerName, team, position, sport, brand, setName
+        case year, cardNumber, parallel, isRookie
+        case rawPriceLow, rawPriceHigh
+        case psa9PriceLow, psa9PriceHigh
+        case psa10PriceLow, psa10PriceHigh
+        case currentPrice, priceChange
+        case confidence, grade
+        // convertFromSnakeCase turns "image_url" → "imageUrl", not "imageURL"
+        case imageURL = "imageUrl"
+        case headshotURL = "headshotUrl"
     }
 }
 
@@ -196,6 +222,11 @@ struct Player: Identifiable, Codable, Hashable {
     let position: String
     let headshotURL: URL?
     let bio: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, supabaseId, name, sport, team, position, bio
+        case headshotURL = "headshotUrl"
+    }
 
     init(
         id: UUID = UUID(),
@@ -256,6 +287,22 @@ struct PriceData: Codable, Hashable {
     let priceChange: Double
     let history: [PriceHistoryPoint]
     let recentSales: [RecentSale]
+
+    func priceRange(for grade: CardGrade) -> ClosedRange<Int> {
+        switch grade {
+        case .raw: return rawRange
+        case .psa7:
+            let low = rawRange.lowerBound + (psa9Range.lowerBound - rawRange.lowerBound) / 3
+            let high = rawRange.upperBound + (psa9Range.upperBound - rawRange.upperBound) / 3
+            return low...high
+        case .psa8:
+            let low = rawRange.lowerBound + (psa9Range.lowerBound - rawRange.lowerBound) * 2 / 3
+            let high = rawRange.upperBound + (psa9Range.upperBound - rawRange.upperBound) * 2 / 3
+            return low...high
+        case .psa9: return psa9Range
+        case .psa10: return psa10Range
+        }
+    }
 }
 
 struct GradeBreakdown: Codable, Hashable {
@@ -267,6 +314,15 @@ struct GradeBreakdown: Codable, Hashable {
     var overall: Double {
         ((centering * 0.3) + (corners * 0.25) + (edges * 0.2) + (surface * 0.25))
             .rounded(toPlaces: 1)
+    }
+
+    var estimatedGrade: CardGrade {
+        let score = overall
+        if score >= 9.0 { return .psa10 }
+        if score >= 8.0 { return .psa9 }
+        if score >= 7.0 { return .psa8 }
+        if score >= 6.0 { return .psa7 }
+        return .raw
     }
 }
 

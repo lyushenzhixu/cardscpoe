@@ -24,6 +24,11 @@ TOP_MLB_PLAYERS = [
     "Kyle Tucker", "Yordan Alvarez", "Jose Altuve", "Alex Bregman",
     "Cody Bellinger", "Ian Happ", "Dansby Swanson", "Nico Hoerner",
     "Xander Bogaerts", "Luis Robert Jr.", "Ke'Bryan Hayes", "CJ Abrams",
+    # 2025 Top Prospects & Rising Stars
+    "Roki Sasaki", "Travis Bazzana", "Charlie Condon", "Jac Caglianone",
+    "Ethan Salas", "Roman Anthony", "Junior Caminero", "Colton Cowser",
+    "Wyatt Langford", "Jackson Chourio", "James Wood", "Dylan Crews",
+    "Masyn Winn", "Noelvi Marte", "Evan Carter",
 ]
 
 
@@ -165,6 +170,22 @@ HARDCODED_MLB = [
     ("Luis Robert Jr.", "Chicago White Sox", "Center Field"),
     ("Ke'Bryan Hayes", "Pittsburgh Pirates", "Third Base"),
     ("CJ Abrams", "Washington Nationals", "Shortstop"),
+    # 2025 Top Prospects & Rising Stars
+    ("Roki Sasaki", "Los Angeles Dodgers", "Pitcher"),
+    ("Travis Bazzana", "Cleveland Guardians", "Second Base"),
+    ("Charlie Condon", "Colorado Rockies", "Third Base"),
+    ("Jac Caglianone", "Kansas City Royals", "First Base"),
+    ("Ethan Salas", "San Diego Padres", "Catcher"),
+    ("Roman Anthony", "Boston Red Sox", "Outfield"),
+    ("Junior Caminero", "Tampa Bay Rays", "Third Base"),
+    ("Colton Cowser", "Baltimore Orioles", "Outfield"),
+    ("Wyatt Langford", "Texas Rangers", "Outfield"),
+    ("Jackson Chourio", "Milwaukee Brewers", "Outfield"),
+    ("James Wood", "Washington Nationals", "Outfield"),
+    ("Dylan Crews", "Washington Nationals", "Outfield"),
+    ("Masyn Winn", "St. Louis Cardinals", "Shortstop"),
+    ("Noelvi Marte", "Cincinnati Reds", "Third Base"),
+    ("Evan Carter", "Texas Rangers", "Outfield"),
 ]
 
 

@@ -3,10 +3,10 @@ import SwiftUI
 enum CSColor {
     static let surfacePrimary = Color.black
     static let surfaceSecondary = Color(red: 18/255, green: 18/255, blue: 23/255)
-    static let surfaceElevated = Color(red: 26/255, green: 26/255, blue: 33/255)
+    static let surfaceElevated = Color(red: 0x1A/255, green: 0x1A/255, blue: 0x22/255)
 
-    static let signalPrimary = Color(red: 0, green: 1, blue: 136/255)
-    static let signalWarm = Color(red: 1, green: 107/255, blue: 53/255)
+    static let signalPrimary = Color(red: 0x3E/255, green: 0xCF/255, blue: 0xA0/255)
+    static let signalWarm = Color(red: 0xE8/255, green: 0x5D/255, blue: 0x5D/255)
     static let signalTertiary = Color(red: 139/255, green: 92/255, blue: 246/255)
     static let signalGold = Color(red: 245/255, green: 200/255, blue: 66/255)
     static let signalGoldDim = Color(red: 245/255, green: 200/255, blue: 66/255).opacity(0.15)
@@ -15,8 +15,8 @@ enum CSColor {
     static let textSecondary = Color.white.opacity(0.6)
     static let textTertiary = Color.white.opacity(0.4)
 
-    static let border = Color(red: 26/255, green: 26/255, blue: 36/255)
-    static let borderSubtle = Color(red: 26/255, green: 26/255, blue: 36/255).opacity(0.5)
+    static let border = Color.white.opacity(0.06)
+    static let borderSubtle = Color.white.opacity(0.04)
 }
 
 enum CSFont {
@@ -34,6 +34,9 @@ enum CSFont {
     }
     static func caption(_ weight: Font.Weight = .regular) -> Font {
         .system(size: 12, weight: weight, design: .default)
+    }
+    static func heroValue(_ weight: Font.Weight = .heavy) -> Font {
+        .system(size: 42, weight: weight, design: .default)
     }
     static func data(_ weight: Font.Weight = .bold) -> Font {
         .system(size: 14, weight: weight, design: .monospaced)

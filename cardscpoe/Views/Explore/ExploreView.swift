@@ -72,6 +72,20 @@ struct ExploreView: View {
             TextField("Search players, sets, brands...", text: $searchText)
                 .font(CSFont.body())
                 .foregroundStyle(CSColor.textPrimary)
+
+            Button {
+                if appState.canStartScanFlow() {
+                    appState.showingScan = true
+                }
+            } label: {
+                Text("SCAN")
+                    .font(.system(size: 11, weight: .heavy))
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(CSColor.signalPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
         }
         .padding(.horizontal, CSSpacing.md)
         .padding(.vertical, 12)
@@ -88,8 +102,13 @@ struct ExploreView: View {
     private var trendingPlayersSection: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("🔥 Trending Players")
-                    .font(CSFont.headline(.semibold))
+                HStack(spacing: 6) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(CSColor.signalPrimary)
+                    Text("Trending Players")
+                        .font(CSFont.headline(.semibold))
+                }
                 Spacer()
                 Text("See All ›")
                     .font(CSFont.caption(.medium))
@@ -148,7 +167,7 @@ struct ExploreView: View {
             HStack(spacing: CSSpacing.xs) {
                 Text("$\(matchedCard?.currentPrice ?? 0)")
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
-                    .foregroundStyle(CSColor.signalGold)
+                    .foregroundStyle(CSColor.signalPrimary)
 
                 Text(matchedCard?.priceChangeFormatted ?? "0.0%")
                     .font(.system(size: 9, weight: .bold))
@@ -168,8 +187,13 @@ struct ExploreView: View {
     private var popularSeriesSection: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("📦 Popular Series")
-                    .font(CSFont.headline(.semibold))
+                HStack(spacing: 6) {
+                    Image(systemName: "square.grid.2x2")
+                        .font(.system(size: 14))
+                        .foregroundStyle(CSColor.signalPrimary)
+                    Text("Popular Series")
+                        .font(CSFont.headline(.semibold))
+                }
                 Spacer()
                 Text("More ›")
                     .font(CSFont.caption(.medium))
@@ -196,8 +220,9 @@ struct ExploreView: View {
                 )
                 .frame(width: 48, height: 48)
                 .overlay(
-                    Text(series.emoji)
-                        .font(.system(size: 20))
+                    Image(systemName: series.emoji)
+                        .font(.system(size: 18))
+                        .foregroundStyle(series.color)
                 )
 
             VStack(alignment: .leading, spacing: 2) {
@@ -232,7 +257,7 @@ struct ExploreView: View {
             }
         }
 
-        let palettes: [(String, Color)] = [("💎", .purple), ("✨", .blue), ("🔥", .orange), ("🌀", .teal), ("⭐", .yellow)]
+        let palettes: [(String, Color)] = [("diamond", .purple), ("sparkles", .blue), ("flame.fill", .orange), ("wind", .teal), ("star.fill", .yellow)]
         return source.enumerated().map { index, series in
             let palette = palettes[index % palettes.count]
             return .init(
@@ -241,6 +266,14 @@ struct ExploreView: View {
                 emoji: palette.0,
                 color: palette.1
             )
+        }
+    }
+}
+
+#Preview("ExploreView") {
+    PreviewContainer {
+        NavigationStack {
+            ExploreView()
         }
     }
 }

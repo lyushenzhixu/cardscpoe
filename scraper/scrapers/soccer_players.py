@@ -60,6 +60,17 @@ TOP_SOCCER_PLAYERS = [
     ("Julian Alvarez", "Atletico Madrid", "Forward"),
     ("Achraf Hakimi", "Paris Saint-Germain", "Defender"),
     ("Alisson Becker", "Liverpool", "Goalkeeper"),
+    # 2025 Rising Stars
+    ("Estevao Willian", "Palmeiras", "Forward"),
+    ("Mathys Tel", "Bayern Munich", "Forward"),
+    ("Warren Zaire-Emery", "Paris Saint-Germain", "Midfielder"),
+    ("Pau Cubarsi", "Barcelona", "Defender"),
+    ("Arda Guler", "Real Madrid", "Midfielder"),
+    ("Savinho", "Manchester City", "Forward"),
+    ("Alejandro Baena", "Villarreal", "Midfielder"),
+    ("Kenan Yildiz", "Juventus", "Forward"),
+    ("Joao Neves", "Paris Saint-Germain", "Midfielder"),
+    ("Jamie Bynoe-Gittens", "Borussia Dortmund", "Forward"),
 ]
 
 

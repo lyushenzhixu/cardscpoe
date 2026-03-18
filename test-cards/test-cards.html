@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Cards</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #111;
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .card {
+    width: 320px;
+    height: 450px;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    display: none;
+  }
+  .card.active { display: block; }
+  .nav {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 20px;
+  }
+  .nav button {
+    padding: 8px 16px;
+    border: 2px solid #333;
+    background: #222;
+    color: #aaa;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .nav button.active {
+    border-color: #00ff88;
+    color: #00ff88;
+    background: rgba(0,255,136,0.1);
+  }
+
+  /* Prizm */
+  .card-prizm {
+    background: linear-gradient(135deg, #0d1b3e 0%, #1a2d6b 30%, #c0c0c0 50%, #1a2d6b 70%, #0d1b3e 100%);
+  }
+  .brand-bar-prizm {
+    background: linear-gradient(90deg, #b8860b, #ffd700, #b8860b);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand-bar-prizm .b { font-size: 14px; font-weight: 800; color: #1a1a2e; letter-spacing: 3px; }
+  .brand-bar-prizm .s { font-size: 16px; font-weight: 900; color: #1a1a2e; letter-spacing: 4px; }
+
+  /* Chrome */
+  .card-chrome {
+    background: linear-gradient(160deg, #1a0000, #3d0000 30%, #8b0000 60%, #3d0000 90%);
+  }
+  .brand-bar-chrome {
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand-bar-chrome .b { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: 3px; }
+  .brand-bar-chrome .s { font-size: 12px; color: #ff6b6b; font-weight: 700; letter-spacing: 2px; }
+
+  /* Select */
+  .card-select {
+    background: linear-gradient(135deg, #0a0a2e, #1a1a4e 40%, #2d1b69 70%, #0a0a2e);
+  }
+  .brand-bar-select {
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa, #8b5cf6);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand-bar-select .b { font-size: 13px; font-weight: 800; color: #1a1a2e; letter-spacing: 3px; }
+  .brand-bar-select .s { font-size: 17px; font-weight: 900; color: #fff; letter-spacing: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+
+  /* Donruss */
+  .card-donruss {
+    background: linear-gradient(145deg, #003300, #004d00 40%, #006600 70%, #003300);
+  }
+  .brand-bar-donruss {
+    background: linear-gradient(90deg, #228B22, #32CD32, #228B22);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand-bar-donruss .b { font-size: 13px; font-weight: 800; color: #003300; letter-spacing: 3px; }
+  .brand-bar-donruss .s { font-size: 17px; font-weight: 900; color: #fff; letter-spacing: 3px; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+
+  /* Mosaic */
+  .card-mosaic {
+    background: linear-gradient(135deg, #0a1628, #162d50 30%, #1e3a5f 50%, #162d50 70%, #0a1628);
+  }
+  .brand-bar-mosaic {
+    background: linear-gradient(90deg, #0066cc, #0088ff, #0066cc);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand-bar-mosaic .b { font-size: 13px; font-weight: 800; color: #001133; letter-spacing: 3px; }
+  .brand-bar-mosaic .s { font-size: 17px; font-weight: 900; color: #fff; letter-spacing: 4px; }
+
+  /* Finest */
+  .card-finest {
+    background: linear-gradient(135deg, #1a0033, #330066 40%, #4d0099 60%, #1a0033);
+  }
+  .brand-bar-finest {
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  }
+  .brand-bar-finest .b { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 4px; }
+  .brand-bar-finest .s { font-size: 11px; color: #d4a0ff; font-weight: 700; letter-spacing: 2px; }
+
+  .player-area {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .player-area .icon { font-size: 120px; opacity: 0.25; }
+  .player-area .jersey {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 48px;
+    font-weight: 900;
+    opacity: 0.12;
+    color: white;
+    font-style: italic;
+  }
+
+  .info-area {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 16px;
+  }
+  .player-name {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .team-name {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 3px;
+  }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+  .card-num { font-size: 13px; color: #888; font-weight: 700; }
+  .year-badge { font-size: 12px; font-weight: 700; }
+  .badge {
+    font-size: 9px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1.5px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Card 1: LeBron James -->
+<div class="card card-prizm active" id="card1">
+  <div class="brand-bar-prizm"><span class="b">PANINI</span><span class="s">PRIZM</span></div>
+  <div class="player-area">
+    <div class="icon" style="color:white">&#9977;</div>
+    <div class="jersey">23</div>
+  </div>
+  <div class="info-area" style="background:linear-gradient(180deg,transparent,#0d1b3e)">
+    <div class="player-name">LeBron James</div>
+    <div class="team-name" style="color:#8899bb">Los Angeles Lakers</div>
+    <div class="meta-row" style="border-top:1px solid rgba(255,255,255,0.1)">
+      <span class="card-num">#75</span>
+      <span class="badge" style="background:silver;color:#333">SILVER</span>
+      <span class="year-badge" style="color:#ffd700">2020-21</span>
+    </div>
+  </div>
+</div>
+
+<!-- Card 2: Mike Trout -->
+<div class="card card-chrome" id="card2">
+  <div class="brand-bar-chrome"><span class="b">TOPPS</span><span class="s">CHROME</span></div>
+  <div class="player-area" style="background:radial-gradient(circle at 50% 40%,rgba(139,0,0,0.4),transparent)">
+    <div class="icon" style="color:#ff6b6b">&#9918;</div>
+  </div>
+  <div class="info-area" style="background:linear-gradient(180deg,transparent,rgba(0,0,0,0.95))">
+    <div class="player-name">Mike Trout</div>
+    <div class="team-name" style="color:#ff9999">Los Angeles Angels</div>
+    <div class="meta-row" style="border-top:1px solid rgba(255,255,255,0.1)">
+      <span class="card-num">#1</span>
+      <span class="badge" style="background:transparent;color:#ffd700;border:1px solid #ffd700">REFRACTOR</span>
+      <span class="year-badge" style="color:#ff6b6b">2019</span>
+    </div>
+  </div>
+</div>
+
+<!-- Card 3: Stephen Curry -->
+<div class="card card-select" id="card3">
+  <div class="brand-bar-select"><span class="b">PANINI</span><span class="s">SELECT</span></div>
+  <div class="player-area" style="background:radial-gradient(ellipse at 50% 60%,rgba(139,92,246,0.2),transparent)">
+    <div class="icon" style="color:#a78bfa">&#9977;</div>
+  </div>
+  <div class="info-area" style="background:linear-gradient(180deg,transparent,rgba(10,10,46,0.98))">
+    <div class="player-name">Stephen Curry</div>
+    <div class="team-name" style="color:#a78bfa">Golden State Warriors</div>
+    <div class="meta-row" style="border-top:1px solid rgba(167,139,250,0.2)">
+      <span class="card-num">#122</span>
+      <span class="year-badge" style="color:#a78bfa">2021-22</span>
+    </div>
+  </div>
+</div>
+
+<!-- Card 4: Patrick Mahomes -->
+<div class="card card-donruss" id="card4">
+  <div class="brand-bar-donruss"><span class="b">PANINI</span><span class="s">DONRUSS</span></div>
+  <div class="player-area" style="background:radial-gradient(circle at 50% 50%,rgba(50,205,50,0.15),transparent)">
+    <div class="icon" style="color:#32CD32">&#127944;</div>
+  </div>
+  <div class="info-area" style="background:linear-gradient(180deg,transparent,rgba(0,51,0,0.98))">
+    <div class="player-name">Patrick Mahomes</div>
+    <div class="team-name" style="color:#90EE90">Kansas City Chiefs</div>
+    <div class="meta-row" style="border-top:1px solid rgba(50,205,50,0.2)">
+      <span class="card-num">#327</span>
+      <span class="badge" style="background:#ffd700;color:#003300">RATED ROOKIE</span>
+      <span class="year-badge" style="color:#32CD32">2017</span>
+    </div>
+  </div>
+</div>
+
+<!-- Card 5: Lionel Messi -->
+<div class="card card-finest" id="card5">
+  <div class="brand-bar-finest"><span class="b">TOPPS</span><span class="s">FINEST UCL</span></div>
+  <div class="player-area" style="background:radial-gradient(circle at 50% 40%,rgba(128,0,255,0.2),transparent)">
+    <div class="icon" style="color:#d4a0ff">&#9917;</div>
+  </div>
+  <div class="info-area" style="background:linear-gradient(180deg,transparent,rgba(26,0,51,0.98))">
+    <div class="player-name">Lionel Messi</div>
+    <div class="team-name" style="color:#d4a0ff">Inter Miami CF</div>
+    <div class="meta-row" style="border-top:1px solid rgba(212,160,255,0.2)">
+      <span class="card-num">#1</span>
+      <span class="year-badge" style="color:#d4a0ff">2022</span>
+    </div>
+  </div>
+</div>
+
+<!-- Card 6: Ja Morant -->
+<div class="card card-mosaic" id="card6">
+  <div class="brand-bar-mosaic"><span class="b">PANINI</span><span class="s">MOSAIC</span></div>
+  <div class="player-area">
+    <div class="icon" style="color:#0088ff">&#9977;</div>
+  </div>
+  <div class="info-area" style="background:linear-gradient(180deg,transparent,rgba(10,22,40,0.98))">
+    <div class="player-name">Ja Morant</div>
+    <div class="team-name" style="color:#66aaff">Memphis Grizzlies</div>
+    <div class="meta-row" style="border-top:1px solid rgba(0,136,255,0.2)">
+      <span class="card-num">#219</span>
+      <span class="badge" style="background:#ffd700;color:#001133">RC</span>
+      <span class="year-badge" style="color:#0088ff">2019-20</span>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="show(1)">1 LeBron</button>
+  <button onclick="show(2)">2 Trout</button>
+  <button onclick="show(3)">3 Curry</button>
+  <button onclick="show(4)">4 Mahomes</button>
+  <button onclick="show(5)">5 Messi</button>
+  <button onclick="show(6)">6 Morant</button>
+</div>
+
+<script>
+function show(n) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('card' + n).classList.add('active');
+  document.querySelectorAll('.nav button')[n-1].classList.add('active');
+}
+</script>
+</body>
+</html>

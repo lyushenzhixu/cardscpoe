@@ -1,0 +1,42 @@
+---
+description: 分析 Pencil 原型中的图片/图标占位符并用 zenmux-nano2 在终端生成图片
+globs: "**/*.pen,**/docs/**/*.md,**/assets/**"
+alwaysApply: true
+---
+
+# Pencil 原型 → 占位符识别 → Banana 生成图片
+
+当用户要求分析 Pencil 里的 mock 原型并生成占位图/图标时，按以下流程执行。
+
+## 1. 获取并分析原型
+
+- 使用 Pencil MCP（如 `get_screenshot`）或用户提供的截图/`.pen` 文件，拿到当前原型画面。
+- 分析界面中**哪些元素是图片占位符或图标**（例如：头像、卡片图、空状态图、Tab 图标、占位插图等）。
+- 对每个占位符/图标给出：
+  - 位置说明（如「卡片详情页 - 主图」「首页 - 空状态插图」）
+  - 建议的英文生成提示（简短、描述画面风格与内容）
+
+## 2. 在终端调用 Banana 生成图片
+
+对**每一个**识别出的图片/图标占位符，在**项目终端**中执行：
+
+```bash
+zenmux-nano2 "英文描述提示词" "输出路径.png"
+```
+
+- 必须先 `source ~/.zshrc` 或确保当前 shell 已加载 `zenmux-nano2`。
+- 提示词用英文、具体（如 "minimal user avatar placeholder, neutral background"、"trading card product image placeholder"）。
+- 输出路径建议放在项目内，例如：
+  - `assets/placeholder-{页面名}-{用途}.png`（如 `assets/placeholder-card-detail-hero.png`）
+  - `assets/icons/{名称}.png`
+  - 或用户指定的目录。
+
+## 3. 执行顺序与反馈
+
+- 按占位符逐个执行 `zenmux-nano2`，不要一次性写很多条命令再一起跑（便于定位失败项）。
+- 每生成一张图后，确认文件已写入，再继续下一张。
+- 若某次调用失败，根据终端报错重试或调整提示词/路径。
+
+## 4. 可选收尾
+
+- 生成完成后，可简要列出：生成了哪些文件、对应原型中的哪个位置，方便用户替换到 Pencil 或代码里。

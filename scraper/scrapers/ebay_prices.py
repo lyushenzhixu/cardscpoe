@@ -141,7 +141,7 @@ def _scrape_single_card(query: str, card: dict, card_index: int, max_results: in
     return prices
 
 
-def _parse_price(text: str) -> float | None:
+def _parse_price(text):
     if "to" in text.lower():
         parts = re.findall(r"[\d,]+\.?\d*", text)
         if parts:

@@ -77,9 +77,9 @@ struct CardArtView: View {
                 .stroke(
                     LinearGradient(
                         colors: [
-                            CSColor.signalGold.opacity(0.6),
-                            CSColor.signalGold.opacity(0.2),
-                            CSColor.signalGold.opacity(0.4),
+                            Color.white.opacity(0.25),
+                            CSColor.signalPrimary.opacity(0.15),
+                            Color.white.opacity(0.2),
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -146,7 +146,7 @@ struct CardArtView: View {
                         .padding(.vertical, size == .large ? 4 : 2)
                         .background(
                             LinearGradient(
-                                colors: [CSColor.signalGold, Color(red: 0.98, green: 0.57, blue: 0.24)],
+                                colors: [CSColor.signalPrimary, CSColor.signalPrimary.opacity(0.7)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -183,6 +183,28 @@ struct CardArtView: View {
     }
 }
 
+#Preview("CardArtView - Sizes") {
+    HStack(spacing: 20) {
+        CardArtView(card: MockData.lukaDoncic, size: .thumbnail)
+        CardArtView(card: MockData.lukaDoncic, size: .medium)
+        CardArtView(card: MockData.lukaDoncic, size: .large)
+    }
+    .padding()
+    .background(Color.black)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("CardArtView - Sports") {
+    HStack(spacing: 16) {
+        CardArtView(card: MockData.lukaDoncic, size: .medium)
+        CardArtView(card: MockData.ohtani, size: .medium)
+        CardArtView(card: MockData.mahomes, size: .medium)
+    }
+    .padding()
+    .background(Color.black)
+    .preferredColorScheme(.dark)
+}
+
 struct CardArtGridView: View {
     let card: SportsCard
 
@@ -217,7 +239,7 @@ struct CardArtGridView: View {
                             .foregroundStyle(.black)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(CSColor.signalGold)
+                            .background(CSColor.signalPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 4))
                     }
                     Spacer()

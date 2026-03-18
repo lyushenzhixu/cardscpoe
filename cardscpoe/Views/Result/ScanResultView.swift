@@ -9,6 +9,7 @@ struct ScanResultView: View {
     @State private var isAddedToCollection = false
     @State private var showCheckmark = false
     @State private var priceData: PriceData?
+    @State private var selectedGrade: CardGrade = .raw
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -17,8 +18,17 @@ struct ScanResultView: View {
                 cardDisplay
                 playerInfo
                 chips
+                if appState.latestConfidenceLevel == .weak {
+                    weakMatchBanner
+                }
+                if appState.latestScanMode == .normal {
+                    gradePicker
+                }
+                if appState.latestScanMode == .ai {
+                    aiGradeBreakdownSection
+                }
                 if appState.subscription.hasFullValuation() {
-                    priceBox
+                    selectedPriceBox
                 } else {
                     lockedPriceBox
                 }
@@ -32,6 +42,9 @@ struct ScanResultView: View {
         .preferredColorScheme(.dark)
         .task {
             priceData = await PriceService.shared.fetchPriceData(for: card, context: modelContext)
+            if appState.latestScanMode == .ai, let breakdown = appState.latestGradeBreakdown {
+                selectedGrade = breakdown.estimatedGrade
+            }
         }
     }
 
@@ -80,22 +93,61 @@ struct ScanResultView: View {
             CardArtView(card: card, size: .large)
                 .rotation3DEffect(.degrees(-2), axis: (x: 0, y: 1, z: 0))
 
-            HStack(spacing: 6) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 12))
-                Text("\(String(format: "%.1f", card.confidence))% match")
-                    .font(CSFont.caption(.bold))
-                    .monospacedDigit()
-            }
-            .foregroundStyle(CSColor.signalPrimary)
-            .padding(.horizontal, CSSpacing.md)
-            .padding(.vertical, 6)
-            .background(CSColor.signalPrimary.opacity(0.08))
-            .clipShape(Capsule())
-            .overlay(Capsule().stroke(CSColor.signalPrimary.opacity(0.15), lineWidth: 0.5))
+            confidenceBadge
         }
         .padding(.horizontal, CSSpacing.md)
         .padding(.bottom, CSSpacing.md)
+    }
+
+    private var weakMatchBanner: some View {
+        HStack(spacing: CSSpacing.sm) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(CSColor.signalGold)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Low confidence match")
+                    .font(CSFont.caption(.bold))
+                    .foregroundStyle(CSColor.signalGold)
+                Text("This might not be the correct card. Please verify the details above.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(CSColor.textTertiary)
+            }
+            Spacer()
+        }
+        .padding(CSSpacing.sm)
+        .background(CSColor.signalGold.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
+        .overlay(
+            RoundedRectangle(cornerRadius: CSRadius.sm)
+                .stroke(CSColor.signalGold.opacity(0.15), lineWidth: 0.5)
+        )
+        .padding(.horizontal, CSSpacing.md)
+        .padding(.bottom, CSSpacing.md)
+    }
+
+    private var confidenceBadge: some View {
+        let level = appState.latestConfidenceLevel
+        let badgeColor: Color = switch level {
+        case .strong: CSColor.signalPrimary
+        case .moderate: CSColor.signalTertiary
+        case .weak: CSColor.signalGold
+        case .none: CSColor.textTertiary
+        }
+        return HStack(spacing: 6) {
+            Image(systemName: level.icon)
+                .font(.system(size: 12))
+            Text(level.label)
+                .font(CSFont.caption(.bold))
+            Text("· \(String(format: "%.0f", card.confidence))%")
+                .font(CSFont.caption(.bold))
+                .monospacedDigit()
+        }
+        .foregroundStyle(badgeColor)
+        .padding(.horizontal, CSSpacing.md)
+        .padding(.vertical, 6)
+        .background(badgeColor.opacity(0.08))
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(badgeColor.opacity(0.15), lineWidth: 0.5))
     }
 
     private var playerInfo: some View {
@@ -143,11 +195,114 @@ struct ScanResultView: View {
         )
     }
 
-    private var priceBox: some View {
-        VStack(spacing: 0) {
+    // MARK: - Grade Picker (Normal Mode)
+
+    private var gradePicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(CardGrade.allCases) { grade in
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            selectedGrade = grade
+                        }
+                    } label: {
+                        Text(grade.label)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(selectedGrade == grade ? .black : CSColor.textSecondary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(selectedGrade == grade ? CSColor.signalPrimary : CSColor.surfaceElevated)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(selectedGrade == grade ? CSColor.signalPrimary : CSColor.border, lineWidth: 0.5)
+                            )
+                    }
+                }
+            }
+            .padding(.horizontal, CSSpacing.md)
+        }
+        .padding(.bottom, CSSpacing.md)
+    }
+
+    // MARK: - AI Grade Breakdown (AI Mode)
+
+    private var aiGradeBreakdownSection: some View {
+        let breakdown = appState.latestGradeBreakdown ?? GradeBreakdown(centering: 9.1, corners: 9.0, edges: 8.8, surface: 8.9)
+        return VStack(spacing: 0) {
+            HStack {
+                HStack(spacing: CSSpacing.sm) {
+                    Image(systemName: "diamond.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(CSColor.signalPrimary)
+                    Text("AI Grade")
+                        .font(CSFont.headline(.bold))
+                }
+                Spacer()
+                Text(String(format: "%.1f", breakdown.overall))
+                    .font(.system(size: 28, weight: .heavy, design: .monospaced))
+                    .foregroundStyle(CSColor.signalPrimary)
+            }
+            .padding(.bottom, CSSpacing.xs)
+
+            Text("Estimated \(selectedGrade.label) · /10")
+                .font(CSFont.caption())
+                .foregroundStyle(CSColor.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, CSSpacing.md)
+
+            gradeBarRow(label: "Centering", value: breakdown.centering / 10, score: String(format: "%.1f", breakdown.centering), color: CSColor.signalPrimary)
+            gradeBarRow(label: "Corners", value: breakdown.corners / 10, score: String(format: "%.1f", breakdown.corners), color: CSColor.signalPrimary)
+            gradeBarRow(label: "Edges", value: breakdown.edges / 10, score: String(format: "%.1f", breakdown.edges), color: CSColor.signalTertiary)
+            gradeBarRow(label: "Surface", value: breakdown.surface / 10, score: String(format: "%.1f", breakdown.surface), color: CSColor.signalPrimary)
+        }
+        .padding(CSSpacing.lg)
+        .background(CSColor.surfaceElevated)
+        .clipShape(RoundedRectangle(cornerRadius: CSRadius.lg))
+        .overlay(
+            RoundedRectangle(cornerRadius: CSRadius.lg)
+                .stroke(CSColor.border, lineWidth: 0.5)
+        )
+        .padding(.horizontal, CSSpacing.md)
+        .padding(.bottom, CSSpacing.md)
+    }
+
+    private func gradeBarRow(label: String, value: Double, score: String, color: Color) -> some View {
+        VStack(spacing: 6) {
+            HStack {
+                Text(label)
+                    .font(CSFont.caption())
+                    .foregroundStyle(CSColor.textSecondary)
+                Spacer()
+                Text(score)
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundStyle(color)
+            }
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.white.opacity(0.04))
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(color)
+                        .frame(width: geo.size.width * value)
+                }
+            }
+            .frame(height: 4)
+        }
+        .padding(.bottom, 12)
+    }
+
+    // MARK: - Selected Price Box
+
+    private var selectedPriceBox: some View {
+        let range = priceRangeForGrade(selectedGrade)
+        return VStack(spacing: 0) {
             HStack {
                 HStack(spacing: 6) {
-                    Text("💰")
+                    Image(systemName: "chart.bar.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(CSColor.signalPrimary)
                     Text("Market Price")
                         .font(CSFont.body(.bold))
                 }
@@ -163,39 +318,35 @@ struct ScanResultView: View {
             }
             .padding(.bottom, 12)
 
-            priceRow(label: "Raw (Ungraded)", price: "$\(rawRange.lowerBound) – $\(rawRange.upperBound)", color: CSColor.textPrimary)
-            priceRow(label: "PSA 9 Mint", price: "$\(psa9Range.lowerBound) – $\(psa9Range.upperBound)", color: CSColor.signalTertiary)
-            priceRow(label: "PSA 10 Gem Mint", price: "$\(psa10Range.lowerBound) – $\(psa10Range.upperBound)", color: CSColor.signalGold, isLast: true)
+            HStack {
+                Text(selectedGrade.label)
+                    .font(CSFont.caption())
+                    .foregroundStyle(CSColor.textSecondary)
+                Spacer()
+                Text("$\(range.lowerBound) – $\(range.upperBound)")
+                    .font(CSFont.data(.bold))
+                    .foregroundStyle(CSColor.signalPrimary)
+            }
+            .padding(.vertical, 10)
         }
         .nyxCard()
         .padding(.horizontal, CSSpacing.md)
         .padding(.bottom, CSSpacing.md)
     }
 
-    private func priceRow(label: String, price: String, color: Color, isLast: Bool = false) -> some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text(label)
-                    .font(CSFont.caption())
-                    .foregroundStyle(CSColor.textSecondary)
-                Spacer()
-                Text(price)
-                    .font(CSFont.data(.bold))
-                    .foregroundStyle(color)
-            }
-            .padding(.vertical, 10)
-
-            if !isLast {
-                Divider()
-                    .background(CSColor.borderSubtle)
-            }
+    private func priceRangeForGrade(_ grade: CardGrade) -> ClosedRange<Int> {
+        if let priceData {
+            return priceData.priceRange(for: grade)
         }
+        return card.priceRange(for: grade)
     }
 
     private var demandBar: some View {
         HStack {
             HStack(spacing: CSSpacing.sm) {
-                Text("📈")
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSColor.signalPrimary)
                 Text("Demand: On the Rise")
                     .font(CSFont.caption(.bold))
                     .foregroundStyle(CSColor.signalPrimary)
@@ -220,13 +371,24 @@ struct ScanResultView: View {
     private var ocrHint: some View {
         Group {
             if let text = appState.latestExtractedText, !text.isEmpty {
-                HStack(alignment: .top, spacing: CSSpacing.sm) {
-                    Image(systemName: "text.viewfinder")
-                        .foregroundStyle(CSColor.signalPrimary)
-                    Text(text)
-                        .font(.system(size: 11))
-                        .foregroundStyle(CSColor.textTertiary)
-                        .lineLimit(3)
+                VStack(alignment: .leading, spacing: CSSpacing.sm) {
+                    HStack(alignment: .top, spacing: CSSpacing.sm) {
+                        Image(systemName: "text.viewfinder")
+                            .foregroundStyle(CSColor.signalPrimary)
+                        Text(text)
+                            .font(.system(size: 11))
+                            .foregroundStyle(CSColor.textTertiary)
+                            .lineLimit(3)
+                    }
+                    #if DEBUG
+                    if let debug = appState.latestScanDebugInfo, !debug.isEmpty {
+                        Divider().background(CSColor.borderSubtle)
+                        Text(debug)
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(CSColor.textTertiary.opacity(0.7))
+                            .lineLimit(8)
+                    }
+                    #endif
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, CSSpacing.md)
@@ -281,7 +443,9 @@ struct ScanResultView: View {
     private var lockedPriceBox: some View {
         VStack(alignment: .leading, spacing: CSSpacing.sm) {
             HStack(spacing: 6) {
-                Text("💰")
+                Image(systemName: "chart.bar.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(CSColor.signalPrimary)
                 Text("Market Price (Pro)")
                     .font(CSFont.body(.bold))
             }
@@ -311,17 +475,6 @@ struct ScanResultView: View {
         !appState.subscription.canAddToCollection(currentCount: appState.collectionCards.count)
     }
 
-    private var rawRange: ClosedRange<Int> {
-        priceData?.rawRange ?? (card.rawPriceLow ... card.rawPriceHigh)
-    }
-
-    private var psa9Range: ClosedRange<Int> {
-        priceData?.psa9Range ?? (card.psa9PriceLow ... card.psa9PriceHigh)
-    }
-
-    private var psa10Range: ClosedRange<Int> {
-        priceData?.psa10Range ?? (card.psa10PriceLow ... card.psa10PriceHigh)
-    }
 }
 
 struct CardNotFoundView: View {
@@ -338,19 +491,39 @@ struct CardNotFoundView: View {
             Text("Card Not Found")
                 .font(CSFont.title(.bold))
                 .foregroundStyle(CSColor.textPrimary)
-            Text("We couldn’t identify this card. Try again with better lighting or a clearer photo.")
-                .font(CSFont.body())
-                .foregroundStyle(CSColor.textSecondary)
-                .multilineTextAlignment(.center)
+
+            VStack(spacing: CSSpacing.sm) {
+                Text("We couldn’t identify this card.")
+                    .font(CSFont.body())
+                    .foregroundStyle(CSColor.textSecondary)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    tipRow(icon: "sun.max", text: "Ensure good, even lighting")
+                    tipRow(icon: "camera.viewfinder", text: "Center the card in the frame")
+                    tipRow(icon: "text.magnifyingglass", text: "Make sure text on card is visible")
+                }
                 .padding(.horizontal, CSSpacing.lg)
+            }
+
             if let ocr = appState.latestExtractedText, !ocr.isEmpty {
-                HStack(alignment: .top, spacing: CSSpacing.sm) {
-                    Image(systemName: "text.viewfinder")
-                        .foregroundStyle(CSColor.signalPrimary)
-                    Text(ocr)
-                        .font(.system(size: 11))
-                        .foregroundStyle(CSColor.textTertiary)
-                        .lineLimit(4)
+                VStack(alignment: .leading, spacing: CSSpacing.sm) {
+                    HStack(alignment: .top, spacing: CSSpacing.sm) {
+                        Image(systemName: "text.viewfinder")
+                            .foregroundStyle(CSColor.signalPrimary)
+                        Text(ocr)
+                            .font(.system(size: 11))
+                            .foregroundStyle(CSColor.textTertiary)
+                            .lineLimit(4)
+                    }
+                    #if DEBUG
+                    if let debug = appState.latestScanDebugInfo, !debug.isEmpty {
+                        Divider().background(CSColor.borderSubtle)
+                        Text(debug)
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(CSColor.textTertiary.opacity(0.7))
+                            .lineLimit(8)
+                    }
+                    #endif
                 }
                 .padding(.horizontal, CSSpacing.md)
                 .padding(.vertical, 10)
@@ -362,18 +535,68 @@ struct CardNotFoundView: View {
                 )
                 .padding(.horizontal, CSSpacing.lg)
             }
-            Button {
-                appState.showingResult = false
-                appState.showingScan = true
-            } label: {
-                Text("Try Again")
+
+            HStack(spacing: CSSpacing.sm) {
+                Button {
+                    appState.showingResult = false
+                    appState.showingScan = true
+                } label: {
+                    Text("Try Again")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+
+                Button {
+                    appState.showingResult = false
+                    appState.selectedTab = .explore
+                } label: {
+                    Text("Search Manually")
+                }
+                .buttonStyle(SecondaryButtonStyle())
             }
-            .buttonStyle(PrimaryButtonStyle())
             .padding(.horizontal, CSSpacing.xl)
             Spacer()
         }
         .background(CSColor.surfacePrimary)
         .preferredColorScheme(.dark)
+    }
+
+    private func tipRow(icon: String, text: String) -> some View {
+        HStack(spacing: CSSpacing.sm) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundStyle(CSColor.signalPrimary)
+                .frame(width: 20)
+            Text(text)
+                .font(CSFont.caption())
+                .foregroundStyle(CSColor.textTertiary)
+        }
+    }
+}
+
+#Preview("ScanResultView – Normal") {
+    PreviewContainer {
+        NavigationStack {
+            ScanResultView(card: MockData.lukaDoncic)
+        }
+    }
+}
+
+#Preview("ScanResultView – AI") {
+    let state = AppState.preview
+    state.latestScanMode = .ai
+    state.latestGradeBreakdown = GradeBreakdown(centering: 9.1, corners: 9.0, edges: 8.8, surface: 8.9)
+    return PreviewContainer(appState: state) {
+        NavigationStack {
+            ScanResultView(card: MockData.lukaDoncic)
+        }
+    }
+}
+
+#Preview("CardNotFoundView") {
+    PreviewContainer {
+        NavigationStack {
+            CardNotFoundView()
+        }
     }
 }
 
