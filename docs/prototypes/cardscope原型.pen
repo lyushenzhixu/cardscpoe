@@ -2267,7 +2267,7 @@
       "id": "T5Y0e",
       "x": 399,
       "y": 1825,
-      "name": "1. MainTabView — Annotations",
+      "name": "1. 主导航 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -2286,7 +2286,7 @@
           "id": "mGdjq",
           "name": "at1",
           "fill": "#111827",
-          "content": "1. MainTabView",
+          "content": "1. 主导航（Tab）",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -2321,7 +2321,7 @@
                   "id": "4JJ3Z",
                   "name": "as1l",
                   "fill": "#3ECFA0",
-                  "content": "Tab Structure",
+                  "content": "底部导航",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -2343,7 +2343,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "TabItem enum: home, explore, scan, collection, profile\n\n@State selectedTab: TabItem\n\nEach tab maps to its view:\n• home → HomeView\n• explore → ExploreView\n• scan → ScanView\n• collection → CollectionView\n• profile → ProfileView",
+              "content": "五个固定入口：首页、探索、扫描、收藏、我的。\n一次只显示一个主界面；切换 Tab 时各页状态是否保留以产品规则为准。",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -2380,7 +2380,7 @@
                   "id": "BDPbj",
                   "name": "as2l",
                   "fill": "#3ECFA0",
-                  "content": "Floating Scan Button",
+                  "content": "中央扫描按钮",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -2402,7 +2402,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• Circular 52px, fill signalPrimary\n• Positioned center, overlapping tab bar\n• Triggers showingScan sheet\n• Glow shadow: #3ECFA0 40% blur 16\n• Icon: camera/scan 28px black",
+              "content": "• 主色圆形按钮（约 52pt），压在 Tab 栏上方\n• 点击后进入扫描流程（与点 Tab 内扫描一致）\n• 光晕：#3ECFA0、约 40% 透明度、模糊约 16\n• 图标：相机/扫描，约 28pt，深色",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -2439,7 +2439,7 @@
                   "id": "JUeCW",
                   "name": "as3l",
                   "fill": "#3ECFA0",
-                  "content": "Tab Bar Spec",
+                  "content": "Tab 栏样式",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -2461,7 +2461,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• Pill shape: height 62px, radius 36px\n• Background: #121217 (surfaceSecondary)\n• Border: #FFFFFF0F 1px\n• Active tab: fill signalPrimary, dark text\n• Inactive: transparent, #FFFFFF66 text\n• Icons: 18px Lucide\n• Labels: 10px Inter uppercase 600",
+              "content": "• 胶囊形容器：高约 62pt，圆角约 36pt\n• 背景 #121217，描边 #FFFFFF0F 1pt\n• 选中：主色填充 + 深色文字\n• 未选中：透明底 + 半透明白字\n• 图标约 18pt，标签约 10pt 大写加粗",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -2473,7 +2473,7 @@
     {
       "type": "frame",
       "id": "j2Fu9",
-      "x": 839,
+      "x": 838,
       "y": 1825,
       "name": "2. HomeView",
       "clip": true,
@@ -2561,7 +2561,7 @@
               "id": "7TANj",
               "name": "heroCard",
               "width": "fill_container",
-              "height": 160,
+              "height": 220,
               "fill": {
                 "type": "gradient",
                 "gradientType": "linear",
@@ -2602,7 +2602,7 @@
                   "id": "eCeda",
                   "name": "heroSub",
                   "fill": "#FFFFFF99",
-                  "content": "Scan any sports card to get instant pricing",
+                  "content": "Snap a photo to get player info & market value",
                   "fontFamily": "Inter",
                   "fontSize": 13,
                   "fontWeight": "normal"
@@ -2627,7 +2627,7 @@
                       "name": "heroBtnIcon",
                       "width": 16,
                       "height": 16,
-                      "iconFontName": "scan",
+                      "iconFontName": "camera",
                       "iconFontFamily": "lucide",
                       "fill": "#000000"
                     },
@@ -2669,23 +2669,23 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "WqmX2",
-                      "name": "stat1l",
-                      "fill": "#FFFFFF99",
-                      "content": "Total Value",
-                      "fontFamily": "Inter",
-                      "fontSize": 11,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "text",
-                      "id": "ALptN",
+                      "id": "1gD1n",
                       "name": "stat1v",
-                      "fill": "#F2F2F2",
+                      "fill": "#3ECFA0",
                       "content": "$12,450",
                       "fontFamily": "Inter",
                       "fontSize": 18,
                       "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "IJ9rj",
+                      "name": "stat1l",
+                      "fill": "#FFFFFF99",
+                      "content": "TOTAL VALUE",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -2706,16 +2706,6 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "hOEb3",
-                      "name": "stat2l",
-                      "fill": "#FFFFFF99",
-                      "content": "Cards",
-                      "fontFamily": "Inter",
-                      "fontSize": 11,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "text",
                       "id": "1NSOV",
                       "name": "stat2v",
                       "fill": "#F2F2F2",
@@ -2723,6 +2713,16 @@
                       "fontFamily": "Inter",
                       "fontSize": 18,
                       "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "hOEb3",
+                      "name": "stat2l",
+                      "fill": "#FFFFFF99",
+                      "content": "CARDS",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -2743,23 +2743,23 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "IJ9rj",
-                      "name": "stat3l",
-                      "fill": "#FFFFFF99",
-                      "content": "Monthly",
-                      "fontFamily": "Inter",
-                      "fontSize": 11,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "text",
-                      "id": "1gD1n",
+                      "id": "ALptN",
                       "name": "stat3v",
                       "fill": "#3ECFA0",
                       "content": "+8.2%",
                       "fontFamily": "Inter",
                       "fontSize": 18,
                       "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "WqmX2",
+                      "name": "stat3l",
+                      "fill": "#FFFFFF99",
+                      "content": "THIS MONTH",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -2772,7 +2772,7 @@
               "width": "fill_container",
               "name": "sh1",
               "x": 20,
-              "y": 323,
+              "y": 383,
               "height": "fit_content",
               "descendants": {
                 "26his": {
@@ -2800,7 +2800,7 @@
               "width": "fill_container",
               "name": "li1",
               "x": 20,
-              "y": 364,
+              "y": 424,
               "descendants": {
                 "xgfiY": {
                   "x": 16,
@@ -2836,7 +2836,7 @@
               "width": "fill_container",
               "name": "li2",
               "x": 20,
-              "y": 456,
+              "y": 516,
               "descendants": {
                 "xgfiY": {
                   "x": 16,
@@ -2880,7 +2880,7 @@
               "width": "fill_container",
               "name": "sh2",
               "x": 20,
-              "y": 548,
+              "y": 608,
               "height": "fit_content",
               "descendants": {
                 "26his": {
@@ -2896,8 +2896,9 @@
                   "x": 26
                 },
                 "ysd3i": {
-                  "x": 274,
-                  "y": 1.5
+                  "x": 287,
+                  "y": 1.5,
+                  "content": "More ›"
                 }
               }
             },
@@ -2908,7 +2909,7 @@
               "width": "fill_container",
               "name": "li3",
               "x": 20,
-              "y": 589,
+              "y": 649,
               "descendants": {
                 "xgfiY": {
                   "x": 16,
@@ -3049,7 +3050,7 @@
       "id": "JYnPj",
       "x": 1238,
       "y": 1825,
-      "name": "2. HomeView — Annotations",
+      "name": "2. 首页 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -3068,7 +3069,7 @@
           "id": "L1sWn",
           "name": "at2",
           "fill": "#111827",
-          "content": "2. HomeView",
+          "content": "2. 首页",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -3102,7 +3103,7 @@
                   "id": "FhwlW",
                   "name": "hs1l",
                   "fill": "#3ECFA0",
-                  "content": "Data Sources",
+                  "content": "首页数据摘要",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -3124,7 +3125,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• appState.totalValue → Total portfolio\n• appState.totalCards → Card count\n• appState.monthlyChange → % change\n• recentScans: [SportsCard] → last 4\n• trendingCards: [SportsCard] → top 3",
+              "content": "• 组合总价值：用户收藏里所有卡片的估价加总\n• 收藏张数：已加入收藏的卡数\n• 本月涨跌：相对上一周期的组合价值涨跌百分比（界面第三张卡文案为 THIS MONTH）\n• 最近扫描：首页最多展示 4 条，随首页刷新更新\n• 热门：首页最多展示 3 条；热门数据不可用时可改用本地按涨幅排序的备选列表",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -3160,7 +3161,7 @@
                   "id": "O7xNu",
                   "name": "hs2l",
                   "fill": "#3ECFA0",
-                  "content": "CardListItem Fields",
+                  "content": "列表每一行",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -3182,7 +3183,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• playerName: String — card name\n• shortDescription: brand+set+year\n• currentPrice: Int → formatted $\n• priceChange: Double → % badge\n• imageURL: URL? → thumbnail 48px\n• Tap → navigates to CardDetailView",
+              "content": "每条一行：左侧缩略图，中间球员名 + 一行简述（年份、系列、平行版等；新秀会带 RC）\n右侧为现价（带千分位）与涨跌幅（箭头 + 百分比，涨绿跌红）\n点击整行进入该张卡的详情页",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -3218,7 +3219,7 @@
                   "id": "ekFS6",
                   "name": "hs3l",
                   "fill": "#3ECFA0",
-                  "content": "Interactions",
+                  "content": "交互",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -3240,7 +3241,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• Hero card tap → ScanView\n• See All → full list view\n• Avatar → ProfileView\n• Stats cards are read-only\n• Pull to refresh updates data",
+              "content": "• 主视觉或「立即扫描」：打开扫描流程（浮层/全屏）\n• 「最近扫描」右侧文案为 See All ›；「热门」右侧为 More ›\n• 点击列表任一行：进入对应卡片详情\n• 点击头像：切换到「我的」\n• 三张统计卡仅展示，不可点击\n• 下拉页面：刷新首页数据（加载态与失败提示需可感知）",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -3861,7 +3862,7 @@
       "id": "R3SMB",
       "x": 2077,
       "y": 1825,
-      "name": "3. ExploreView — Annotations",
+      "name": "3. 探索 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -3880,7 +3881,7 @@
           "id": "Dj82E",
           "name": "at3",
           "fill": "#111827",
-          "content": "3. ExploreView",
+          "content": "3. 探索",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -3914,7 +3915,7 @@
                   "id": "AlJBr",
                   "name": "es1l",
                   "fill": "#3ECFA0",
-                  "content": "Search Logic",
+                  "content": "搜索与筛选",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -3936,7 +3937,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "Filters on: playerName, brand, setName, team, year\n\nSearch is debounced (300ms)\nResults update as user types\nEmpty state shows trending content",
+              "content": "可按球员名、品牌、系列、球队、年份组合查找。\n输入防抖约 300ms，边输边出结果。\n无结果时展示热门/推荐内容，避免空白。",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -3972,7 +3973,7 @@
                   "id": "5Fgfj",
                   "name": "es2l",
                   "fill": "#3ECFA0",
-                  "content": "Player Model",
+                  "content": "球员卡片信息",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -3994,7 +3995,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• name: String\n• sport: SportType\n• team: String\n• position: String\n• headshotURL: URL?\n• bio: String?",
+              "content": "• 姓名\n• 运动项目（如 NBA/MLB 等）\n• 球队、位置\n• 头像（可空）\n• 简介（可空）",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -4030,7 +4031,7 @@
                   "id": "pxUNY",
                   "name": "es3l",
                   "fill": "#3ECFA0",
-                  "content": "PopularSeries Model",
+                  "content": "热门系列卡片",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -4052,7 +4053,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• brand: String\n• setName: String\n• year: String\n• cardCount: Int\n• id = brand-setName-year\n• Tap → filtered card list",
+              "content": "• 品牌、系列名、年份\n• 该系列下卡片数量\n• 点击后进入「该系列筛选后」的卡片列表",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -4391,7 +4392,7 @@
       "id": "CWnHP",
       "x": 2916,
       "y": 1825,
-      "name": "4. ScanView — Annotations",
+      "name": "4. 扫描 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -4410,7 +4411,7 @@
           "id": "0RSOw",
           "name": "at4",
           "fill": "#111827",
-          "content": "4. ScanView",
+          "content": "4. 扫描",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -4444,7 +4445,7 @@
                   "id": "2wmKu",
                   "name": "ss1l",
                   "fill": "#3ECFA0",
-                  "content": "Scan Modes",
+                  "content": "扫描模式",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -4466,7 +4467,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "ScanMode enum:\n• normal — basic OCR + matching\n• ai — AI grading (requires Pro)\n\nAI Scan button shows PRO badge\nTriggers paywall if not subscribed",
+              "content": "• 标准模式：拍照 + 文字识别 + 卡片匹配\n• AI 模式：含自动品相/维度评分，需会员\n• AI 入口需显著标「PRO」；非会员点击走订阅引导",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -4502,7 +4503,7 @@
                   "id": "1tBJ7",
                   "name": "ss2l",
                   "fill": "#3ECFA0",
-                  "content": "Camera & Permissions",
+                  "content": "相机与权限",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -4524,7 +4525,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• Requires camera permission\n• Flash toggle: on/off/auto\n• Album: pick from photo library\n• Viewfinder: dashed guide frame\n• Analyzing overlay: spinner + text\n• Free limit: 3 scans/day\n• canScanToday() check before scan",
+              "content": "• 需相机授权；拒绝时给去设置引导\n• 闪光灯：开 / 关 / 自动\n• 可从相册选图\n• 取景区虚线框提示对准卡面\n• 识别中：加载动效 + 说明文案\n• 免费用户有每日扫描次数上限；触发前提示剩余次数",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -4560,7 +4561,7 @@
                   "id": "Tur3S",
                   "name": "ss3l",
                   "fill": "#3ECFA0",
-                  "content": "Processing Pipeline",
+                  "content": "识别流程（用户视角）",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -4582,7 +4583,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "1. Image preprocessing (crop/rotate)\n2. OCR via Apple Vision\n3. Text normalization\n4. Multi-dim card matching\n5. Price retrieval (3-tier fallback)\n6. Navigate to ScanResultView",
+              "content": "1. 裁边与摆正\n2. 读出卡面上的文字\n3. 规范化文本\n4. 与卡库多条件比对，给出最可能的一张/几张\n5. 按优先级从多个数据源取价\n6. 进入「识别结果」页",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -5158,7 +5159,7 @@
       "id": "riA6T",
       "x": 3755,
       "y": 1825,
-      "name": "5. ScanResultView — Annotations",
+      "name": "5. 识别结果 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -5177,7 +5178,7 @@
           "id": "i7L1v",
           "name": "at5",
           "fill": "#111827",
-          "content": "5. ScanResultView",
+          "content": "5. 识别结果",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -5211,7 +5212,7 @@
                   "id": "tO6Nj",
                   "name": "rs1l",
                   "fill": "#3ECFA0",
-                  "content": "Match Confidence",
+                  "content": "匹配可信度",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -5233,7 +5234,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "MatchConfidenceLevel:\n• strong (>0.8) → green badge\n• moderate (0.5-0.8) → yellow\n• weak (<0.5) → red badge\n\nBased on confidence: Double from card matching algorithm",
+              "content": "分为高 / 中 / 低三档，对应绿 / 黄 / 红提示\n依据系统对「是否同一张卡」的置信程度展示，便于用户判断是否采纳结果",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -5269,7 +5270,7 @@
                   "id": "K7pD1",
                   "name": "rs2l",
                   "fill": "#3ECFA0",
-                  "content": "AI vs Normal Mode",
+                  "content": "普通模式与 AI 评级",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -5291,7 +5292,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "Normal: Grade Picker (Raw/PSA 7-10)\nAI: 4-dimension grade bars\n• centering: 30% weight\n• corners: 25% weight\n• edges: 20% weight\n• surface: 25% weight\noverall = weighted average\nPro only — triggers paywall",
+              "content": "普通：用户自选品相档位（原卡 / PSA 7–10）查看对应价格口径\nAI：展示居中度、四角、四边、卡面四个维度条形评分及权重\n综合分为加权结果；AI 能力仅会员可用，否则弹出订阅",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -5327,7 +5328,7 @@
                   "id": "HGi5V",
                   "name": "rs3l",
                   "fill": "#3ECFA0",
-                  "content": "Paywall Triggers",
+                  "content": "会员提示场景",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -5349,7 +5350,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• Add to Collection: Free limit 20\n  → paywall source: featureLimit\n• AI Grade: Pro only\n  → paywall source: valueUnlock\n• Full price range: Pro only\n  → paywall source: valueUnlock",
+              "content": "• 加入收藏超过免费上限 → 引导订阅（与「次数/容量」话术一致）\n• 查看 AI 品相分析 → 引导订阅（与「解锁高级能力」话术一致）\n• 查看完整价差区间 → 同上",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -5933,7 +5934,7 @@
       "id": "wIkVv",
       "x": 399,
       "y": 2757,
-      "name": "6. CardDetailView — Annotations",
+      "name": "6. 卡片详情 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -5952,7 +5953,7 @@
           "id": "hT0UT",
           "name": "at6",
           "fill": "#111827",
-          "content": "6. CardDetailView",
+          "content": "6. 卡片详情",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -5986,7 +5987,7 @@
                   "id": "eXb79",
                   "name": "ds1l",
                   "fill": "#3ECFA0",
-                  "content": "Pro Gate Controls",
+                  "content": "会员可见内容",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -6008,7 +6009,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• hasPriceChart() → chart visible\n• hasFullValuation() → all price ranges\n• hasGradeAssessment() → AI grade\n\nFree users see basic price only\nBlurred/locked overlay on Pro features\nTap lock → paywall (valueUnlock)",
+              "content": "按订阅策略决定是否展示：价格走势、完整估价区间、AI 品相结论\n免费用户默认只看到基础参考价；会员专属区域可用模糊/加锁\n点击锁定区域 → 打开订阅说明",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -6044,7 +6045,7 @@
                   "id": "lcMHh",
                   "name": "ds2l",
                   "fill": "#3ECFA0",
-                  "content": "Data Models",
+                  "content": "价格与成交",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -6066,7 +6067,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "PriceHistoryPoint:\n• month: String, value: Double\n\nRecentSale:\n• grade: String\n• date: String\n• price: Int\n\nPeriod selector: 7D/1M/3M/6M/1Y\nChart type: area with gradient fill",
+              "content": "走势：每个时间点对应价格（如按月）\n最近成交：评级、日期、成交价\n可选周期：7 天～1 年\n图表为渐变面积图，便于扫一眼看趋势",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -6102,7 +6103,7 @@
                   "id": "iTkLh",
                   "name": "ds3l",
                   "fill": "#3ECFA0",
-                  "content": "Card Info Fields",
+                  "content": "卡片属性",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -6124,7 +6125,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "9 rows: Player, Team, Position,\nBrand, Set, Year, Card#, Parallel,\nType (Rookie/Base/Insert)\n\nAll from SportsCard model\nRead-only display",
+              "content": "共 9 行只读信息：球员、球队、位置、品牌、系列、年份、卡号、平行版本、类型（新秀/基础/特卡等）\n不在此页直接编辑，避免误操作",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -6799,7 +6800,7 @@
       "id": "7ypKD",
       "x": 1238,
       "y": 2757,
-      "name": "7. CollectionView — Annotations",
+      "name": "7. 收藏 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -6818,7 +6819,7 @@
           "id": "I0141",
           "name": "at7",
           "fill": "#111827",
-          "content": "7. CollectionView",
+          "content": "7. 收藏",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -6852,7 +6853,7 @@
                   "id": "ERU3c",
                   "name": "cs1l",
                   "fill": "#3ECFA0",
-                  "content": "Portfolio Data",
+                  "content": "组合概览",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -6874,7 +6875,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "totalValue = cards.reduce(0) {\n  $0 + $1.currentPrice\n}\ntotalCards = cards.count\nmonthlyChange = calculated delta\n\nEmpty state: if cards.isEmpty\nshows illustration + CTA to scan",
+              "content": "• 总价值：收藏内卡片参考价之和\n• 张数：当前收藏数量\n• 月度涨跌：按产品定义的周期与口径展示\n无卡时：插画 + 主按钮引导去扫描/添加",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -6910,7 +6911,7 @@
                   "id": "p6gUM",
                   "name": "cs2l",
                   "fill": "#3ECFA0",
-                  "content": "Sport Filter",
+                  "content": "运动类型筛选",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -6932,7 +6933,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "SportType enum filter:\n• All — no filter\n• basketball (NBA)\n• baseball (MLB)\n• football (NFL)\n• soccer (Soccer)\n\nGrid: 2 columns, CollectionGridCard\nTap card → CardDetailView",
+              "content": "• 全部，或按篮球 / 棒球 / 橄榄球 / 足球筛选\n• 双列网格展示收藏卡\n• 点击单张进入该卡详情",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -7686,7 +7687,7 @@
       "id": "2xRTb",
       "x": 2077,
       "y": 2757,
-      "name": "8. ProfileView — Annotations",
+      "name": "8. 我的 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -7705,7 +7706,7 @@
           "id": "qKXDu",
           "name": "at8",
           "fill": "#111827",
-          "content": "8. ProfileView",
+          "content": "8. 我的",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -7739,7 +7740,7 @@
                   "id": "RJI2s",
                   "name": "ps1l",
                   "fill": "#3ECFA0",
-                  "content": "Profile Data",
+                  "content": "头像区与订阅摘要",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -7761,7 +7762,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• subscription.planDisplayName\n• subscription.tier → badge color\n  Free=gray, Pro=green\n• Upgrade link → presentPaywall(\n  source: .profile)\n\nMenu sections: ACCOUNT / DATA / SUPPORT",
+              "content": "展示当前方案名称与是否会员；用徽章颜色区分免费与会员\n点「升级」打开订阅说明页\n下方列表分三块：账户、数据、支持",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -7797,7 +7798,7 @@
                   "id": "s4155",
                   "name": "ps2l",
                   "fill": "#3ECFA0",
-                  "content": "Menu Navigation",
+                  "content": "菜单入口",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -7819,7 +7820,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "ACCOUNT:\n• Settings → AccountSettingsView\n• Subscription → SubscriptionView\n• Notifications → NotificationsView\n\nDATA:\n• Scan History → ScanHistoryView\n• Export → CSV export (Pro only)\n• Backup → iCloud backup\n\nSUPPORT:\n• Help → Help Center\n• Contact → Email\n• Rate → App Store\n• About → version info",
+              "content": "账户：通用设置、订阅与账单、通知\n\n数据：扫描历史、导出收藏（会员）、云备份与恢复（如 iCloud）\n\n支持：帮助中心、联系客服、应用商店评分、关于与版本号",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -8434,7 +8435,7 @@
       "id": "UEElD",
       "x": 2916,
       "y": 2757,
-      "name": "9. PaywallView — Annotations",
+      "name": "9. 订阅页 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -8453,7 +8454,7 @@
           "id": "hEcpa",
           "name": "at9",
           "fill": "#111827",
-          "content": "9. PaywallView",
+          "content": "9. 订阅页（付费墙）",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -8487,7 +8488,7 @@
                   "id": "43YWm",
                   "name": "pw1l",
                   "fill": "#3ECFA0",
-                  "content": "PaywallSource Enum",
+                  "content": "出现场景",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -8509,7 +8510,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "4 source contexts with different copy:\n• onboarding — new user welcome\n• featureLimit — scan/collection cap\n• valueUnlock — Pro feature tap\n• profile — user-initiated upgrade\n\nPaywallVariant:\n• soft — close button visible\n• hard — must subscribe or trial\n\n50/50 A/B split on first launch",
+              "content": "不同入口文案需区分：\n• 刚完成引导的新用户\n• 扫描或收藏触达免费上限\n• 点击仅会员功能\n• 在「我的」主动升级\n\n展示形态：\n• 软：有关闭/稍后再说，不强制立刻付费\n• 硬：必须选订阅或试用才能继续当前流程\n\n新用户首次可配置 A/B，对比两种样式的转化与留存",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -8545,7 +8546,7 @@
                   "id": "k4bos",
                   "name": "pw2l",
                   "fill": "#3ECFA0",
-                  "content": "Subscription Plans",
+                  "content": "套餐与支付",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -8567,7 +8568,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "• proMonthly: $9.99/mo\n• proYearly: $49.99/yr (save 50%)\n• lifetime: $149.99 one-time\n\nDefault selected: proYearly\nTrial: 3 days free on first sub\n\nhandlePrimaryAction():\n1. Validate selected plan\n2. Process StoreKit purchase\n3. Update subscription.tier\n4. Dismiss paywall\n5. Track subscription_subscribe event",
+              "content": "提供月付、年付、终身等档位（金额以运营配置为准）\n默认预选年付；首次开通可给试用天数\n\n主按钮：用户确认套餐 → 调起系统支付 → 成功后更新会员身份并关闭本页\n产品需能区分并汇总「订阅成功」次数或人数，便于看转化漏斗",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -8970,7 +8971,7 @@
       "id": "5zdXb",
       "x": 4565,
       "y": 2757,
-      "name": "10. OnboardingView — Annotations",
+      "name": "10. 新手引导 — 说明",
       "clip": true,
       "width": 320,
       "height": 812,
@@ -8989,7 +8990,7 @@
           "id": "0igeJ",
           "name": "at10",
           "fill": "#111827",
-          "content": "10. OnboardingView",
+          "content": "10. 新手引导",
           "fontFamily": "Inter",
           "fontSize": 16,
           "fontWeight": "700"
@@ -9023,7 +9024,7 @@
                   "id": "rOYpx",
                   "name": "ob1l",
                   "fill": "#3ECFA0",
-                  "content": "Onboarding Flow",
+                  "content": "引导步骤",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -9045,7 +9046,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "TabView with 3 pages:\n\nStep 1: Scan introduction\n• Illustration + title + subtitle\n• Continue / Skip buttons\n\nStep 2: Value proposition\n• Pricing illustration\n• Get Started / Skip buttons\n\nStep 3: PaywallView\n• Presented as last onboarding step\n• Variant: soft or hard",
+              "content": "共三步横滑：① 介绍如何扫描 ② 说明产品价值 ③ 最后一步为订阅页\n前两步提供「继续 / 跳过」；第三步样式（软关/硬拦）由实验或配置决定\n插画与文案随步骤切换",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"
@@ -9081,7 +9082,7 @@
                   "id": "4Nr1G",
                   "name": "ob2l",
                   "fill": "#3ECFA0",
-                  "content": "State Management",
+                  "content": "完成规则",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "700"
@@ -9103,7 +9104,7 @@
               "fill": "#374151",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "@State currentStep: Int = 0\n\ncompleteOnboarding():\n• hasSeenOnboarding = true\n• Persisted to UserDefaults\n• Navigates to MainTabView\n\nSkip at any step → completeOnboarding\nPaywall dismiss → completeOnboarding",
+              "content": "用户一旦完成引导，应记住状态，下次启动不再自动展示\n完成后进入主界面（底部五个入口）\n任一步「跳过」，或订阅页被关闭，均视为引导结束",
               "fontFamily": "Inter",
               "fontSize": 11,
               "fontWeight": "normal"

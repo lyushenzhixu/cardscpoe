@@ -9,3 +9,7 @@ cardscpoe/Config/Secrets.xcconfig
 
 # Supabase local
 supabase/.temp/
+
+# macOS metadata
+.DS_Store
+**/.DS_Store
