@@ -57,6 +57,12 @@ enum SportType: String, CaseIterable, Identifiable, Codable {
     }
 }
 
+enum CardType: String, CaseIterable, Codable {
+    case base = "Base"
+    case rookie = "Rookie"
+    case insert = "Insert"
+}
+
 struct SportsCard: Identifiable, Codable, Hashable {
     let id: UUID
     let supabaseId: UUID?
@@ -70,6 +76,7 @@ struct SportsCard: Identifiable, Codable, Hashable {
     let cardNumber: String
     let parallel: String
     let isRookie: Bool
+    let cardType: CardType
     let rawPriceLow: Int
     let rawPriceHigh: Int
     let psa9PriceLow: Int
@@ -96,6 +103,7 @@ struct SportsCard: Identifiable, Codable, Hashable {
         cardNumber: String,
         parallel: String,
         isRookie: Bool,
+        cardType: CardType? = nil,
         rawPriceLow: Int,
         rawPriceHigh: Int,
         psa9PriceLow: Int,
@@ -121,6 +129,7 @@ struct SportsCard: Identifiable, Codable, Hashable {
         self.cardNumber = cardNumber
         self.parallel = parallel
         self.isRookie = isRookie
+        self.cardType = cardType ?? (isRookie ? .rookie : .base)
         self.rawPriceLow = rawPriceLow
         self.rawPriceHigh = rawPriceHigh
         self.psa9PriceLow = psa9PriceLow
@@ -133,6 +142,12 @@ struct SportsCard: Identifiable, Codable, Hashable {
         self.grade = grade
         self.imageURL = imageURL
         self.headshotURL = headshotURL
+    }
+
+    var formattedCurrentPrice: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: currentPrice)) ?? "\(currentPrice)"
     }
 
     var priceChangeFormatted: String {
@@ -175,15 +190,44 @@ struct SportsCard: Identifiable, Codable, Hashable {
     // for properties where Swift's auto-conversion doesn't match (URL acronyms).
     enum CodingKeys: String, CodingKey {
         case id, supabaseId, playerName, team, position, sport, brand, setName
-        case year, cardNumber, parallel, isRookie
+        case year, cardNumber, parallel, isRookie, cardType
         case rawPriceLow, rawPriceHigh
         case psa9PriceLow, psa9PriceHigh
         case psa10PriceLow, psa10PriceHigh
         case currentPrice, priceChange
         case confidence, grade
-        // convertFromSnakeCase turns "image_url" → "imageUrl", not "imageURL"
         case imageURL = "imageUrl"
         case headshotURL = "headshotUrl"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        supabaseId = try container.decodeIfPresent(UUID.self, forKey: .supabaseId)
+        playerName = try container.decode(String.self, forKey: .playerName)
+        team = try container.decode(String.self, forKey: .team)
+        position = try container.decode(String.self, forKey: .position)
+        sport = try container.decode(SportType.self, forKey: .sport)
+        brand = try container.decode(String.self, forKey: .brand)
+        setName = try container.decode(String.self, forKey: .setName)
+        year = try container.decode(String.self, forKey: .year)
+        cardNumber = try container.decode(String.self, forKey: .cardNumber)
+        parallel = try container.decode(String.self, forKey: .parallel)
+        isRookie = try container.decode(Bool.self, forKey: .isRookie)
+        let decodedCardType = try container.decodeIfPresent(CardType.self, forKey: .cardType)
+        cardType = decodedCardType ?? (isRookie ? .rookie : .base)
+        rawPriceLow = try container.decode(Int.self, forKey: .rawPriceLow)
+        rawPriceHigh = try container.decode(Int.self, forKey: .rawPriceHigh)
+        psa9PriceLow = try container.decode(Int.self, forKey: .psa9PriceLow)
+        psa9PriceHigh = try container.decode(Int.self, forKey: .psa9PriceHigh)
+        psa10PriceLow = try container.decode(Int.self, forKey: .psa10PriceLow)
+        psa10PriceHigh = try container.decode(Int.self, forKey: .psa10PriceHigh)
+        currentPrice = try container.decode(Int.self, forKey: .currentPrice)
+        priceChange = try container.decode(Double.self, forKey: .priceChange)
+        confidence = try container.decode(Double.self, forKey: .confidence)
+        grade = try container.decodeIfPresent(String.self, forKey: .grade)
+        imageURL = try container.decodeIfPresent(URL.self, forKey: .imageURL)
+        headshotURL = try container.decodeIfPresent(URL.self, forKey: .headshotURL)
     }
 }
 

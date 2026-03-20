@@ -1,0 +1,36 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Paywall — Value Unlock Trigger
+# ────────────────────────────────────────────
+
+# Free user tapping locked PSA prices should trigger paywall.
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Home"
+
+- scrollUntilVisible:
+    element: "Recently Scanned"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    index: 0
+    optional: true
+
+# Tap locked valuation section
+- tapOn:
+    text: "Unlock full valuation"
+    optional: true
+
+- assertVisible:
+    text: "Unlock CardScope Pro"
+    optional: true
+
+- swipe:
+    direction: DOWN
+    optional: true
+- back
+- back

@@ -1,0 +1,44 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Profile — Menu Navigation
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Profile"
+
+# Account Settings
+- tapOn:
+    text: "Account Settings"
+    optional: true
+- back
+
+# Notifications
+- tapOn:
+    text: "Notifications"
+    optional: true
+- back
+
+# Scan History
+- scrollUntilVisible:
+    element: "Scan History"
+    direction: DOWN
+    optional: true
+
+- tapOn:
+    text: "Scan History"
+    optional: true
+- back
+
+# Help & Support
+- scrollUntilVisible:
+    element: "Help"
+    direction: DOWN
+    optional: true
+
+- tapOn:
+    text: "Help"
+    optional: true
+- back

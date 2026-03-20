@@ -33,28 +33,24 @@ struct PaywallView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    // 顶部视频 Hero 区域：视频 + 底部渐变过渡 + 叠在上方的关闭按钮
+                    // Hero: gradient crown icon
                     ZStack(alignment: .topTrailing) {
-                        Group {
-                            if let videoURL = Bundle.main.url(forResource: "PaywallVideo", withExtension: "mp4") {
-                                LoopingVideoPlayer(url: videoURL, fillMode: .aspectFill)
-                            } else {
-                                Image("CollectionShowcase")
-                                    .resizable()
-                                    .scaledToFill()
-                            }
+                        ZStack {
+                            RoundedRectangle(cornerRadius: CSRadius.lg)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [CSColor.signalPrimary, CSColor.signalTertiary],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(maxWidth: .infinity, minHeight: 140, maxHeight: 200)
+
+                            Image(systemName: "crown.fill")
+                                .font(.system(size: 56))
+                                .foregroundStyle(.white.opacity(0.9))
                         }
-                        .frame(maxWidth: .infinity, minHeight: 220, maxHeight: 260)
-                        .clipped()
-                        .overlay(
-                            // 底部渐变：视频自然融入下方深色背景
-                            LinearGradient(
-                                colors: [.clear, CSColor.surfacePrimary.opacity(0.6), CSColor.surfacePrimary],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: CSRadius.md))
+                        .clipShape(RoundedRectangle(cornerRadius: CSRadius.lg))
 
                         if shouldShowCloseButton {
                             Button {
@@ -67,6 +63,7 @@ struct PaywallView: View {
                                     .frame(width: 32, height: 32)
                                     .background(.ultraThinMaterial, in: Circle())
                             }
+                            .accessibilityIdentifier("closePaywall")
                             .padding(CSSpacing.md)
                         }
                     }
@@ -122,26 +119,28 @@ struct PaywallView: View {
                             option: .monthly,
                             name: "Monthly",
                             desc: "Cancel anytime",
-                            price: "$7.99/month"
+                            price: "$9.99/mo"
                         )
                         planButton(
                             option: .yearly,
                             name: "Annual",
-                            desc: "3-day free trial · $39.99/year",
-                            price: "$3.33/mo",
-                            badge: "BEST VALUE · SAVE 58%"
+                            desc: "3-day free trial",
+                            price: "$49.99/yr",
+                            badge: "SAVE 50%"
                         )
                         planButton(
                             option: .lifetime,
                             name: "Lifetime",
                             desc: "One-time purchase",
-                            price: "$79.99 once"
+                            price: "$149.99"
                         )
                     }
                     .padding(.top, CSSpacing.md)
 
                     Button(primaryCTA) { handlePrimaryAction() }
                     .buttonStyle(PrimaryButtonStyle())
+                    .accessibilityIdentifier("primaryCTA")
+                    .accessibilityLabel(primaryCTA)
                     .padding(.top, CSSpacing.md)
 
                     Text(footnoteText)
@@ -150,7 +149,9 @@ struct PaywallView: View {
                         .multilineTextAlignment(.center)
                         .padding(.top, CSSpacing.sm)
 
-                    Button("Restore Purchase") {}
+                    Button("Restore Purchase") {
+                        restorePurchase()
+                    }
                         .font(.system(size: 11))
                         .foregroundStyle(CSColor.textTertiary)
                         .underline()
@@ -215,14 +216,15 @@ struct PaywallView: View {
         case .lifetime:
             return "One-time purchase. Lifetime access to all Pro features."
         case .monthly:
-            return "After trial, auto-renews at $7.99/month. Cancel anytime."
+            return "After trial, auto-renews at $9.99/month. Cancel anytime."
         case .yearly:
-            return "After trial, auto-renews at $39.99/year. Cancel anytime."
+            return "After trial, auto-renews at $49.99/year. Cancel anytime."
         }
     }
 
     private var shouldShowCloseButton: Bool {
         if source == .profile { return true }
+        if source == .featureLimit { return true }
         if variant == .soft { return true }
         return source == .valueUnlock
     }
@@ -291,6 +293,9 @@ struct PaywallView: View {
     }
 
     private func handlePrimaryAction() {
+        #if DEBUG
+        print("[Paywall] Subscribe tapped: plan=\(selectedPlan), source=\(source.rawValue)")
+        #endif
         switch selectedPlan {
         case .monthly:
             appState.subscription.startTrial(days: 3)
@@ -304,6 +309,14 @@ struct PaywallView: View {
         }
         onComplete?()
         dismiss()
+    }
+
+    private func restorePurchase() {
+        #if DEBUG
+        print("[Paywall] Restore purchase tapped")
+        #endif
+        // In production, this would call StoreKit's restore logic.
+        // For now, if user had a previous tier saved, it was already loaded in init.
     }
 }
 

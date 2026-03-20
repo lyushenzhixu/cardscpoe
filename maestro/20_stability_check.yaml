@@ -1,0 +1,22 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Final State — App Remains Stable
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Home"
+- assertVisible: "Home"
+
+- tapOn: "Explore"
+- assertVisible: "Explore"
+
+- tapOn: "Collection"
+- assertVisible: "My Collection"
+
+- tapOn: "Profile"
+- assertVisible: "Profile"
+
+- tapOn: "Home"

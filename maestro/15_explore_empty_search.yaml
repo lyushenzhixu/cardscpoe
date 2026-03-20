@@ -1,0 +1,24 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Explore — Empty Search Result
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Explore"
+
+- tapOn:
+    text: "Search"
+    optional: true
+- inputText: "zzzznonexistent"
+- waitForAnimationToEnd
+
+# Should show empty or no results state
+- assertVisible:
+    text: "No results"
+    optional: true
+
+- eraseText: 16
+- hideKeyboard

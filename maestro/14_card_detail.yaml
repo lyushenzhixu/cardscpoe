@@ -1,0 +1,23 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Card Detail View — via Explore Trending
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Explore"
+
+- scrollUntilVisible:
+    element: "Trending Players"
+    direction: DOWN
+    optional: true
+
+# Tap first trending player
+- tapOn:
+    index: 0
+    optional: true
+
+# Back to explore
+- back

@@ -1,0 +1,31 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Paywall — Feature Limit Trigger (Scan Limit)
+# ────────────────────────────────────────────
+
+# Free users get 3 scans/day. 4th scan triggers paywall.
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Scan"
+- back
+
+- tapOn: "Scan"
+- back
+
+- tapOn: "Scan"
+- back
+
+# 4th attempt should show paywall
+- tapOn: "Scan"
+
+- assertVisible:
+    text: "Unlock CardScope Pro"
+    optional: true
+
+- swipe:
+    direction: DOWN
+    optional: true
+- back

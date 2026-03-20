@@ -1,0 +1,37 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  AI Grade — Pro Feature Gate
+# ────────────────────────────────────────────
+
+# AI grade is Pro-only. Free user should see paywall.
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Home"
+
+- scrollUntilVisible:
+    element: "Recently Scanned"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    index: 0
+    optional: true
+
+# Tap AI Grade button
+- tapOn:
+    text: "AI Grade"
+    optional: true
+
+# Free user: paywall should appear
+- assertVisible:
+    text: "Unlock CardScope Pro"
+    optional: true
+
+- swipe:
+    direction: DOWN
+    optional: true
+- back
+- back

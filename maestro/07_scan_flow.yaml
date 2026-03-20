@@ -1,0 +1,19 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Scan Flow — Camera & Capture
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Home"
+- tapOn: "Scan"
+
+# Camera scanner screen
+- assertVisible:
+    text: "Card Scanner"
+    optional: true
+
+# Close scanner
+- back

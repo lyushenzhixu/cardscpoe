@@ -1,0 +1,28 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Tab Navigation
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+# Home tab (default)
+- assertVisible: "Home"
+
+# Explore tab
+- tapOn: "Explore"
+- assertVisible:
+    text: "Search"
+    optional: true
+
+# Collection tab
+- tapOn: "Collection"
+- assertVisible: "My Collection"
+
+# Profile tab
+- tapOn: "Profile"
+- assertVisible: "Profile"
+
+# Back to Home
+- tapOn: "Home"

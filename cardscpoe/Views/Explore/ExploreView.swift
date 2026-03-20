@@ -3,9 +3,11 @@ import SwiftUI
 struct ExploreView: View {
     @Environment(AppState.self) private var appState
     @State private var searchText = ""
+    @State private var debouncedSearchText = ""
+    @State private var debounceTask: Task<Void, Never>?
 
     private var trendingCards: [SportsCard] {
-        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = debouncedSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return appState.trendingCards
         }
@@ -13,11 +15,13 @@ struct ExploreView: View {
             $0.playerName.localizedCaseInsensitiveContains(trimmed)
                 || $0.brand.localizedCaseInsensitiveContains(trimmed)
                 || $0.setName.localizedCaseInsensitiveContains(trimmed)
+                || $0.team.localizedCaseInsensitiveContains(trimmed)
+                || $0.year.localizedCaseInsensitiveContains(trimmed)
         }
     }
 
     private var trendingPlayers: [Player] {
-        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = debouncedSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return appState.trendingPlayers
         }
@@ -32,15 +36,25 @@ struct ExploreView: View {
             VStack(spacing: 0) {
                 header
                 searchBar
+                #if DEBUG
                 if let err = appState.trendingDataError {
                     debugErrorBanner(message: err)
                 }
+                #endif
                 trendingPlayersSection
                 popularSeriesSection
                 Spacer().frame(height: 100)
             }
         }
         .background(CSColor.surfacePrimary)
+        .onChange(of: searchText) { _, newValue in
+            debounceTask?.cancel()
+            debounceTask = Task {
+                try? await Task.sleep(nanoseconds: 300_000_000)
+                guard !Task.isCancelled else { return }
+                debouncedSearchText = newValue
+            }
+        }
     }
 
     private func debugErrorBanner(message: String) -> some View {
@@ -78,13 +92,12 @@ struct ExploreView: View {
                     appState.showingScan = true
                 }
             } label: {
-                Text("SCAN")
-                    .font(.system(size: 11, weight: .heavy))
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
+                Image(systemName: "viewfinder")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(CSColor.textOnPrimary)
+                    .frame(width: 44, height: 44)
                     .background(CSColor.signalPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
             }
         }
         .padding(.horizontal, CSSpacing.md)
@@ -245,7 +258,7 @@ struct ExploreView: View {
     }
 
     private var seriesData: [SeriesInfo] {
-        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = debouncedSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let source: [PopularSeries]
         if trimmed.isEmpty {
             source = appState.popularSeries

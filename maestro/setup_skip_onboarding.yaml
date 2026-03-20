@@ -1,0 +1,29 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Shared Setup: Skip Onboarding & Dismiss Paywall
+#  Use via: - runFlow: setup_skip_onboarding.yaml
+# ────────────────────────────────────────────
+
+- launchApp:
+    clearState: true
+
+# Step 1: Scan intro
+- assertVisible: "Continue"
+- tapOn: "Continue"
+
+# Step 2: Value intro
+- assertVisible: "Get Started"
+- tapOn: "Get Started"
+
+# Step 3: Paywall — tap the CTA button by accessibility id
+- extendedWaitUntil:
+    visible:
+      id: "primaryCTA"
+    timeout: 5000
+- tapOn:
+    id: "primaryCTA"
+
+# Wait for main tab view
+- assertVisible: "Home"

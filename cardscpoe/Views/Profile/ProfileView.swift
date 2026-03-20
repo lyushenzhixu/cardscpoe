@@ -3,24 +3,20 @@ import SwiftUI
 struct ProfileView: View {
     @Environment(AppState.self) private var appState
 
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                header
                 profileCard
+                    .padding(.top, CSSpacing.md)
                 menuSections
                 Spacer().frame(height: 100)
             }
         }
         .background(CSColor.surfacePrimary)
-    }
-
-    private var header: some View {
-        Text("Profile")
-            .font(CSFont.title(.bold))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, CSSpacing.md)
-            .padding(.vertical, CSSpacing.sm)
     }
 
     private var profileCard: some View {
@@ -35,6 +31,9 @@ struct ProfileView: View {
                 )
                 .frame(width: 56, height: 56)
                 .overlay(
+                    Circle().stroke(CSColor.signalPrimary, lineWidth: 2)
+                )
+                .overlay(
                     Image(systemName: "person.fill")
                         .font(.system(size: 24))
                         .foregroundStyle(CSColor.signalPrimary)
@@ -45,15 +44,18 @@ struct ProfileView: View {
                     .font(CSFont.headline(.bold))
 
                 HStack(spacing: CSSpacing.sm) {
-                    Text(appState.subscription.planDisplayName)
-                        .font(CSFont.caption(.semibold))
-                        .foregroundStyle(CSColor.textTertiary)
-                    Text("·")
-                        .foregroundStyle(CSColor.textTertiary)
+                    Text(appState.subscription.isPro ? "Pro" : "Free")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(appState.subscription.isPro ? CSColor.textOnPrimary : CSColor.textTertiary)
+                        .padding(.horizontal, CSSpacing.sm)
+                        .padding(.vertical, 3)
+                        .background(appState.subscription.isPro ? CSColor.signalPrimary : CSColor.surfaceElevated)
+                        .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
+
                     Button {
                         appState.presentPaywall(source: .profile)
                     } label: {
-                        Text("Upgrade to Pro")
+                        Text("Upgrade to Pro ›")
                             .font(CSFont.caption(.bold))
                             .foregroundStyle(CSColor.signalPrimary)
                     }
@@ -70,24 +72,22 @@ struct ProfileView: View {
     private var menuSections: some View {
         VStack(spacing: CSSpacing.md) {
             menuSection(title: "ACCOUNT", items: [
-                MenuItem(icon: "person.circle", title: "Account Settings"),
+                MenuItem(icon: "gearshape", title: "Account Settings"),
                 MenuItem(icon: "crown.fill", title: "Subscription", subtitle: appState.subscription.planDisplayName, accentColor: CSColor.signalPrimary),
                 MenuItem(icon: "bell.fill", title: "Notifications"),
             ])
 
             menuSection(title: "DATA", items: [
-                MenuItem(icon: "clock.arrow.circlepath", title: "Scan History", subtitle: "\(appState.recentScans.count) scans"),
-                MenuItem(icon: "square.and.arrow.up", title: "Export Collection"),
-                MenuItem(icon: "icloud.and.arrow.down", title: "Backup & Sync"),
+                MenuItem(icon: "clock.arrow.circlepath", title: "Scan History"),
+                MenuItem(icon: "square.and.arrow.down", title: "Export Collection"),
             ])
 
             menuSection(title: "SUPPORT", items: [
                 MenuItem(icon: "questionmark.circle", title: "Help Center"),
-                MenuItem(icon: "envelope", title: "Contact Us"),
-                MenuItem(icon: "star.fill", title: "Rate CardScope", accentColor: CSColor.signalPrimary),
-                MenuItem(icon: "info.circle", title: "About", subtitle: "v1.0.0"),
+                MenuItem(icon: "star.fill", title: "Rate App", accentColor: CSColor.signalPrimary),
             ])
 
+            #if DEBUG
             Button {
                 appState.hasSeenOnboarding = false
             } label: {
@@ -101,6 +101,7 @@ struct ProfileView: View {
             }
             .padding(.horizontal, CSSpacing.md)
             .padding(.top, CSSpacing.md)
+            #endif
         }
     }
 

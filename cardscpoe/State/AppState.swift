@@ -113,9 +113,7 @@ final class AppState {
     @MainActor
     func refreshCollection(context: ModelContext?) async {
         let cards = await CardService.shared.fetchAllCards(context: context)
-        if collectionCards.isEmpty {
-            collectionCards = cards
-        }
+        collectionCards = cards
         if recentScans.isEmpty {
             recentScans = cards
         }
@@ -182,6 +180,22 @@ final class AppState {
         return true
     }
 
+    func navigateToProfile() {
+        selectedTab = .profile
+    }
+
+    @MainActor
+    func refreshData(context: ModelContext?) async {
+        isLoading = true
+        defer { isLoading = false }
+        await refreshHomeData(context: context)
+        let cards = await CardService.shared.fetchAllCards(context: context)
+        collectionCards = cards
+        if recentScans.isEmpty {
+            recentScans = cards
+        }
+    }
+
     func presentPaywall(source: PaywallSource) {
         activePaywallSource = source
         showingPaywall = true
@@ -200,7 +214,7 @@ enum TabItem: Int, CaseIterable {
         case .home: return "Home"
         case .explore: return "Explore"
         case .scan: return "Scan"
-        case .collection: return "Collection"
+        case .collection: return "Collect"
         case .profile: return "Profile"
         }
     }
@@ -209,7 +223,7 @@ enum TabItem: Int, CaseIterable {
         switch self {
         case .home: return "house.fill"
         case .explore: return "magnifyingglass"
-        case .scan: return "camera.fill"
+        case .scan: return "viewfinder"
         case .collection: return "square.grid.2x2.fill"
         case .profile: return "person.fill"
         }

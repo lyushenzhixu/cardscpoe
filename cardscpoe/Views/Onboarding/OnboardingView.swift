@@ -70,7 +70,7 @@ struct OnboardingStepScan: View {
             Spacer().frame(height: CSSpacing.lg)
 
             Text("Scan \(Text("Any Card").foregroundStyle(CSColor.signalPrimary))\nInstantly")
-                .font(.system(size: 28, weight: .bold))
+                .font(CSFont.title(.bold))
 
             Text("Point your camera at any sports card.\nOur AI identifies it in under 2 seconds.")
                 .font(CSFont.body())
@@ -81,7 +81,7 @@ struct OnboardingStepScan: View {
             Spacer()
 
             VStack(spacing: CSSpacing.sm) {
-                dotsIndicator(current: 0, total: 2)
+                dotsIndicator(current: 0, total: 3)
                     .padding(.bottom, CSSpacing.lg)
 
                 Button("Continue", action: onNext)
@@ -125,9 +125,9 @@ struct OnboardingStepValue: View {
             Spacer().frame(height: CSSpacing.lg)
 
             Text("Know the \(Text("Exact Value").foregroundStyle(CSColor.signalPrimary))")
-                .font(.system(size: 28, weight: .bold))
+                .font(CSFont.title(.bold))
 
-            Text("Real-time market prices based on\nrecent eBay sold comps. By grade.")
+            Text("Real-time market prices based on\nrecent sold comps. By grade.")
                 .font(CSFont.body())
                 .foregroundStyle(CSColor.textSecondary)
                 .multilineTextAlignment(.center)
@@ -136,7 +136,7 @@ struct OnboardingStepValue: View {
             Spacer()
 
             VStack(spacing: CSSpacing.sm) {
-                dotsIndicator(current: 1, total: 2)
+                dotsIndicator(current: 1, total: 3)
                     .padding(.bottom, CSSpacing.lg)
 
                 Button("Get Started", action: onNext)
@@ -174,13 +174,13 @@ func dotsIndicator(current: Int, total: Int) -> some View {
     HStack(spacing: 8) {
         ForEach(0..<total, id: \.self) { i in
             if i == current {
-                RoundedRectangle(cornerRadius: 3)
+                RoundedRectangle(cornerRadius: 4)
                     .fill(CSColor.signalPrimary)
-                    .frame(width: 24, height: 6)
+                    .frame(width: 24, height: 8)
             } else {
                 Circle()
-                    .fill(Color.white.opacity(0.12))
-                    .frame(width: 6, height: 6)
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 8, height: 8)
             }
         }
     }

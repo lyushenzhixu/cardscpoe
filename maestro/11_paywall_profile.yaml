@@ -1,0 +1,49 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Paywall — Triggered from Profile
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Profile"
+
+# Tap upgrade button
+- tapOn:
+    text: "Upgrade to Pro"
+    optional: true
+
+# Paywall should appear
+- assertVisible:
+    text: "Unlock CardScope Pro"
+    optional: true
+
+# Verify plan options
+- assertVisible:
+    text: "Monthly"
+    optional: true
+
+- assertVisible:
+    text: "Yearly"
+    optional: true
+
+- assertVisible:
+    text: "Lifetime"
+    optional: true
+
+# Select yearly plan
+- tapOn:
+    text: "Yearly"
+    optional: true
+
+# Restore purchase link
+- assertVisible:
+    text: "Restore"
+    optional: true
+
+# Close paywall (profile source has close button)
+- tapOn:
+    id: "closePaywall"
+    optional: true
+- back

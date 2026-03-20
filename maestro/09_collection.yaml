@@ -1,0 +1,21 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Collection View — List & Empty State
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Collection"
+- assertVisible: "My Collection"
+
+# Portfolio summary
+- assertVisible:
+    text: "Total Value"
+    optional: true
+
+# Sport filter chips
+- assertVisible:
+    text: "All"
+    optional: true

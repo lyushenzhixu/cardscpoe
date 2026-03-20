@@ -95,6 +95,24 @@ final class SubscriptionState {
     var planDisplayName: String { tier.displayName }
     var hasTrialActive: Bool { (trialEndAt ?? .distantPast) > Date() }
 
+    var planPrice: String {
+        switch tier {
+        case .free: return "Free"
+        case .proMonthly: return "$9.99/mo"
+        case .proYearly: return "$49.99/yr"
+        case .lifetime: return "$149.99"
+        }
+    }
+
+    var planDescription: String {
+        switch tier {
+        case .free: return "Basic features"
+        case .proMonthly: return "Cancel anytime"
+        case .proYearly: return "Save 50%"
+        case .lifetime: return "One-time purchase"
+        }
+    }
+
     func setTier(_ newTier: SubscriptionTier) {
         tier = newTier
     }

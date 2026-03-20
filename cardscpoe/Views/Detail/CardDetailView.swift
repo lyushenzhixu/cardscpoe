@@ -1,12 +1,13 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct CardDetailView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     let card: SportsCard
-    @State private var selectedChartPeriod = 1
+    @State private var selectedChartPeriod = 2
     @State private var priceData: PriceData?
 
     private let chartPeriods = ["7D", "1M", "3M", "6M", "1Y"]
@@ -51,7 +52,9 @@ struct CardDetailView: View {
 
             Spacer()
 
-            Button {} label: {
+            Button {
+                shareCard()
+            } label: {
                 Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 18))
                     .foregroundStyle(CSColor.textSecondary)
@@ -59,6 +62,17 @@ struct CardDetailView: View {
         }
         .padding(.horizontal, CSSpacing.md)
         .padding(.vertical, CSSpacing.sm)
+    }
+
+    private func shareCard() {
+        let text = "\(card.playerName) - \(card.setDescription)\nCurrent Price: $\(card.formattedCurrentPrice)"
+        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController { topVC = presented }
+            topVC.present(activityVC, animated: true)
+        }
     }
 
     private var cardHero: some View {
@@ -93,7 +107,7 @@ struct CardDetailView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
             .background(CSColor.surfaceElevated)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
     }
 
     private var chartSection: some View {
@@ -150,7 +164,7 @@ struct CardDetailView: View {
             infoRow(label: "Year", value: card.year)
             infoRow(label: "Card #", value: "#\(card.cardNumber)")
             infoRow(label: "Parallel", value: "\(card.parallel) \(card.setName)")
-            infoRow(label: "Type", value: card.isRookie ? "Rookie Card" : "Base", isLast: true)
+            infoRow(label: "Type", value: card.cardType.rawValue, isLast: true)
         }
         .padding(.horizontal, CSSpacing.md)
         .padding(.bottom, CSSpacing.md)
@@ -237,8 +251,8 @@ struct CardDetailView: View {
     private func saleColor(for grade: String) -> Color {
         switch grade {
         case "PSA 10": return CSColor.signalPrimary
-        case "PSA 9": return Color(red: 0.38, green: 0.65, blue: 0.98)
-        default: return CSColor.signalPrimary
+        case "PSA 9": return CSColor.signalTertiary
+        default: return CSColor.textSecondary
         }
     }
 

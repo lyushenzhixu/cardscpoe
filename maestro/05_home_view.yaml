@@ -1,0 +1,35 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Home View — Dashboard Content
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Home"
+
+# Hero scan entry
+- assertVisible:
+    text: "Identify Cards"
+    optional: true
+- assertVisible:
+    text: "Scan Now"
+    optional: true
+
+# Stats row
+- assertVisible:
+    text: "Total Value"
+    optional: true
+
+# Recently scanned section
+- scrollUntilVisible:
+    element: "Recently Scanned"
+    direction: DOWN
+    timeout: 5000
+
+# Trending section
+- scrollUntilVisible:
+    element: "Trending"
+    direction: DOWN
+    timeout: 5000

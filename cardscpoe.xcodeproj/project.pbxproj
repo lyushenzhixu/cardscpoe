@@ -254,7 +254,7 @@
 				DEVELOPMENT_TEAM = Y66A45R3MU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = cardscpoe/Info.plist;
 				INFOPLIST_KEY_APP_ENV = development;
 				INFOPLIST_KEY_BALLDONTLIE_API_KEY = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "CardScope uses camera access to scan sports cards.";
@@ -296,7 +296,7 @@
 				DEVELOPMENT_TEAM = Y66A45R3MU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = cardscpoe/Info.plist;
 				INFOPLIST_KEY_APP_ENV = production;
 				INFOPLIST_KEY_BALLDONTLIE_API_KEY = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "CardScope uses camera access to scan sports cards.";

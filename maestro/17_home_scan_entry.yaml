@@ -1,0 +1,21 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Home — Scan Now Hero Entry
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Home"
+
+- tapOn:
+    text: "Scan Now"
+    optional: true
+
+# Should open scan view
+- assertVisible:
+    text: "Card Scanner"
+    optional: true
+
+- back

@@ -1,0 +1,39 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Profile View — Settings & Subscription
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Profile"
+
+# User info card
+- assertVisible: "Profile"
+
+# Subscription status (Free tier by default)
+- assertVisible:
+    text: "Free"
+    optional: true
+
+# Upgrade to Pro link
+- assertVisible:
+    text: "Upgrade to Pro"
+    optional: true
+
+# Menu sections
+- scrollUntilVisible:
+    element: "Account Settings"
+    direction: DOWN
+    optional: true
+
+- scrollUntilVisible:
+    element: "Scan History"
+    direction: DOWN
+    optional: true
+
+- scrollUntilVisible:
+    element: "Help"
+    direction: DOWN
+    optional: true

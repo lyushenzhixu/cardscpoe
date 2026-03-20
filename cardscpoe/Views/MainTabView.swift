@@ -63,17 +63,18 @@ struct MainTabView: View {
             tabItem(.collection)
             tabItem(.profile)
         }
-        .padding(.top, CSSpacing.sm)
-        .padding(.bottom, 28)
-        .padding(.horizontal, 10)
+        .frame(height: 62)
+        .padding(.horizontal, CSSpacing.sm)
         .background(
-            CSColor.surfaceSecondary
-                .overlay(alignment: .top) {
-                    Rectangle()
-                        .fill(CSColor.border)
-                        .frame(height: 0.5)
-                }
+            RoundedRectangle(cornerRadius: 36)
+                .fill(CSColor.surfaceSecondary)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 36)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                )
         )
+        .padding(.horizontal, CSSpacing.md)
+        .padding(.bottom, CSSpacing.xl)
     }
 
     private func tabItem(_ tab: TabItem) -> some View {
@@ -84,14 +85,23 @@ struct MainTabView: View {
         } label: {
             VStack(spacing: 3) {
                 Image(systemName: tab.icon)
-                    .font(.system(size: 20))
-                    .scaleEffect(appState.selectedTab == tab ? 1.1 : 1.0)
-                Text(tab.title)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 18))
+                Text(tab.title.uppercased())
+                    .font(.system(size: 10, weight: .semibold))
             }
-            .foregroundStyle(appState.selectedTab == tab ? CSColor.signalPrimary : CSColor.textTertiary)
+            .foregroundStyle(appState.selectedTab == tab ? CSColor.textOnPrimary : Color.white.opacity(0.4))
             .frame(maxWidth: .infinity)
             .frame(minHeight: 44)
+            .background(
+                Group {
+                    if appState.selectedTab == tab {
+                        RoundedRectangle(cornerRadius: CSRadius.pill)
+                            .fill(CSColor.signalPrimary)
+                            .padding(.horizontal, CSSpacing.xs)
+                            .padding(.vertical, CSSpacing.xs)
+                    }
+                }
+            )
         }
     }
 
@@ -105,15 +115,11 @@ struct MainTabView: View {
                 Circle()
                     .fill(CSColor.signalPrimary)
                     .frame(width: 52, height: 52)
-                    .shadow(color: CSColor.signalPrimary.opacity(0.3), radius: 10)
+                    .shadow(color: Color(red: 0x3E/255, green: 0xCF/255, blue: 0xA0/255).opacity(0.25), radius: 16)
 
-                Circle()
-                    .stroke(CSColor.signalPrimary.opacity(0.3), lineWidth: 2)
-                    .frame(width: 60, height: 60)
-
-                Image(systemName: "camera.fill")
-                    .font(.system(size: 22))
-                    .foregroundStyle(.black)
+                Image(systemName: "viewfinder")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(CSColor.textOnPrimary)
             }
             .offset(y: -6)
         }

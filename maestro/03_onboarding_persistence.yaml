@@ -1,0 +1,17 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Onboarding — Persistence (Second Launch Skips)
+# ────────────────────────────────────────────
+
+# First: complete onboarding so hasSeenOnboarding = true
+- runFlow: setup_skip_onboarding.yaml
+
+# Second: relaunch WITHOUT clearing state
+- launchApp:
+    clearState: false
+
+# Should NOT show onboarding again
+- assertNotVisible: "Continue"
+- assertVisible: "Home"

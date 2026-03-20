@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct ScanResultView: View {
     @Environment(AppState.self) private var appState
@@ -8,6 +9,7 @@ struct ScanResultView: View {
     let card: SportsCard
     @State private var isAddedToCollection = false
     @State private var showCheckmark = false
+    @State private var isFavorited = false
     @State private var priceData: PriceData?
     @State private var selectedGrade: CardGrade = .raw
 
@@ -66,15 +68,19 @@ struct ScanResultView: View {
             Spacer()
 
             HStack(spacing: 12) {
-                Button {} label: {
+                Button {
+                    shareCard()
+                } label: {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 18))
                         .foregroundStyle(CSColor.textSecondary)
                 }
-                Button {} label: {
-                    Image(systemName: "heart")
+                Button {
+                    isFavorited.toggle()
+                } label: {
+                    Image(systemName: isFavorited ? "heart.fill" : "heart")
                         .font(.system(size: 18))
-                        .foregroundStyle(CSColor.textSecondary)
+                        .foregroundStyle(isFavorited ? CSColor.signalWarm : CSColor.textSecondary)
                 }
             }
         }
@@ -251,10 +257,10 @@ struct ScanResultView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, CSSpacing.md)
 
-            gradeBarRow(label: "Centering", value: breakdown.centering / 10, score: String(format: "%.1f", breakdown.centering), color: CSColor.signalPrimary)
-            gradeBarRow(label: "Corners", value: breakdown.corners / 10, score: String(format: "%.1f", breakdown.corners), color: CSColor.signalPrimary)
-            gradeBarRow(label: "Edges", value: breakdown.edges / 10, score: String(format: "%.1f", breakdown.edges), color: CSColor.signalTertiary)
-            gradeBarRow(label: "Surface", value: breakdown.surface / 10, score: String(format: "%.1f", breakdown.surface), color: CSColor.signalPrimary)
+            gradeBarRow(label: "Centering", weight: "30%", value: breakdown.centering / 10, score: String(format: "%.1f", breakdown.centering), color: CSColor.signalPrimary)
+            gradeBarRow(label: "Corners", weight: "25%", value: breakdown.corners / 10, score: String(format: "%.1f", breakdown.corners), color: CSColor.signalPrimary)
+            gradeBarRow(label: "Edges", weight: "20%", value: breakdown.edges / 10, score: String(format: "%.1f", breakdown.edges), color: CSColor.signalTertiary)
+            gradeBarRow(label: "Surface", weight: "25%", value: breakdown.surface / 10, score: String(format: "%.1f", breakdown.surface), color: CSColor.signalPrimary)
         }
         .padding(CSSpacing.lg)
         .background(CSColor.surfaceElevated)
@@ -267,12 +273,19 @@ struct ScanResultView: View {
         .padding(.bottom, CSSpacing.md)
     }
 
-    private func gradeBarRow(label: String, value: Double, score: String, color: Color) -> some View {
+    private func gradeBarRow(label: String, weight: String = "", value: Double, score: String, color: Color) -> some View {
         VStack(spacing: 6) {
             HStack {
-                Text(label)
-                    .font(CSFont.caption())
-                    .foregroundStyle(CSColor.textSecondary)
+                HStack(spacing: CSSpacing.xs) {
+                    Text(label)
+                        .font(CSFont.caption())
+                        .foregroundStyle(CSColor.textSecondary)
+                    if !weight.isEmpty {
+                        Text(weight)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(CSColor.textTertiary)
+                    }
+                }
                 Spacer()
                 Text(score)
                     .font(.system(size: 12, weight: .bold, design: .monospaced))
@@ -436,6 +449,7 @@ struct ScanResultView: View {
                 Text("Details")
             }
             .buttonStyle(SecondaryButtonStyle())
+            .frame(width: 120)
         }
         .padding(.horizontal, CSSpacing.md)
     }
@@ -463,6 +477,17 @@ struct ScanResultView: View {
         .nyxCard()
         .padding(.horizontal, CSSpacing.md)
         .padding(.bottom, CSSpacing.md)
+    }
+
+    private func shareCard() {
+        let text = "\(card.playerName) - \(card.setDescription)\nCurrent Price: $\(card.formattedCurrentPrice)"
+        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController { topVC = presented }
+            topVC.present(activityVC, animated: true)
+        }
     }
 
     private var addButtonTitle: String {

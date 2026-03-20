@@ -51,10 +51,7 @@ struct ScanView: View {
                     .ignoresSafeArea()
             } else {
                 LinearGradient(
-                    colors: [
-                        Color(red: 0.06, green: 0.06, blue: 0.12),
-                        Color(red: 0.03, green: 0.03, blue: 0.08),
-                    ],
+                    colors: [CSColor.surfaceSecondary, CSColor.surfacePrimary],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -79,9 +76,9 @@ struct ScanView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(CSColor.textPrimary)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 32, height: 32)
                         .background(CSColor.surfaceElevated)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(CSColor.border, lineWidth: 0.5))
@@ -106,18 +103,19 @@ struct ScanView: View {
 
                 Button {
                     showFlash.toggle()
+                    cameraManager.toggleTorch(showFlash)
                 } label: {
                     Image(systemName: showFlash ? "bolt.fill" : "bolt.slash.fill")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(showFlash ? CSColor.signalGold : CSColor.textPrimary)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 32, height: 32)
                         .background(CSColor.surfaceElevated)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(CSColor.border, lineWidth: 0.5))
                 }
             }
             .padding(.horizontal, CSSpacing.md)
-            .padding(.top, 50)
+            .padding(.top, CSSpacing.sm)
 
             Spacer()
         }
@@ -144,7 +142,7 @@ struct ScanView: View {
                     .frame(width: 230, height: 330)
             }
 
-            Text("Auto-detect · \(Text("Good lighting").foregroundStyle(CSColor.signalPrimary))")
+            Text("Position card within frame")
                 .font(CSFont.body(.medium))
                 .foregroundStyle(CSColor.textTertiary)
 
@@ -188,9 +186,9 @@ struct ScanView: View {
                     showingImagePicker = true
                 } label: {
                     Image(systemName: "photo.on.rectangle")
-                        .font(.system(size: 18))
+                        .font(.system(size: 20))
                         .foregroundStyle(CSColor.textPrimary)
-                        .frame(width: 44, height: 44)
+                        .frame(width: 48, height: 48)
                         .background(CSColor.surfaceElevated)
                         .clipShape(RoundedRectangle(cornerRadius: CSRadius.sm))
                         .overlay(
@@ -209,13 +207,10 @@ struct ScanView: View {
                         ZStack {
                             Circle()
                                 .stroke(Color.white.opacity(0.7), lineWidth: 3)
-                                .frame(width: 62, height: 62)
+                                .frame(width: 72, height: 72)
                             Circle()
                                 .fill(isAnalyzing ? Color.gray : Color.white)
-                                .frame(width: 48, height: 48)
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.black)
+                                .frame(width: 60, height: 60)
                         }
                         Text("Scan")
                             .font(.system(size: 10, weight: .semibold))
@@ -235,25 +230,21 @@ struct ScanView: View {
                     VStack(spacing: 4) {
                         ZStack {
                             Circle()
-                                .stroke(CSColor.signalPrimary.opacity(0.7), lineWidth: 3)
-                                .frame(width: 62, height: 62)
-                            Circle()
                                 .fill(isAnalyzing ? Color.gray : CSColor.signalPrimary)
                                 .frame(width: 48, height: 48)
-                                .shadow(color: CSColor.signalPrimary.opacity(0.3), radius: 10)
-                            Image(systemName: "diamond.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.black)
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 20))
+                                .foregroundStyle(CSColor.textOnPrimary)
                         }
                         HStack(spacing: 2) {
-                            Text("AI Scan")
+                            Text("AI")
                                 .font(.system(size: 10, weight: .semibold))
                             Text("PRO")
                                 .font(.system(size: 8, weight: .heavy))
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
                                 .background(CSColor.signalPrimary)
-                                .foregroundStyle(.black)
+                                .foregroundStyle(CSColor.textOnPrimary)
                                 .clipShape(RoundedRectangle(cornerRadius: 3))
                         }
                         .foregroundStyle(CSColor.signalPrimary)

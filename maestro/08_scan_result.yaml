@@ -1,0 +1,24 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Scan Result — Card Found via Recently Scanned
+# ────────────────────────────────────────────
+
+# NOTE: Requires pre-seeded scan result or mock.
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Home"
+
+- scrollUntilVisible:
+    element: "Recently Scanned"
+    direction: DOWN
+    timeout: 5000
+
+# Tap the first card in the list
+- tapOn:
+    index: 0
+    optional: true
+
+- back

@@ -1,7 +1,9 @@
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.modelContext) private var modelContext
     @State private var heroScrollOffset: CGFloat = 0
 
     var body: some View {
@@ -14,6 +16,9 @@ struct HomeView: View {
                 trendingSection
                 Spacer().frame(height: 100)
             }
+        }
+        .refreshable {
+            await appState.refreshData(context: modelContext)
         }
         .background(CSColor.surfacePrimary)
     }
@@ -35,17 +40,21 @@ struct HomeView: View {
 
             Spacer()
 
-            Circle()
-                .fill(CSColor.surfaceElevated)
-                .frame(width: 32, height: 32)
-                .overlay(
-                    Circle().stroke(CSColor.border, lineWidth: 0.5)
-                )
-                .overlay(
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 14))
-                        .foregroundStyle(CSColor.textTertiary)
-                )
+            Button {
+                appState.navigateToProfile()
+            } label: {
+                Circle()
+                    .fill(CSColor.surfaceElevated)
+                    .frame(width: 36, height: 36)
+                    .overlay(
+                        Circle().stroke(CSColor.signalPrimary, lineWidth: 1.5)
+                    )
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 15))
+                            .foregroundStyle(CSColor.textTertiary)
+                    )
+            }
         }
         .padding(.horizontal, CSSpacing.md)
         .padding(.vertical, CSSpacing.sm)
@@ -171,7 +180,7 @@ struct HomeView: View {
 
     private var recentlyScannedSection: some View {
         VStack(spacing: 0) {
-            sectionHeader(title: "Recently Scanned", action: "See All ›")
+            sectionHeader(title: "Recently Scanned", icon: "clock", action: "See All ›")
 
             ForEach(appState.recentScans.prefix(4)) { card in
                 Button {
@@ -187,7 +196,7 @@ struct HomeView: View {
 
     private var trendingSection: some View {
         VStack(spacing: 0) {
-            sectionHeader(title: "Trending", action: "More ›")
+            sectionHeader(title: "Trending", icon: "arrow.up.right", action: "More ›")
                 .padding(.top, CSSpacing.md)
 
             ForEach(appState.trendingCards.prefix(3)) { card in
@@ -202,10 +211,17 @@ struct HomeView: View {
         }
     }
 
-    private func sectionHeader(title: String, action: String) -> some View {
+    private func sectionHeader(title: String, icon: String? = nil, action: String) -> some View {
         HStack {
-            Text(title)
-                .font(CSFont.headline(.semibold))
+            HStack(spacing: 6) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 14))
+                        .foregroundStyle(CSColor.signalPrimary)
+                }
+                Text(title)
+                    .font(CSFont.headline(.semibold))
+            }
             Spacer()
             Text(action)
                 .font(CSFont.caption(.medium))
@@ -216,10 +232,9 @@ struct HomeView: View {
     }
 
     private func formattedValue(_ value: Int) -> String {
-        if value >= 1000 {
-            return String(format: "%.1fK", Double(value) / 1000.0)
-        }
-        return "\(value)"
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 }
 
@@ -250,7 +265,7 @@ struct CardListItem: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text("$\(card.currentPrice)")
+                Text("$\(card.formattedCurrentPrice)")
                     .font(CSFont.body(.bold))
                     .monospacedDigit()
                     .foregroundStyle(card.priceChange >= 0 ? CSColor.signalPrimary : CSColor.signalWarm)

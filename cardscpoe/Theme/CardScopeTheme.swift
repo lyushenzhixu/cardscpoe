@@ -14,6 +14,7 @@ enum CSColor {
     static let textPrimary = Color.white.opacity(0.95)
     static let textSecondary = Color.white.opacity(0.6)
     static let textTertiary = Color.white.opacity(0.4)
+    static let textOnPrimary = Color.black
 
     static let border = Color.white.opacity(0.06)
     static let borderSubtle = Color.white.opacity(0.04)

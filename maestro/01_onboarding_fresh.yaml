@@ -1,0 +1,33 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Onboarding — Fresh Launch Complete Flow
+# ────────────────────────────────────────────
+
+- launchApp:
+    clearState: true
+
+# Step 1: Scan intro
+- assertVisible: "Continue"
+- tapOn: "Continue"
+
+# Step 2: Value intro
+- assertVisible: "Get Started"
+- tapOn: "Get Started"
+
+# Step 3: Paywall
+- assertVisible: "Unlock CardScope Pro"
+
+# Scroll down to CTA and tap
+- scrollUntilVisible:
+    element: "Start 3-Day Free Trial"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "Start 3-Day Free Trial"
+
+# Should land on MainTabView
+- assertVisible: "Home"
+- assertVisible: "Explore"
+- assertVisible: "Collection"
+- assertVisible: "Profile"

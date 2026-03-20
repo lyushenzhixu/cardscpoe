@@ -1,0 +1,37 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Explore View — Search & Browse
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Explore"
+
+# Search bar interaction
+- tapOn:
+    text: "Search"
+    optional: true
+
+- inputText: "LeBron"
+- waitForAnimationToEnd
+
+# Verify search results appear
+- assertVisible:
+    text: "LeBron"
+    optional: true
+
+# Clear search
+- eraseText: 6
+
+# Trending players section
+- assertVisible:
+    text: "Trending Players"
+    optional: true
+
+# Popular series section
+- scrollUntilVisible:
+    element: "Popular Series"
+    direction: DOWN
+    optional: true

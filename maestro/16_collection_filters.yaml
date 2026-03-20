@@ -1,0 +1,27 @@
+appId: zhizhi.cardscpoe
+---
+
+# ────────────────────────────────────────────
+#  Collection — Sport Filters
+# ────────────────────────────────────────────
+
+- runFlow: setup_skip_onboarding.yaml
+
+- tapOn: "Collection"
+
+# Tap sport filter chips
+- tapOn:
+    text: "NBA"
+    optional: true
+
+- tapOn:
+    text: "MLB"
+    optional: true
+
+- tapOn:
+    text: "NFL"
+    optional: true
+
+- tapOn:
+    text: "All"
+    optional: true

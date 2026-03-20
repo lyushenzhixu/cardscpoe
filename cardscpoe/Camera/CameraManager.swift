@@ -64,6 +64,20 @@ final class CameraManager: NSObject, ObservableObject {
         }
     }
 
+    func toggleTorch(_ on: Bool) {
+        guard let device = AVCaptureDevice.default(for: .video),
+              device.hasTorch else { return }
+        do {
+            try device.lockForConfiguration()
+            device.torchMode = on ? .on : .off
+            device.unlockForConfiguration()
+        } catch {
+            #if DEBUG
+            print("[CameraManager] Torch toggle failed: \(error)")
+            #endif
+        }
+    }
+
     func capturePhoto() async throws -> UIImage {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
