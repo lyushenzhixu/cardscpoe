@@ -121,27 +121,45 @@ jobs:
         if: env.APPETIZE_API_TOKEN != ''
         env:
           APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+          APPETIZE_APP_PUBLIC_KEY: ${{ vars.APPETIZE_APP_PUBLIC_KEY }}
         run: |
-          echo "Uploading to Appetize.io..."
-          RESPONSE=$(curl -s -X POST \
-            "https://api.appetize.io/v2/apps" \
-            -H "Authorization: Bearer $APPETIZE_API_TOKEN" \
-            -F "file=@cardscope-preview.zip" \
-            -F "platform=ios" \
-            -F "note=CardScope Preview - $(git rev-parse --short HEAD)")
+          if [ -n "$APPETIZE_APP_PUBLIC_KEY" ]; then
+            # Update existing app (keeps the same URL)
+            echo "Updating existing Appetize app: $APPETIZE_APP_PUBLIC_KEY"
+            RESPONSE=$(curl -s -X POST \
+              "https://api.appetize.io/v2/apps/$APPETIZE_APP_PUBLIC_KEY" \
+              -H "Authorization: Bearer $APPETIZE_API_TOKEN" \
+              -F "file=@cardscope-preview.zip" \
+              -F "platform=ios" \
+              -F "note=CardScope Preview - $(git rev-parse --short HEAD)")
+            PUBLIC_KEY="$APPETIZE_APP_PUBLIC_KEY"
+          else
+            # Create new app on first run
+            echo "Creating new Appetize app..."
+            RESPONSE=$(curl -s -X POST \
+              "https://api.appetize.io/v2/apps" \
+              -H "Authorization: Bearer $APPETIZE_API_TOKEN" \
+              -F "file=@cardscope-preview.zip" \
+              -F "platform=ios" \
+              -F "note=CardScope Preview - $(git rev-parse --short HEAD)")
+            PUBLIC_KEY=$(echo "$RESPONSE" | jq -r '.publicKey // empty')
+          fi
 
-          # Extract the public URL
-          PUBLIC_KEY=$(echo "$RESPONSE" | jq -r '.publicKey // empty')
           if [ -n "$PUBLIC_KEY" ]; then
             APP_URL="https://appetize.io/app/$PUBLIC_KEY"
-            echo "## 📱 Preview Ready!" >> "$GITHUB_STEP_SUMMARY"
+            echo "## Preview Ready" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "**[Open in Appetize.io]($APP_URL)**" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "Commit: \`$(git rev-parse --short HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            if [ -z "$APPETIZE_APP_PUBLIC_KEY" ]; then
+              echo "> **First run:** Save this public key as repo variable \`APPETIZE_APP_PUBLIC_KEY\`: \`$PUBLIC_KEY\`" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+            fi
           else
             echo "Appetize response: $RESPONSE"
-            echo "## ⚠️ Appetize upload issue" >> "$GITHUB_STEP_SUMMARY"
+            echo "## Appetize upload issue" >> "$GITHUB_STEP_SUMMARY"
             echo "Check the logs for details." >> "$GITHUB_STEP_SUMMARY"
           fi
 
@@ -151,15 +169,11 @@ jobs:
         env:
           APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
         run: |
-          echo "## 📱 Preview Build Ready" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Preview Build Ready" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "The simulator \`.app\` has been built and uploaded as an artifact." >> "$GITHUB_STEP_SUMMARY"
+          echo "The simulator .app has been built and uploaded as an artifact." >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "### To preview on Appetize.io:" >> "$GITHUB_STEP_SUMMARY"
-          echo "1. Download the **cardscope-simulator-build** artifact from this run" >> "$GITHUB_STEP_SUMMARY"
-          echo "2. Go to [appetize.io/demo](https://appetize.io/demo)" >> "$GITHUB_STEP_SUMMARY"
-          echo "3. Upload the \`cardscope-preview.zip\` file" >> "$GITHUB_STEP_SUMMARY"
-          echo "4. Interact with the app in your browser!" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "### To enable automatic upload:" >> "$GITHUB_STEP_SUMMARY"
-          echo "Add \`APPETIZE_API_TOKEN\` to your repo secrets." >> "$GITHUB_STEP_SUMMARY"
+          echo "### To enable automatic Appetize upload:" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. Get your API token from [appetize.io](https://appetize.io) Organization Settings" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. Add secret \`APPETIZE_API_TOKEN\` to this repo" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. After first run, save the public key as variable \`APPETIZE_APP_PUBLIC_KEY\`" >> "$GITHUB_STEP_SUMMARY"
