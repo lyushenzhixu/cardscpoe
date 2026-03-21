@@ -49,10 +49,16 @@ jobs:
         run: |
           sudo xcode-select -p
           xcodebuild -version
+          xcrun simctl list runtimes
+
+      # --- List schemes ---
+      - name: List schemes
+        run: xcodebuild -project cardscpoe.xcodeproj -list
 
       # --- Build for Simulator ---
       - name: Build for Simulator
         run: |
+          set -o pipefail
           xcodebuild build \
             -project cardscpoe.xcodeproj \
             -scheme "$SCHEME" \
@@ -61,7 +67,15 @@ jobs:
             -derivedDataPath build \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee build.log | tail -100
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
 
       # --- Locate and package the .app ---
       - name: Package .app
