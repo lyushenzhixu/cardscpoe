@@ -62,8 +62,11 @@ final class SupabaseClient {
         order: String? = nil,
         limit: Int? = nil
     ) async throws -> [T] {
+        guard let url = restURL(path: "rest/v1/\(table)") else {
+            throw NetworkError.invalidURL
+        }
         guard var components = URLComponents(
-            url: restURL(path: "rest/v1/\(table)"),
+            url: url,
             resolvingAgainstBaseURL: false
         ) else {
             throw NetworkError.invalidURL
@@ -100,8 +103,11 @@ final class SupabaseClient {
         columns: String = "*",
         limit: Int? = nil
     ) async throws -> Data {
+        guard let url = restURL(path: "rest/v1/\(table)") else {
+            throw NetworkError.invalidURL
+        }
         guard var components = URLComponents(
-            url: restURL(path: "rest/v1/\(table)"),
+            url: url,
             resolvingAgainstBaseURL: false
         ) else { throw NetworkError.invalidURL }
         var items = [URLQueryItem(name: "select", value: columns)]
@@ -113,7 +119,9 @@ final class SupabaseClient {
     }
 
     func upsert<T: Encodable>(table: String, payload: [T]) async throws {
-        let url = restURL(path: "rest/v1/\(table)")
+        guard let url = restURL(path: "rest/v1/\(table)") else {
+            throw NetworkError.invalidURL
+        }
         var headers = defaultHeaders
         headers["Prefer"] = "resolution=merge-duplicates,return=minimal"
 
@@ -127,7 +135,9 @@ final class SupabaseClient {
     }
 
     func insert<T: Encodable>(table: String, payload: T) async throws {
-        let url = restURL(path: "rest/v1/\(table)")
+        guard let url = restURL(path: "rest/v1/\(table)") else {
+            throw NetworkError.invalidURL
+        }
         var headers = defaultHeaders
         headers["Prefer"] = "return=minimal"
         let body = try network.encode([payload])
@@ -139,7 +149,9 @@ final class SupabaseClient {
         _ functionName: String,
         body: Body
     ) async throws -> T {
-        let url = restURL(path: "functions/v1/\(functionName)")
+        guard let url = restURL(path: "functions/v1/\(functionName)") else {
+            throw NetworkError.invalidURL
+        }
         let request = NetworkRequest(
             url: url,
             method: "POST",
@@ -149,10 +161,8 @@ final class SupabaseClient {
         return try await network.request(request)
     }
 
-    private func restURL(path: String) -> URL {
-        guard let baseURL else {
-            fatalError("Supabase is not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in Info.plist build settings.")
-        }
+    private func restURL(path: String) -> URL? {
+        guard let baseURL else { return nil }
         return baseURL.appendingPathComponent(path)
     }
 }

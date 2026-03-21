@@ -59,9 +59,10 @@ jobs:
       - name: Fix Info.plist conflict
         run: |
           # Xcode 16.4's PBXFileSystemSynchronizedRootGroup auto-copies Info.plist
-          # to bundle resources, conflicting with INFOPLIST_FILE processing.
-          # Move Info.plist out of the synced folder so it's only processed once.
-          mv cardscpoe/Info.plist Info.plist.bak
+          # from cardscpoe/ into bundle resources, conflicting with INFOPLIST_FILE.
+          # Copy Info.plist to project root (outside synced folder) and override path.
+          cp cardscpoe/Info.plist Info.plist.ci
+          rm cardscpoe/Info.plist
 
       # --- Build for Simulator ---
       - name: Build for Simulator
@@ -76,8 +77,7 @@ jobs:
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            GENERATE_INFOPLIST_FILE=YES \
-            INFOPLIST_FILE= \
+            INFOPLIST_FILE=Info.plist.ci \
             2>&1 | tee build.log | tail -100
 
       - name: Upload build log on failure
