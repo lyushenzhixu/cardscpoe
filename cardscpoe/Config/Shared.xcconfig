@@ -1,0 +1,10 @@
+// 已提交到 Git。本地/CI 通过同目录下 Secrets.xcconfig（gitignore）覆盖下列占位值。
+// 复制 Secrets.xcconfig.example 为 Secrets.xcconfig 并填写。
+
+INFOPLIST_KEY_SUPABASE_URL =
+INFOPLIST_KEY_SUPABASE_ANON_KEY =
+INFOPLIST_KEY_PRICECHARTING_API_KEY =
+INFOPLIST_KEY_BALLDONTLIE_API_KEY =
+INFOPLIST_KEY_SPORTSDB_API_KEY = 1
+
+#include? "Secrets.xcconfig"
