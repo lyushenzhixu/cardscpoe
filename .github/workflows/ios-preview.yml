@@ -17,7 +17,7 @@ on:
 
 env:
   SCHEME: cardscpoe
-  SIMULATOR: 'platform=iOS Simulator,name=iPhone 16,OS=latest'
+  SIMULATOR: 'platform=iOS Simulator,name=iPhone 16,OS=18.2'
 
 jobs:
   build-and-preview:
