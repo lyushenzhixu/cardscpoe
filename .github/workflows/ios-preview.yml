@@ -1,0 +1,126 @@
+name: iOS Preview Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cardscpoe/**'
+      - '*.xcodeproj/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'cardscpoe/**'
+      - '*.xcodeproj/**'
+  workflow_dispatch:
+
+env:
+  SCHEME: cardscpoe
+  SIMULATOR: 'platform=iOS Simulator,name=iPhone 16,OS=latest'
+
+jobs:
+  build-and-preview:
+    name: Build & Upload Preview
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- Generate Secrets.xcconfig from GitHub Secrets ---
+      - name: Generate Secrets.xcconfig
+        run: |
+          {
+            echo "INFOPLIST_KEY_SUPABASE_URL = ${{ secrets.SUPABASE_URL }}"
+            echo "INFOPLIST_KEY_SUPABASE_ANON_KEY = ${{ secrets.SUPABASE_ANON_KEY }}"
+            echo "INFOPLIST_KEY_PRICECHARTING_API_KEY = ${{ secrets.PRICECHARTING_API_KEY }}"
+            echo "INFOPLIST_KEY_BALLDONTLIE_API_KEY = ${{ secrets.BALLDONTLIE_API_KEY }}"
+            echo "INFOPLIST_KEY_SPORTSDB_API_KEY = ${{ secrets.SPORTSDB_API_KEY }}"
+          } > cardscpoe/Config/Secrets.xcconfig
+
+      # --- List available simulators for debugging ---
+      - name: List available simulators
+        run: xcrun simctl list devices available | head -30
+
+      # --- Build for Simulator ---
+      - name: Build for Simulator
+        run: |
+          xcodebuild build \
+            -project cardscpoe.xcodeproj \
+            -scheme "$SCHEME" \
+            -destination "$SIMULATOR" \
+            -configuration Debug \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify || true
+
+      # --- Locate and package the .app ---
+      - name: Package .app
+        id: package
+        run: |
+          APP_PATH=$(find build/Build/Products/Debug-iphonesimulator -name "*.app" -type d | head -1)
+          echo "Found app at: $APP_PATH"
+
+          # Zip the .app for Appetize.io upload
+          cd "$(dirname "$APP_PATH")"
+          zip -r "$GITHUB_WORKSPACE/cardscope-preview.zip" "$(basename "$APP_PATH")"
+
+          echo "zip_path=$GITHUB_WORKSPACE/cardscope-preview.zip" >> "$GITHUB_OUTPUT"
+
+      # --- Upload as GitHub Artifact (always available) ---
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cardscope-simulator-build
+          path: cardscope-preview.zip
+          retention-days: 14
+
+      # --- Upload to Appetize.io (if token configured) ---
+      - name: Upload to Appetize.io
+        if: env.APPETIZE_API_TOKEN != ''
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+        run: |
+          echo "Uploading to Appetize.io..."
+          RESPONSE=$(curl -s -X POST \
+            "https://api.appetize.io/v2/apps" \
+            -H "Authorization: Bearer $APPETIZE_API_TOKEN" \
+            -F "file=@cardscope-preview.zip" \
+            -F "platform=ios" \
+            -F "note=CardScope Preview - $(git rev-parse --short HEAD)")
+
+          # Extract the public URL
+          PUBLIC_KEY=$(echo "$RESPONSE" | jq -r '.publicKey // empty')
+          if [ -n "$PUBLIC_KEY" ]; then
+            APP_URL="https://appetize.io/app/$PUBLIC_KEY"
+            echo "## 📱 Preview Ready!" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**[Open in Appetize.io]($APP_URL)**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Commit: \`$(git rev-parse --short HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Appetize response: $RESPONSE"
+            echo "## ⚠️ Appetize upload issue" >> "$GITHUB_STEP_SUMMARY"
+            echo "Check the logs for details." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # --- If no Appetize token, show manual instructions ---
+      - name: Preview Instructions
+        if: env.APPETIZE_API_TOKEN == ''
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+        run: |
+          echo "## 📱 Preview Build Ready" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The simulator \`.app\` has been built and uploaded as an artifact." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### To preview on Appetize.io:" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. Download the **cardscope-simulator-build** artifact from this run" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. Go to [appetize.io/demo](https://appetize.io/demo)" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. Upload the \`cardscope-preview.zip\` file" >> "$GITHUB_STEP_SUMMARY"
+          echo "4. Interact with the app in your browser!" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### To enable automatic upload:" >> "$GITHUB_STEP_SUMMARY"
+          echo "Add \`APPETIZE_API_TOKEN\` to your repo secrets." >> "$GITHUB_STEP_SUMMARY"
