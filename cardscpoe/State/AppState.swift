@@ -85,9 +85,11 @@ final class AppState {
             #endif
         } catch {
             errors.append("Trending players: \(error.localizedDescription)")
-            trendingPlayers = []
+            trendingPlayers = MockData.allCards.map {
+                Player(name: $0.playerName, sport: $0.sport, team: $0.team, position: $0.position)
+            }
             #if DEBUG
-            print("[AppState] fetchTrendingPlayers failed: \(error)")
+            print("[AppState] fetchTrendingPlayers failed, using mock: \(error)")
             #endif
         }
 
@@ -98,9 +100,11 @@ final class AppState {
             #endif
         } catch {
             errors.append("Popular series: \(error.localizedDescription)")
-            popularSeries = []
+            popularSeries = MockData.allCards.map {
+                PopularSeries(brand: $0.brand, setName: $0.setName, year: $0.year, cardCount: 1)
+            }
             #if DEBUG
-            print("[AppState] fetchPopularSeries failed: \(error)")
+            print("[AppState] fetchPopularSeries failed, using mock: \(error)")
             #endif
         }
 

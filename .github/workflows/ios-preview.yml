@@ -72,7 +72,7 @@ jobs:
             -project cardscpoe.xcodeproj \
             -scheme "$SCHEME" \
             -destination "$SIMULATOR" \
-            -configuration Debug \
+            -configuration Release \
             -derivedDataPath build \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
