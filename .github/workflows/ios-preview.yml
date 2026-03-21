@@ -6,11 +6,13 @@ on:
     paths:
       - 'cardscpoe/**'
       - '*.xcodeproj/**'
+      - '.github/workflows/**'
   pull_request:
     branches: [main]
     paths:
       - 'cardscpoe/**'
       - '*.xcodeproj/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 env:
