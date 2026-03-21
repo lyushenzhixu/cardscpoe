@@ -68,6 +68,7 @@ jobs:
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            GENERATE_INFOPLIST_FILE=YES \
             2>&1 | tee build.log | tail -100
 
       - name: Upload build log on failure
