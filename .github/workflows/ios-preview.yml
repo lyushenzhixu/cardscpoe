@@ -55,6 +55,14 @@ jobs:
       - name: List schemes
         run: xcodebuild -project cardscpoe.xcodeproj -list
 
+      # --- Fix Info.plist duplicate copy issue for Xcode 16.x ---
+      - name: Fix Info.plist conflict
+        run: |
+          # Xcode 16.4's PBXFileSystemSynchronizedRootGroup auto-copies Info.plist
+          # to bundle resources, conflicting with INFOPLIST_FILE processing.
+          # Move Info.plist out of the synced folder so it's only processed once.
+          mv cardscpoe/Info.plist Info.plist.bak
+
       # --- Build for Simulator ---
       - name: Build for Simulator
         run: |
@@ -69,6 +77,7 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             GENERATE_INFOPLIST_FILE=YES \
+            INFOPLIST_FILE= \
             2>&1 | tee build.log | tail -100
 
       - name: Upload build log on failure
