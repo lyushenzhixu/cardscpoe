@@ -42,6 +42,12 @@ jobs:
       - name: List available simulators
         run: xcrun simctl list devices available | head -30
 
+      # --- Select latest Xcode ---
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -p
+          xcodebuild -version
+
       # --- Build for Simulator ---
       - name: Build for Simulator
         run: |
@@ -53,14 +59,21 @@ jobs:
             -derivedDataPath build \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            | xcbeautify || true
+            CODE_SIGNING_ALLOWED=NO
 
       # --- Locate and package the .app ---
       - name: Package .app
         id: package
         run: |
-          APP_PATH=$(find build/Build/Products/Debug-iphonesimulator -name "*.app" -type d | head -1)
+          echo "Searching for .app in build directory..."
+          find build -name "*.app" -type d 2>/dev/null
+
+          APP_PATH=$(find build -name "*.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app found in build directory"
+            find build/Build/Products -type d -maxdepth 2 2>/dev/null || true
+            exit 1
+          fi
           echo "Found app at: $APP_PATH"
 
           # Zip the .app for Appetize.io upload
