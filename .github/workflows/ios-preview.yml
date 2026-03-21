@@ -126,23 +126,30 @@ jobs:
           if [ -n "$APPETIZE_APP_PUBLIC_KEY" ]; then
             # Update existing app (keeps the same URL)
             echo "Updating existing Appetize app: $APPETIZE_APP_PUBLIC_KEY"
-            RESPONSE=$(curl -s -X POST \
-              "https://api.appetize.io/v2/apps/$APPETIZE_APP_PUBLIC_KEY" \
-              -H "Authorization: Bearer $APPETIZE_API_TOKEN" \
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+              "https://api.appetize.io/v1/apps/$APPETIZE_APP_PUBLIC_KEY" \
+              -H "X-API-KEY: $APPETIZE_API_TOKEN" \
               -F "file=@cardscope-preview.zip" \
               -F "platform=ios" \
               -F "note=CardScope Preview - $(git rev-parse --short HEAD)")
+            HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            echo "HTTP status: $HTTP_CODE"
             PUBLIC_KEY="$APPETIZE_APP_PUBLIC_KEY"
           else
             # Create new app on first run
             echo "Creating new Appetize app..."
-            RESPONSE=$(curl -s -X POST \
-              "https://api.appetize.io/v2/apps" \
-              -H "Authorization: Bearer $APPETIZE_API_TOKEN" \
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+              "https://api.appetize.io/v1/apps" \
+              -H "X-API-KEY: $APPETIZE_API_TOKEN" \
               -F "file=@cardscope-preview.zip" \
               -F "platform=ios" \
               -F "note=CardScope Preview - $(git rev-parse --short HEAD)")
-            PUBLIC_KEY=$(echo "$RESPONSE" | jq -r '.publicKey // empty')
+            HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            echo "HTTP status: $HTTP_CODE"
+            echo "Response: $BODY"
+            PUBLIC_KEY=$(echo "$BODY" | jq -r '.publicKey // empty')
           fi
 
           if [ -n "$PUBLIC_KEY" ]; then
@@ -158,8 +165,8 @@ jobs:
               echo "" >> "$GITHUB_STEP_SUMMARY"
             fi
           else
-            echo "Appetize response: $RESPONSE"
-            echo "## Appetize upload issue" >> "$GITHUB_STEP_SUMMARY"
+            echo "Appetize response: $BODY"
+            echo "## Appetize upload issue (HTTP $HTTP_CODE)" >> "$GITHUB_STEP_SUMMARY"
             echo "Check the logs for details." >> "$GITHUB_STEP_SUMMARY"
           fi
 
